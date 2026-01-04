@@ -15,9 +15,7 @@ export const deleteProductsHandler = async ({
   user: any;
   body: Array<{ id: string }>;
   set: any;
-}): Promise<
-  { success: true; deletedCount: number } | { error: string; message?: string }
-> => {
+}): Promise<{ success: true; deletedCount: number } | { error: string; message?: string }> => {
   if (!user) {
     set.status = 401;
     return { error: "Unauthorized" };

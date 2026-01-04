@@ -1,12 +1,5 @@
 import { relations, sql } from "drizzle-orm";
-import {
-  pgTable,
-  text,
-  timestamp,
-  boolean,
-  integer,
-  index,
-} from "drizzle-orm/pg-core";
+import { pgTable, text, timestamp, boolean, integer, index } from "drizzle-orm/pg-core";
 
 export const user = pgTable("user", {
   id: text("id").primaryKey(),
@@ -107,16 +100,15 @@ export const apikey = pgTable(
     permissions: text("permissions"),
     metadata: text("metadata"),
   },
-  (table) => [
-    index("apikey_key_idx").on(table.key),
-    index("apikey_userId_idx").on(table.userId),
-  ],
+  (table) => [index("apikey_key_idx").on(table.key), index("apikey_userId_idx").on(table.userId)],
 );
 
 export const product = pgTable(
   "product",
   {
-    id: text("id").primaryKey().default(sql`gen_random_uuid()`),
+    id: text("id")
+      .primaryKey()
+      .default(sql`gen_random_uuid()`),
     userId: text("user_id")
       .notNull()
       .references(() => user.id, { onDelete: "cascade" }),
@@ -133,10 +125,7 @@ export const product = pgTable(
       .$onUpdate(() => /* @__PURE__ */ new Date())
       .notNull(),
   },
-  (table) => [
-    index("product_userId_idx").on(table.userId),
-    index("product_expiresAt_idx").on(table.expiresAt),
-  ],
+  (table) => [index("product_userId_idx").on(table.userId), index("product_expiresAt_idx").on(table.expiresAt)],
 );
 
 export const userRelations = relations(user, ({ many }) => ({

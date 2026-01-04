@@ -8,18 +8,20 @@ import { expo } from "@better-auth/expo";
 export const auth = betterAuth({
   database: drizzleAdapter(db, {
     provider: "pg",
-    schema: schema
+    schema: schema,
   }),
   emailAndPassword: {
     enabled: true,
   },
   plugins: [expo(), openAPI(), apiKey()],
   trustedOrigins: [
-        "fridge://",
-        
-        // Development mode - Expo's exp:// scheme with local IP ranges
-        ...(process.env.NODE_ENV === "development" ? [
-            "exp://",                      // Trust all Expo URLs (prefix matching)
-        ] : [])
-    ]
+    "fridge://",
+
+    // Development mode - Expo's exp:// scheme with local IP ranges
+    ...(process.env.NODE_ENV === "development"
+      ? [
+          "exp://", // Trust all Expo URLs (prefix matching)
+        ]
+      : []),
+  ],
 });

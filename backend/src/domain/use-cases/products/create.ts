@@ -2,10 +2,15 @@ import { db } from "@/infrastructure/database";
 import { product } from "@/infrastructure/database/schema";
 import type { Product } from "@/domain/entity/product";
 
-
-export const createProductsHandler = async (
-  { user, body, set }: { user: any; body: Omit<Product, "id" | "userId" | "createdAt" | "updatedAt">[]; set: any }
-): Promise<{ success: true; data: Product[] } | { error: string; message?: string }> => {
+export const createProductsHandler = async ({
+  user,
+  body,
+  set,
+}: {
+  user: any;
+  body: Omit<Product, "id" | "userId" | "createdAt" | "updatedAt">[];
+  set: any;
+}): Promise<{ success: true; data: Product[] } | { error: string; message?: string }> => {
   if (!user) {
     set.status = 401;
     return { error: "Unauthorized" };
@@ -24,7 +29,7 @@ export const createProductsHandler = async (
           expiresAt: p.expiresAt ? new Date(p.expiresAt) : null,
           openedAt: p.openedAt ? new Date(p.openedAt) : null,
           category: p.category,
-        }))
+        })),
       )
       .returning();
 
@@ -42,4 +47,3 @@ export const createProductsHandler = async (
     };
   }
 };
-

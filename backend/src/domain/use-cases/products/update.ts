@@ -17,9 +17,7 @@ export const updateProductsHandler = async ({
   user: any;
   body: Array<{ id: string; quantity: number }>;
   set: any;
-}): Promise<
-  { success: true; data: Product[] } | { error: string; message?: string }
-> => {
+}): Promise<{ success: true; data: Product[] } | { error: string; message?: string }> => {
   if (!user) {
     set.status = 401;
     return { error: "Unauthorized" };
@@ -57,7 +55,7 @@ export const updateProductsHandler = async ({
                 const qtyChange = quantityMap.get(id)!;
                 return sql`WHEN ${product.id} = ${id} THEN ${product.quantity} + ${qtyChange}`;
               }),
-              sql` `
+              sql` `,
             )}
             ELSE ${product.quantity}
           END
