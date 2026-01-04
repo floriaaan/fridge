@@ -1,4 +1,4 @@
-import { relations } from "drizzle-orm";
+import { relations, sql } from "drizzle-orm";
 import {
   pgTable,
   text,
@@ -113,6 +113,32 @@ export const apikey = pgTable(
   ],
 );
 
+export const product = pgTable(
+  "product",
+  {
+    id: text("id").primaryKey().default(sql`gen_random_uuid()`),
+    userId: text("user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    name: text("name").notNull(),
+    quantity: integer("quantity").notNull(),
+    unit: text("unit").notNull(), // g, ml, piece
+    location: text("location").notNull(), // fridge, freezer, pantry
+    expiresAt: timestamp("expires_at"),
+    openedAt: timestamp("opened_at"),
+    category: text("category").notNull(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at")
+      .defaultNow()
+      .$onUpdate(() => /* @__PURE__ */ new Date())
+      .notNull(),
+  },
+  (table) => [
+    index("product_userId_idx").on(table.userId),
+    index("product_expiresAt_idx").on(table.expiresAt),
+  ],
+);
+
 export const userRelations = relations(user, ({ many }) => ({
   sessions: many(session),
   accounts: many(account),
@@ -140,10 +166,18 @@ export const apikeyRelations = relations(apikey, ({ one }) => ({
   }),
 }));
 
+export const productRelations = relations(product, ({ one }) => ({
+  user: one(user, {
+    fields: [product.userId],
+    references: [user.id],
+  }),
+}));
+
 export const schema = {
   user,
   session,
   account,
   verification,
   apikey,
+  product,
 };

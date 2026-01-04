@@ -8,6 +8,20 @@
       "when": 1767444756098,
       "tag": "0000_nebulous_santa_claus",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1767562000135,
+      "tag": "0001_bizarre_deathbird",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1767562343473,
+      "tag": "0002_careful_sphinx",
+      "breakpoints": true
     }
   ]
 }
