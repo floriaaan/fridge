@@ -5,14 +5,19 @@ import { ShoppingItem } from "@/domain/entity/shopping-item";
 
 export const updateShoppingItem = async (
   userId: string,
-  id: string,
-  updates: Partial<ShoppingItem>,
+  updates: Partial<ShoppingItem>[],
 ) => {
-  const [updated] = await db
-    .update(shoppingItem)
-    .set(updates)
-    .where(and(eq(shoppingItem.id, id), eq(shoppingItem.userId, userId)))
-    .returning();
+  const promises = updates.map((update) => {
+    if (!update.id) {
+      throw new Error("Update object must have an id.");
+    }
+    return db
+      .update(shoppingItem)
+      .set(update)
+      .where(and(eq(shoppingItem.id, update.id), eq(shoppingItem.userId, userId)))
+      .returning();
+  });
 
-  return updated;
+  const results = await Promise.all(promises);
+  return results.flat().filter((r) => r !== null);
 };

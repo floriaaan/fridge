@@ -1,9 +1,9 @@
 import { db } from "@/infrastructure/database";
-import { and, eq } from "drizzle-orm";
+import { and, eq, inArray } from "drizzle-orm";
 import { shoppingItem } from "@/infrastructure/database/schema";
 
-export const deleteShoppingItem = async (userId: string, id: string) => {
+export const deleteShoppingItem = async (userId: string, ids: string[]) => {
   await db
     .delete(shoppingItem)
-    .where(and(eq(shoppingItem.id, id), eq(shoppingItem.userId, userId)));
+    .where(and(eq(shoppingItem.userId, userId), inArray(shoppingItem.id, ids)));
 };

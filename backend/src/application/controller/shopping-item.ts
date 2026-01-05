@@ -15,18 +15,13 @@ export const shoppingItemController = new Elysia({
 })
   .use(auth)
   .get("/", async ({ user }) => {
-    if (!user) {
-      throw new Error("User not found");
-    }
-    return await getShoppingItems(user.id);
+    const items = await getShoppingItems(user!.id);
+    return { success: true, data: items };
   })
   .get(
     "/:id",
     async ({ user, params }) => {
-      if (!user) {
-        throw new Error("User not found");
-      }
-      return await getShoppingItem(user.id, params.id);
+      return await getShoppingItem(user!.id, params.id);
     },
     {
       params: t.Object({
@@ -37,10 +32,7 @@ export const shoppingItemController = new Elysia({
   .post(
     "/",
     async ({ user, body }) => {
-      if (!user) {
-        throw new Error("User not found");
-      }
-      return await createShoppingItem(user.id, body);
+      return await createShoppingItem(user!.id, body);
     },
     {
       body: t.Object({
@@ -59,34 +51,24 @@ export const shoppingItemController = new Elysia({
     },
   )
   .put(
-    "/:id",
-    async ({ user, params, body }) => {
-      if (!user) {
-        throw new Error("User not found");
-      }
-      return await updateShoppingItem(user.id, params.id, body);
+    "/",
+    async ({ user, body }) => {
+      return await updateShoppingItem(user!.id, body);
     },
     {
-      params: t.Object({
-        id: t.String(),
-      }),
-      body: t.Partial(shoppingItemSchema),
+      body: t.Array(t.Partial(shoppingItemSchema)),
     },
   )
   .delete(
-    "/:id",
-    async ({ user, params }) => {
-      if (!user) {
-        throw new Error("User not found");
-      }
-      await deleteShoppingItem(user.id, params.id);
+    "/",
+    async ({ user, body }) => {
+      const ids = body.map((item: { id: string }) => item.id);
+      await deleteShoppingItem(user!.id, ids);
       return {
         status: "ok",
       };
     },
     {
-      params: t.Object({
-        id: t.String(),
-      }),
+      body: t.Array(t.Object({ id: t.String() })),
     },
   );
