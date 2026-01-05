@@ -4,9 +4,10 @@ import { product } from "@/infrastructure/database/schema";
 import type { Product } from "@/domain/entity/product";
 import { and, eq, inArray, sql } from "drizzle-orm";
 
-export const updateProductQuantitySchema = t.Object({
+export const updateProductSchema = t.Object({
   id: t.String(),
-  quantity: t.Integer(), // Can be positive or negative
+  name: t.Optional(t.String()),
+  quantity: t.Optional(t.Integer()),
 });
 
 export const updateProductsHandler = async ({
@@ -15,7 +16,7 @@ export const updateProductsHandler = async ({
   set,
 }: {
   user: any;
-  body: Array<{ id: string; quantity: number }>;
+  body: Array<{ id: string; name?: string; quantity?: number }>;
   set: any;
 }): Promise<{ success: true; data: Product[] } | { error: string; message?: string }> => {
   if (!user) {
@@ -41,27 +42,56 @@ export const updateProductsHandler = async ({
       return { error: "Some products do not belong to the user" };
     }
 
-    // Create a map of id -> quantity change
-    const quantityMap = new Map(body.map((p) => [p.id, p.quantity]));
+    const quantityMap = new Map(body.filter(p => p.quantity !== undefined).map((p) => [p.id, p.quantity!]));
+    const nameMap = new Map(body.filter(p => p.name !== undefined).map((p) => [p.id, p.name!]));
 
-    // Update all products in a single query using CASE
-    const updatedProducts = await db
-      .update(product)
-      .set({
-        quantity: sql`
+    const productsToUpdateQuantity = body.filter(p => p.quantity !== undefined).map(p => p.id);
+    const productsToUpdateName = body.filter(p => p.name !== undefined).map(p => p.id);
+
+    const setData: { name?: any; quantity?: any; updatedAt: Date } = {
+        updatedAt: new Date(),
+    };
+
+    if (productsToUpdateQuantity.length > 0) {
+        setData.quantity = sql`
           CASE 
             ${sql.join(
-              productIds.map((id) => {
-                const qtyChange = quantityMap.get(id)!;
-                return sql`WHEN ${product.id} = ${id} THEN ${product.quantity} + ${qtyChange}`;
+              productsToUpdateQuantity.map((id) => {
+                const newQty = quantityMap.get(id)!;
+                return sql`WHEN ${product.id} = ${id} THEN ${newQty}`;
               }),
               sql` `,
             )}
             ELSE ${product.quantity}
           END
-        `,
-        updatedAt: new Date(),
-      })
+        `;
+    }
+
+    if (productsToUpdateName.length > 0) {
+        setData.name = sql`
+          CASE
+            ${sql.join(
+              productsToUpdateName.map((id) => {
+                const newName = nameMap.get(id)!;
+                return sql`WHEN ${product.id} = ${id} THEN ${newName}`;
+              }),
+              sql` `,
+            )}
+            ELSE ${product.name}
+          END
+        `;
+    }
+
+    if (Object.keys(setData).length === 1) { // only updatedAt
+        return {
+            success: true,
+            data: existingProducts,
+        };
+    }
+
+    const updatedProducts = await db
+      .update(product)
+      .set(setData)
       .where(and(eq(product.userId, user.id), inArray(product.id, productIds)))
       .returning();
 

@@ -1,0 +1,11 @@
+{
+  "domain": "fridge_companion",
+  "name": "Fridge Companion",
+  "documentation": "",
+  "issue_tracker": "",
+  "codeowners": [],
+  "requirements": [],
+  "dependencies": [],
+  "iot_class": "cloud_polling",
+  "version": "0.1.0"
+}
