@@ -2,16 +2,16 @@ import { db } from "@/infrastructure/database";
 import { product } from "@/infrastructure/database/schema";
 import type { Product } from "@/domain/entity/product";
 import { eq } from "drizzle-orm";
+import { Context } from "elysia";
+import { User } from "better-auth/types";
+import { FridgeResponse } from "@/application/entities/response";
 
-export const getProductsHandler = async ({
+export const getProducts = async ({
   user,
-  set,
-}: {
-  user: any;
-  set: any;
-}): Promise<{ success: true; data: Product[] } | { error: string }> => {
+  status,
+}: Context & { user: User }): Promise<FridgeResponse<Product[]>> => {
   if (!user) {
-    set.status = 401;
+    status(401);
     return { error: "Unauthorized" };
   }
 
@@ -23,8 +23,7 @@ export const getProductsHandler = async ({
       data: products,
     };
   } catch (error) {
-    console.error("Error fetching products:", error);
-    set.status = 500;
-    return { error: "Failed to fetch products" };
+    status(500);
+    return { error: "Failed to fetch products", message: (error as Error).message };
   }
 };

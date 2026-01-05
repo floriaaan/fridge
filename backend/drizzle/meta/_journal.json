@@ -22,6 +22,13 @@
       "when": 1767562343473,
       "tag": "0002_careful_sphinx",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1767654266792,
+      "tag": "0003_spicy_vin_gonzales",
+      "breakpoints": true
     }
   ]
 }

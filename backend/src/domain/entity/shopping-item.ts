@@ -19,11 +19,7 @@ export const shoppingItemSchema = t.Object({
   quantity: t.Integer(),
   unit: t.String(),
   checked: t.Boolean(),
-  source: t.Union([
-    t.Literal("manual"),
-    t.Literal("auto_expired"),
-    t.Literal("recipe"),
-  ]),
+  source: t.Union([t.Literal("manual"), t.Literal("auto_expired"), t.Literal("recipe")]),
   createdAt: t.Optional(t.Date()),
   updatedAt: t.Optional(t.Date()),
 });

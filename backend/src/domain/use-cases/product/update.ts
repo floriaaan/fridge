@@ -1,28 +1,28 @@
-import { t } from "elysia";
+import { Context, t } from "elysia";
 import { db } from "@/infrastructure/database";
 import { product } from "@/infrastructure/database/schema";
 import type { Product } from "@/domain/entity/product";
 import { and, eq, inArray, sql } from "drizzle-orm";
+import { User } from "better-auth/types";
+import { FridgeResponse } from "@/application/entities/response";
 
-export const updateProductSchema = t.Object({
+export const updateProductSchema = t.Array(t.Object({
   id: t.String(),
   name: t.Optional(t.String()),
   quantity: t.Optional(t.Integer()),
-});
+}));
 
-export const updateProductsHandler = async ({
+export const updateProducts = async ({
   user,
-  body,
-  set,
-}: {
-  user: any;
-  body: Array<{ id: string; name?: string; quantity?: number }>;
-  set: any;
-}): Promise<{ success: true; data: Product[] } | { error: string; message?: string }> => {
+  body: rawBody,
+  status,
+}: Context & { user: User }): Promise<FridgeResponse<Product[]>> => {
   if (!user) {
-    set.status = 401;
+    status(401);
     return { error: "Unauthorized" };
   }
+
+  const body = rawBody as { id: string; name?: string; quantity?: number }[];
 
   try {
     const productIds = body.map((p) => p.id);
@@ -34,26 +34,26 @@ export const updateProductsHandler = async ({
       .where(and(eq(product.userId, user.id), inArray(product.id, productIds)));
 
     if (existingProducts.length === 0) {
-      set.status = 404;
+      status(404);
       return { error: "Products not found" };
     }
     if (existingProducts.length !== productIds.length) {
-      set.status = 403;
+      status(403);
       return { error: "Some products do not belong to the user" };
     }
 
-    const quantityMap = new Map(body.filter(p => p.quantity !== undefined).map((p) => [p.id, p.quantity!]));
-    const nameMap = new Map(body.filter(p => p.name !== undefined).map((p) => [p.id, p.name!]));
+    const quantityMap = new Map(body.filter((p) => p.quantity !== undefined).map((p) => [p.id, p.quantity!]));
+    const nameMap = new Map(body.filter((p) => p.name !== undefined).map((p) => [p.id, p.name!]));
 
-    const productsToUpdateQuantity = body.filter(p => p.quantity !== undefined).map(p => p.id);
-    const productsToUpdateName = body.filter(p => p.name !== undefined).map(p => p.id);
+    const productsToUpdateQuantity = body.filter((p) => p.quantity !== undefined).map((p) => p.id);
+    const productsToUpdateName = body.filter((p) => p.name !== undefined).map((p) => p.id);
 
     const setData: { name?: any; quantity?: any; updatedAt: Date } = {
-        updatedAt: new Date(),
+      updatedAt: new Date(),
     };
 
     if (productsToUpdateQuantity.length > 0) {
-        setData.quantity = sql`
+      setData.quantity = sql`
           CASE 
             ${sql.join(
               productsToUpdateQuantity.map((id) => {
@@ -68,7 +68,7 @@ export const updateProductsHandler = async ({
     }
 
     if (productsToUpdateName.length > 0) {
-        setData.name = sql`
+      setData.name = sql`
           CASE
             ${sql.join(
               productsToUpdateName.map((id) => {
@@ -82,11 +82,12 @@ export const updateProductsHandler = async ({
         `;
     }
 
-    if (Object.keys(setData).length === 1) { // only updatedAt
-        return {
-            success: true,
-            data: existingProducts,
-        };
+    if (Object.keys(setData).length === 1) {
+      // only updatedAt
+      return {
+        success: true,
+        data: existingProducts,
+      };
     }
 
     const updatedProducts = await db
@@ -101,7 +102,7 @@ export const updateProductsHandler = async ({
     };
   } catch (error) {
     console.error("Error updating products:", error);
-    set.status = 500;
+    status(500);
     return {
       error: "Failed to update products",
       message: error instanceof Error ? error.message : "Unknown error",

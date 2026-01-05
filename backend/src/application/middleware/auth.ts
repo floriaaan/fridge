@@ -14,7 +14,12 @@ export const authMiddleware = new Elysia({ name: "better-auth" }).mount(auth.han
       return {
         user: session.user,
         session: session.session,
-      };
+      } as AuthMacro;
     },
   },
 });
+
+export type AuthMacro = {
+  user: NonNullable<Awaited<ReturnType<typeof auth.api.getSession>>>["user"];
+  session: NonNullable<Awaited<ReturnType<typeof auth.api.getSession>>>["session"];
+};

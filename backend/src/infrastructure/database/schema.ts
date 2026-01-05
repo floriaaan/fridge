@@ -184,9 +184,7 @@ export const shoppingItem = pgTable(
       .$onUpdate(() => new Date())
       .notNull(),
   },
-  (table) => [
-    index("shopping_item_userId_idx").on(table.userId),
-  ],
+  (table) => [index("shopping_item_userId_idx").on(table.userId)],
 );
 
 export const shoppingItemRelations = relations(shoppingItem, ({ one }) => ({

@@ -1,12 +1,10 @@
 import { Elysia } from "elysia";
 import { node } from "@elysiajs/node";
 import { authMiddleware } from "@/application/middleware/auth";
-import { productsController } from "@/application/controller/products";
+import { productController } from "@/application/controller/product";
 import { shoppingItemController } from "@/application/controller/shopping-item";
 
-const api = new Elysia({ prefix: "/api" })
-  .use(productsController)
-  .use(shoppingItemController);
+const api = new Elysia({ prefix: "/api" }).use(productController).use(shoppingItemController);
 
 const app = new Elysia({ adapter: node() })
   .use(authMiddleware)

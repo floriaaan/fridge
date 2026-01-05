@@ -1,26 +1,28 @@
 import { db } from "@/infrastructure/database";
 import { product } from "@/infrastructure/database/schema";
-import type { Product } from "@/domain/entity/product";
+import { productSchema, type Product } from "@/domain/entity/product";
+import { Context, t } from "elysia";
+import { User } from "better-auth/types";
+import { FridgeResponse } from "@/application/entities/response";
 
-export const createProductsHandler = async ({
+export const createProducts = async ({
   user,
   body,
-  set,
-}: {
-  user: any;
-  body: Omit<Product, "id" | "userId" | "createdAt" | "updatedAt">[];
-  set: any;
-}): Promise<{ success: true; data: Product[] } | { error: string; message?: string }> => {
+  status,
+}: Context & { user: User}
+): Promise<FridgeResponse<Product[]>> => {
   if (!user) {
-    set.status = 401;
+    status(401);
     return { error: "Unauthorized" };
   }
+
+  const products = body as Omit<Product, "id" | "userId" | "createdAt" | "updatedAt">[]; 
 
   try {
     const createdProducts = await db
       .insert(product)
       .values(
-        body.map((p) => ({
+        products.map((p) => ({
           userId: user.id,
           name: p.name,
           quantity: p.quantity,
@@ -33,17 +35,19 @@ export const createProductsHandler = async ({
       )
       .returning();
 
-    set.status = 201;
+    status(201);
     return {
       success: true,
       data: createdProducts,
     };
   } catch (error) {
     console.error("Error creating products:", error);
-    set.status = 500;
+    status(500);
     return {
       error: "Failed to create products",
       message: error instanceof Error ? error.message : "Unknown error",
     };
   }
 };
+
+export const createProductSchema = t.Array(t.Omit(productSchema, ["id", "userId", "createdAt", "updatedAt"]))

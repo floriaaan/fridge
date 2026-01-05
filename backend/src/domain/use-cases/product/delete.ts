@@ -1,25 +1,26 @@
-import { t } from "elysia";
+import { Context, t } from "elysia";
 import { db } from "@/infrastructure/database";
 import { product } from "@/infrastructure/database/schema";
 import { and, eq, inArray } from "drizzle-orm";
+import { User } from "better-auth/types";
+import { FridgeResponse } from "@/application/entities/response";
 
-export const deleteProductSchema = t.Object({
-  id: t.String(),
-});
+export const deleteProductSchema = t.Array(
+  t.Object({
+    id: t.String(),
+  }),
+);
 
-export const deleteProductsHandler = async ({
+export const deleteProducts = async ({
   user,
-  body,
-  set,
-}: {
-  user: any;
-  body: Array<{ id: string }>;
-  set: any;
-}): Promise<{ success: true; deletedCount: number } | { error: string; message?: string }> => {
+  body: rawBody,
+  status,
+}: Context & { user: User }): Promise<FridgeResponse<{ count: number }>> => {
   if (!user) {
-    set.status = 401;
+    status(401);
     return { error: "Unauthorized" };
   }
+  const body = rawBody as { id: string }[];
 
   try {
     const productIds = body.map((p) => p.id);
@@ -32,11 +33,11 @@ export const deleteProductsHandler = async ({
 
     return {
       success: true,
-      deletedCount: result.length,
+      data: { count: result.length },
     };
   } catch (error) {
     console.error("Error deleting products:", error);
-    set.status = 500;
+    status(500);
     return {
       error: "Failed to delete products",
       message: error instanceof Error ? error.message : "Unknown error",
