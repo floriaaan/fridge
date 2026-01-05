@@ -11,7 +11,7 @@ from .const import DOMAIN
 _LOGGER = logging.getLogger(__name__)
 
 
-class FridgeCompanionDataUpdateCoordinator(DataUpdateCoordinator[list[dict]]):
+class FridgeCompanionDataUpdateCoordinator(DataUpdateCoordinator[dict[str, list[dict]]]):
     """Class to manage fetching data from the API."""
 
     def __init__(self, hass: HomeAssistant, api_client: FridgeCompanionApiClient) -> None:
@@ -24,9 +24,11 @@ class FridgeCompanionDataUpdateCoordinator(DataUpdateCoordinator[list[dict]]):
             update_interval=timedelta(minutes=15),
         )
 
-    async def _async_update_data(self) -> list[dict]:
+    async def _async_update_data(self) -> dict[str, list[dict]]:
         """Update data via library."""
         try:
-            return await self.api_client.get_products()
+            products = await self.api_client.get_products()
+            shopping_items = await self.api_client.get_shopping_items()
+            return {"products": products, "shopping_items": shopping_items}
         except Exception as exception:
             raise UpdateFailed(f"Error communicating with API: {exception}") from exception

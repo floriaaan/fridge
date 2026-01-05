@@ -162,6 +162,40 @@ export const productRelations = relations(product, ({ one }) => ({
   }),
 }));
 
+export const shoppingItem = pgTable(
+  "shopping_item",
+  {
+    id: text("id")
+      .primaryKey()
+      .default(sql`gen_random_uuid()`),
+    userId: text("user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    name: text("name").notNull(),
+    quantity: integer("quantity").notNull(),
+    unit: text("unit").notNull(),
+    checked: boolean("checked").default(false).notNull(),
+    source: text("source", {
+      enum: ["manual", "auto_expired", "recipe"],
+    }).notNull(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at")
+      .defaultNow()
+      .$onUpdate(() => new Date())
+      .notNull(),
+  },
+  (table) => [
+    index("shopping_item_userId_idx").on(table.userId),
+  ],
+);
+
+export const shoppingItemRelations = relations(shoppingItem, ({ one }) => ({
+  user: one(user, {
+    fields: [shoppingItem.userId],
+    references: [user.id],
+  }),
+}));
+
 export const schema = {
   user,
   session,
@@ -169,4 +203,5 @@ export const schema = {
   verification,
   apikey,
   product,
+  shoppingItem,
 };

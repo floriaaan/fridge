@@ -12,7 +12,7 @@ const errorResponse = t.Object({
 });
 
 export const productsController = new Elysia({
-  prefix: "/api/products",
+  prefix: "/products",
 })
   .use(authMiddleware)
   .get("/", getProductsHandler, {

@@ -59,3 +59,45 @@ class FridgeCompanionApiClient:
             json=[{"id": item_id} for item_id in item_ids],
         ) as response:
             response.raise_for_status()
+
+    async def get_shopping_items(self) -> list:
+        """Get the list of shopping items."""
+        async with self._session.get(f"{self._base_url}/api/shopping-item", headers=self._headers) as response:
+            response.raise_for_status()
+            data = await response.json()
+            return data.get("data", [])
+
+    async def async_create_shopping_item(self, name: str) -> None:
+        """Create a new shopping item."""
+        item_data = {
+            "name": name,
+            "quantity": 1,
+            "unit": "piece",
+            "checked": False,
+        }
+        async with self._session.post(
+            f"{self._base_url}/api/shopping-item", headers=self._headers, json=item_data
+        ) as response:
+            response.raise_for_status()
+
+    async def async_update_shopping_item(self, item_id: str, name: str | None = None, checked: bool | None = None) -> None:
+        """Update a shopping item."""
+        update_data: Dict[str, Any] = {"id": item_id}
+        if name is not None:
+            update_data["name"] = name
+        if checked is not None:
+            update_data["checked"] = checked
+
+        async with self._session.put(
+            f"{self._base_url}/api/shopping-item", headers=self._headers, json=[update_data]
+        ) as response:
+            response.raise_for_status()
+
+    async def async_delete_shopping_items(self, item_ids: List[str]) -> None:
+        """Delete shopping items in a batch."""
+        async with self._session.delete(
+            f"{self._base_url}/api/shopping-item",
+            headers=self._headers,
+            json=[{"id": item_id} for item_id in item_ids],
+        ) as response:
+            response.raise_for_status()

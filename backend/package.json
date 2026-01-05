@@ -7,7 +7,8 @@
     "dev": "tsx watch src/index.ts",
     "build": "tsc src/index.ts --outDir dist",
     "start": "NODE_ENV=production node dist/index.js",
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "db:generate": "npx drizzle-kit generate"
   },
   "keywords": [],
   "author": "",

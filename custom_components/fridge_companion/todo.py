@@ -21,14 +21,19 @@ async def async_setup_entry(
 ) -> None:
     """Set up the todo platform."""
     coordinator: FridgeCompanionDataUpdateCoordinator = hass.data[DOMAIN][entry.entry_id]
-    async_add_entities([FridgeCompanionTodoList(coordinator, entry.entry_id)])
+    async_add_entities([
+        FridgeCompanionTodoList(coordinator, entry.entry_id),
+        FridgeCompanionShoppingListToDoEntity(coordinator, entry.entry_id),
+    ])
 
+
+from .const import DOMAIN, ENTITY_NAME_FRIDGE_CONTENT, ENTITY_NAME_SHOPPING_LIST
 
 class FridgeCompanionTodoList(CoordinatorEntity[FridgeCompanionDataUpdateCoordinator], TodoListEntity):
     """A todolist for Fridge Companion."""
 
     _attr_has_entity_name = True
-    _attr_name = "Fridge Companion"
+    _attr_name = ENTITY_NAME_FRIDGE_CONTENT
     _attr_supported_features = (
         TodoListEntityFeature.CREATE_TODO_ITEM
         | TodoListEntityFeature.UPDATE_TODO_ITEM
@@ -54,7 +59,7 @@ class FridgeCompanionTodoList(CoordinatorEntity[FridgeCompanionDataUpdateCoordin
                 summary=item["name"],
                 status=TodoItemStatus.COMPLETED if item["quantity"] == 0 else TodoItemStatus.NEEDS_ACTION,
             )
-            for item in self.coordinator.data
+            for item in self.coordinator.data.get("products", [])
         ]
 
     async def async_create_item(self, item: dict[str, Any]) -> None:
@@ -74,7 +79,7 @@ class FridgeCompanionTodoList(CoordinatorEntity[FridgeCompanionDataUpdateCoordin
                 quantity = 0
             elif status == TodoItemStatus.NEEDS_ACTION:
                 # Find the current quantity to determine if we should set it back to 1
-                current_item = next((i for i in self.coordinator.data if i["id"] == item_id), None)
+                current_item = next((i for i in self.coordinator.data.get("products", []) if i["id"] == item_id), None)
                 if current_item and current_item["quantity"] == 0:
                     quantity = 1
 
@@ -84,4 +89,60 @@ class FridgeCompanionTodoList(CoordinatorEntity[FridgeCompanionDataUpdateCoordin
     async def async_delete_items(self, uids: list[str]) -> None:
         """Delete items."""
         await self.coordinator.api_client.async_delete_items(uids)
+        await self.coordinator.async_refresh()
+
+
+class FridgeCompanionShoppingListToDoEntity(CoordinatorEntity[FridgeCompanionDataUpdateCoordinator], TodoListEntity):
+    """A todolist for the shopping list in Fridge Companion."""
+
+    _attr_has_entity_name = True
+    _attr_name = ENTITY_NAME_SHOPPING_LIST
+    _attr_supported_features = (
+        TodoListEntityFeature.CREATE_TODO_ITEM
+        | TodoListEntityFeature.UPDATE_TODO_ITEM
+        | TodoListEntityFeature.DELETE_TODO_ITEM
+    )
+
+    def __init__(
+        self, coordinator: FridgeCompanionDataUpdateCoordinator, entry_id: str
+    ) -> None:
+        """Initialize the shopping list."""
+        super().__init__(coordinator)
+        self._attr_unique_id = f"{entry_id}_shopping_list"
+
+    @property
+    def todo_items(self) -> list[TodoItem] | None:
+        """Return the shopping list items."""
+        if self.coordinator.data is None:
+            return None
+
+        return [
+            TodoItem(
+                uid=item["id"],
+                summary=item["name"],
+                status=TodoItemStatus.COMPLETED if item["checked"] else TodoItemStatus.NEEDS_ACTION,
+                description=f"Quantity: {item.get('quantity', 0)} {item.get('unit', '')}, Source: {item.get('source', 'unknown')}"
+            )
+            for item in self.coordinator.data.get("shopping_items", [])
+        ]
+
+    async def async_create_item(self, item: dict[str, Any]) -> None:
+        """Create a new shopping item."""
+        await self.coordinator.api_client.async_create_shopping_item(item["summary"])
+        await self.coordinator.async_refresh()
+
+    async def async_update_item(self, item: dict[str, Any]) -> None:
+        """Update a shopping item."""
+        item_id = item["uid"]
+        name = item.get("summary")
+        checked = None
+        if "status" in item:
+            checked = item["status"] == TodoItemStatus.COMPLETED
+
+        await self.coordinator.api_client.async_update_shopping_item(item_id, name, checked)
+        await self.coordinator.async_refresh()
+
+    async def async_delete_items(self, uids: list[str]) -> None:
+        """Delete shopping items."""
+        await self.coordinator.api_client.async_delete_shopping_items(uids)
         await self.coordinator.async_refresh()
