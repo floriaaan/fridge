@@ -1,7 +1,7 @@
 import Elysia, { t } from "elysia";
 import { authMiddleware } from "@/application/middleware/auth";
 import { createProductsHandler } from "@/domain/use-cases/products/create";
-import { updateProductsHandler, updateProductQuantitySchema } from "@/domain/use-cases/products/update";
+import { updateProductsHandler, updateProductSchema } from "@/domain/use-cases/products/update";
 import { getProductsHandler } from "@/domain/use-cases/products/read";
 import { deleteProductsHandler, deleteProductSchema } from "@/domain/use-cases/products/delete";
 import { productSchema, type Product } from "@/domain/entity/product";
@@ -36,7 +36,7 @@ export const productsController = new Elysia({
     auth: true,
   })
   .put("/", updateProductsHandler, {
-    body: t.Array(updateProductQuantitySchema),
+    body: t.Array(updateProductSchema),
     response: {
       200: t.Object({ success: t.Literal(true), data: t.Array(productSchema) }),
       401: errorResponse,
