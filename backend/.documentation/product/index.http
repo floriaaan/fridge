@@ -1,0 +1,4 @@
+GET http://localhost:3000/api/product
+Accept: application/json
+Content-Type: application/json
+X-API-Key: your_api_key_here

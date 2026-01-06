@@ -13,7 +13,13 @@ export const auth = betterAuth({
   emailAndPassword: {
     enabled: true,
   },
-  plugins: [expo(), openAPI(), apiKey()],
+  plugins: [
+    expo(),
+    openAPI(),
+    apiKey({
+      enableSessionForAPIKeys: true,
+    }),
+  ],
   trustedOrigins: [
     "fridge://",
 

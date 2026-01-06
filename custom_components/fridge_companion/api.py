@@ -10,7 +10,7 @@ class FridgeCompanionApiClient:
         self._api_key = api_key
         self._session = session
         self._base_url = base_url
-        self._headers = {"Authorization": f"Bearer {self._api_key}"}
+        self._headers = {"X-API-Key": f"{self._api_key}"}
 
     async def async_test_connection(self) -> bool:
         """Test the connection to the API."""
