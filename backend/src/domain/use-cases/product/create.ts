@@ -50,4 +50,4 @@ export const createProducts = async ({
   }
 };
 
-export const createProductSchema = t.Array(t.Omit(productSchema, ["id", "userId", "createdAt", "updatedAt"]))
+export const createProductSchema = t.Array(t.Omit(productSchema, ["id", "userId", "createdAt", "updatedAt", "expiresAt", "openedAt"]));

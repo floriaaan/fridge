@@ -29,6 +29,9 @@ const createApiKey = async () => {
     body: {
       name: "My First API Key", // required
       userId: user.id, // required
+      expiresIn: null,
+      rateLimitEnabled: false,
+      
     },
   });
   console.log("API Key created:", apiKeyData);

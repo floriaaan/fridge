@@ -1,4 +1,5 @@
 """Todo platform for Fridge Companion."""
+from datetime import datetime
 from typing import Any
 
 from homeassistant.components.todo import (
@@ -50,11 +51,51 @@ class FridgeCompanionTodoList(CoordinatorEntity[FridgeCompanionDataUpdateCoordin
         if self.coordinator.data is None:
             return None
 
+        def format_description(item: dict) -> str:
+            """Format a pretty description for the item."""
+            parts = []
+            
+            # Quantity
+            quantity = item.get('quantity', 0)
+            unit = item.get('unit', '')
+            if quantity and unit:
+                parts.append(f"{quantity} {unit}")
+            elif quantity:
+                parts.append(f"Qty: {quantity}")
+            
+            
+            
+            # Expires at
+            expires_at = item.get('expiresAt')
+            if expires_at and expires_at != 'unknown':
+                try:
+                    date_obj = datetime.fromisoformat(expires_at.replace('Z', '+00:00'))
+                    parts.append(f"Expires: {date_obj.strftime('%b %d, %Y')}")
+                except (ValueError, AttributeError):
+                    parts.append(f"Expires: {expires_at}")
+            
+            # Opened at
+            opened_at = item.get('openedAt')
+            if opened_at and opened_at != 'unknown':
+                try:
+                    date_obj = datetime.fromisoformat(opened_at.replace('Z', '+00:00'))
+                    parts.append(f"Opened: {date_obj.strftime('%b %d, %Y')}")
+                except (ValueError, AttributeError):
+                    parts.append(f"Opened: {opened_at}")
+
+            # Location
+            location = item.get('location')
+            if location and location != 'unknown':
+                parts.append(f"Location: {location}")
+            
+            return " • ".join(parts) if parts else "No details available"
+
         return [
             TodoItem(
                 uid=item["id"],
                 summary=item["name"],
                 status=TodoItemStatus.COMPLETED if item["quantity"] == 0 else TodoItemStatus.NEEDS_ACTION,
+                description=format_description(item)
             )
             for item in self.coordinator.data.get("products", [])
         ]
@@ -113,12 +154,31 @@ class FridgeCompanionShoppingListToDoEntity(CoordinatorEntity[FridgeCompanionDat
         if self.coordinator.data is None:
             return None
 
+        def format_shopping_description(item: dict) -> str:
+            """Format a pretty description for the shopping item."""
+            parts = []
+            
+            # Quantity
+            quantity = item.get('quantity', 0)
+            unit = item.get('unit', '')
+            if quantity and unit:
+                parts.append(f"{quantity} {unit}")
+            elif quantity:
+                parts.append(f"Qty: {quantity}")
+            
+            # Source
+            source = item.get('source')
+            if source and source != 'unknown':
+                parts.append(f"Added by: {source}")
+            
+            return " • ".join(parts) if parts else "No details available"
+
         return [
             TodoItem(
                 uid=item["id"],
                 summary=item["name"],
                 status=TodoItemStatus.COMPLETED if item["checked"] else TodoItemStatus.NEEDS_ACTION,
-                description=f"Quantity: {item.get('quantity', 0)} {item.get('unit', '')}, Source: {item.get('source', 'unknown')}"
+                description=format_shopping_description(item)
             )
             for item in self.coordinator.data.get("shopping_items", [])
         ]
