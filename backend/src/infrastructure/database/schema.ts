@@ -132,6 +132,7 @@ export const userRelations = relations(user, ({ many }) => ({
   sessions: many(session),
   accounts: many(account),
   apikeys: many(apikey),
+  recipes: many(recipe),
 }));
 
 export const sessionRelations = relations(session, ({ one }) => ({
@@ -155,11 +156,12 @@ export const apikeyRelations = relations(apikey, ({ one }) => ({
   }),
 }));
 
-export const productRelations = relations(product, ({ one }) => ({
+export const productRelations = relations(product, ({ one, many }) => ({
   user: one(user, {
     fields: [product.userId],
     references: [user.id],
   }),
+  recipeIngredients: many(recipeIngredient),
 }));
 
 export const shoppingItem = pgTable(
@@ -194,6 +196,64 @@ export const shoppingItemRelations = relations(shoppingItem, ({ one }) => ({
   }),
 }));
 
+export const recipe = pgTable(
+  "recipe",
+  {
+    id: text("id")
+      .primaryKey()
+      .default(sql`gen_random_uuid()`),
+    ownerUserId: text("owner_user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    title: text("title").notNull(),
+    description: text("description"),
+    source: text("source", { enum: ["ai", "user", "community"] }).notNull(),
+    instructions: text("instructions").notNull(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+  },
+  (table) => [index("recipe_ownerUserId_idx").on(table.ownerUserId)],
+);
+
+export const recipeIngredient = pgTable(
+  "recipe_ingredient",
+  {
+    id: text("id")
+      .primaryKey()
+      .default(sql`gen_random_uuid()`),
+    recipeId: text("recipe_id")
+      .notNull()
+      .references(() => recipe.id, { onDelete: "cascade" }),
+    productId: text("product_id").references(() => product.id, { onDelete: "set null" }),
+    label: text("label").notNull(),
+    quantity: integer("quantity"),
+    unit: text("unit"),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+  },
+  (table) => [
+    index("recipe_ingredient_recipeId_idx").on(table.recipeId),
+    index("recipe_ingredient_productId_idx").on(table.productId),
+  ],
+);
+
+export const recipeRelations = relations(recipe, ({ one, many }) => ({
+  owner: one(user, {
+    fields: [recipe.ownerUserId],
+    references: [user.id],
+  }),
+  ingredients: many(recipeIngredient),
+}));
+
+export const recipeIngredientRelations = relations(recipeIngredient, ({ one }) => ({
+  recipe: one(recipe, {
+    fields: [recipeIngredient.recipeId],
+    references: [recipe.id],
+  }),
+  product: one(product, {
+    fields: [recipeIngredient.productId],
+    references: [product.id],
+  }),
+}));
+
 export const schema = {
   user,
   session,
@@ -202,4 +262,6 @@ export const schema = {
   apikey,
   product,
   shoppingItem,
+  recipe,
+  recipeIngredient,
 };
