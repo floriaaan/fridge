@@ -12,6 +12,7 @@ const envSchema = z.object({
   // Add other AI provider keys as needed, making them optional
   GEMINI_API_KEY: z.string().optional(),
   OPENAI_API_KEY: z.string().optional(),
+  OLLAMA_BASE_URL: z.string().url().optional(),
 });
 
 const parsedEnv = envSchema.safeParse(process.env);

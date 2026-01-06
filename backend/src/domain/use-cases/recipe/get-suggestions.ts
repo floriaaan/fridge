@@ -4,8 +4,7 @@ import { and, countDistinct, eq, gt, gte, inArray } from "drizzle-orm";
 import { Context } from "elysia";
 import { User } from "better-auth/types";
 import { FridgeResponse } from "@/application/entities/response";
-
-type RecipeWithIngredients = Awaited<ReturnType<typeof getRecipeSuggestions>>["data"];
+import { RecipeWithIngredients } from "@/domain/entity/recipe";
 
 export const getRecipeSuggestions = async ({
   user,
@@ -54,20 +53,27 @@ export const getRecipeSuggestions = async ({
     const recipeIds = matchingRecipes.map((r) => r.recipeId as string).filter(Boolean);
 
     // 3. Fetch full recipe details for the matching recipes
-    const recipes = await db.query.recipe.findMany({
-      where: inArray(recipe.id, recipeIds),
-      with: {
-        ingredients: {
-          with: {
-            product: true,
-          },
-        },
-      },
-    });
+    const recipesResult = await db
+      .select()
+      .from(recipe)
+      .where(inArray(recipe.id, recipeIds))
+      .leftJoin(recipeIngredient, eq(recipe.id, recipeIngredient.recipeId))
+      .leftJoin(product, eq(recipeIngredient.productId, product.id));
+
+    const recipes = recipesResult.reduce<Record<string, RecipeWithIngredients[number]>>((acc, row) => {
+      const { recipe: r, recipe_ingredient, product: p } = row;
+      if (!acc[r.id]) {
+        acc[r.id] = { ...r, ingredients: [] };
+      }
+      if (recipe_ingredient) {
+        acc[r.id].ingredients.push({ ...recipe_ingredient, product: p || null });
+      }
+      return acc;
+    }, {});
 
     return {
       success: true,
-      data: recipes,
+      data: Object.values(recipes),
     };
   } catch (error) {
     status(500);

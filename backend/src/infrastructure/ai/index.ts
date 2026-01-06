@@ -39,11 +39,19 @@ class OpenAiProvider implements AiProvider {
 
 // Placeholder implementation for Ollama
 class OllamaProvider implements AiProvider {
+  private ollamaInstance: ReturnType<typeof ollama>;
+
+  constructor() {
+    this.ollamaInstance = ollama({
+      baseURL: env.OLLAMA_BASE_URL,
+    });
+  }
+
   async generate(messages: CoreMessage[]): Promise<string> {
     console.log("Using Ollama AI provider (placeholder)");
     // In a real implementation, you would use the Ollama API
     // const { text } = await streamText({
-    //   model: ollama("llama2"),
+    //   model: this.ollamaInstance("llama2"),
     //   messages,
     // });
     // return text;
