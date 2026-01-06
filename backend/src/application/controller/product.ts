@@ -9,6 +9,8 @@ import {
   getProducts,
   updateProducts,
   updateProductSchema,
+  getExpiredProducts,
+  getExpiresSoonProducts,
 } from "@/domain/use-cases/product";
 
 export const productController = new Elysia({
@@ -16,6 +18,8 @@ export const productController = new Elysia({
 })
   .use(authMiddleware)
   .get("/", getProducts, { auth: true })
+  .get("/expired", getExpiredProducts, { auth: true })
+  .get("/expires-soon", getExpiresSoonProducts, { auth: true })
   .post("/", createProducts, { body: createProductSchema, auth: true })
   .put("/", updateProducts, { body: updateProductSchema, auth: true })
   .delete("/", deleteProducts, { body: deleteProductSchema, auth: true });

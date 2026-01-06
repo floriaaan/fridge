@@ -24,6 +24,22 @@ class FridgeCompanionApiClient:
             data = await response.json()
             return data.get("data", [])
 
+    async def get_expired_products(self) -> list:
+        """Get the list of expired products."""
+        async with self._session.get(f"{self._base_url}/api/product/expired", headers=self._headers) as response:
+            response.raise_for_status()
+            data = await response.json()
+            return data.get("data", [])
+
+    async def get_expires_soon_products(self) -> list:
+        """Get the list of products expiring soon."""
+        async with self._session.get(
+            f"{self._base_url}/api/product/expires-soon", headers=self._headers
+        ) as response:
+            response.raise_for_status()
+            data = await response.json()
+            return data.get("data", [])
+
     async def async_create_item(self, name: str) -> None:
         """Create a new item."""
         product_data = {
