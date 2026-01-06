@@ -14,12 +14,12 @@ class FridgeCompanionApiClient:
 
     async def async_test_connection(self) -> bool:
         """Test the connection to the API."""
-        async with self._session.get(f"{self._base_url}/api/products", headers=self._headers) as response:
+        async with self._session.get(f"{self._base_url}/api/product", headers=self._headers) as response:
             return response.status == 200
 
     async def get_products(self) -> list:
         """Get the list of products."""
-        async with self._session.get(f"{self._base_url}/api/products", headers=self._headers) as response:
+        async with self._session.get(f"{self._base_url}/api/product", headers=self._headers) as response:
             response.raise_for_status()
             data = await response.json()
             return data.get("data", [])
@@ -34,7 +34,7 @@ class FridgeCompanionApiClient:
             "category": "unknown",
         }
         async with self._session.post(
-            f"{self._base_url}/api/products", headers=self._headers, json=[product_data]
+            f"{self._base_url}/api/product", headers=self._headers, json=[product_data]
         ) as response:
             response.raise_for_status()
 
@@ -47,14 +47,14 @@ class FridgeCompanionApiClient:
             update_data["quantity"] = quantity
 
         async with self._session.put(
-            f"{self._base_url}/api/products", headers=self._headers, json=[update_data]
+            f"{self._base_url}/api/product", headers=self._headers, json=[update_data]
         ) as response:
             response.raise_for_status()
 
     async def async_delete_items(self, item_ids: List[str]) -> None:
         """Delete items in a batch."""
         async with self._session.delete(
-            f"{self._base_url}/api/products",
+            f"{self._base_url}/api/product",
             headers=self._headers,
             json=[{"id": item_id} for item_id in item_ids],
         ) as response:
