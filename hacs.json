@@ -1,0 +1,7 @@
+{
+  "name": "Fridge Companion",
+  "hacs": "1.6.0",
+  "domains": ["sensor", "todo"],
+  "iot_class": "Local Polling",
+  "homeassistant": "2025.12.0"
+}
