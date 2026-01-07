@@ -3,7 +3,6 @@ import { GeminiProvider } from "./gemini";
 import { OllamaProvider } from "./ollama";
 import { OpenAiProvider } from "./openai";
 import { env } from "@/lib/env";
-import { CoreTool } from "ai";
 
 export const recipeSchema = z.object({
   title: z.string().describe("The title of the recipe."),
@@ -21,6 +20,9 @@ export const recipeSchema = z.object({
     .describe(
       "A list of tags to categorize the recipe (e.g., 'vegetarian', 'spicy', 'quick-meal').",
     ),
+  usedProducts: z
+    .array(z.string())
+    .describe("A list of product names used in the recipe."),
 });
 
 export const recipesSchema = z.object({
@@ -31,7 +33,10 @@ export const recipesSchema = z.object({
 
 // Define a common interface for AI providers
 export interface AiProvider {
-  createRecipeTool(): CoreTool<typeof recipesSchema>;
+  generateRecipesFromProducts(
+    productsList: string,
+    language: string,
+  ): Promise<any>;
 }
 
 // Factory to get the AI provider based on the environment variable
