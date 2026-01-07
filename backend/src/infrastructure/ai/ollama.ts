@@ -1,22 +1,21 @@
-import { AiProvider } from "@/infrastructure/ai";
-import { env } from "@/lib/env";
-import { generateText } from "ai";
-import { createOllama } from "ai-sdk-ollama";
+import { AiProvider, recipesSchema } from "@/infrastructure/ai";
+import { CoreTool } from "ai";
+import { createTool } from "ai";
 
 export class OllamaProvider implements AiProvider {
-  private ollamaInstance: ReturnType<typeof createOllama>;
-
-  constructor() {
-    this.ollamaInstance = createOllama({
-      baseURL: env.OLLAMA_BASE_URL!,
+  createRecipeTool(): CoreTool<typeof recipesSchema> {
+    return createTool({
+      description: "A tool to create a list of recipes.",
+      name: "create-recipes",
+      parameters: recipesSchema,
+      execute: async ({ recipes }) => {
+        return {
+          recipes: recipes.map((recipe) => ({
+            ...recipe,
+            instructions: recipe.instructions,
+          })),
+        };
+      },
     });
-  }
-
-  async generate(messages: string[]) {
-    const { text } = await generateText({
-      model: this.ollamaInstance(env.OLLAMA_MODEL!),
-      prompt: messages.join("\n"),
-    });
-    return text;
   }
 }

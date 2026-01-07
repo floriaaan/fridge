@@ -1,36 +1,12 @@
 import { db } from "@/infrastructure/database";
-import { recipe } from "@/infrastructure/database/schema";
+import { recipe, product } from "@/infrastructure/database/schema";
 import { Context } from "elysia";
 import { User } from "better-auth/types";
 import { FridgeResponse } from "@/application/entities/response";
-import { product } from "@/infrastructure/database/schema";
 import { ai } from "@/infrastructure/ai";
-import { z } from "zod";
-import { createTool, render } from "ai";
-
-const recipeSchema = z.object({
-  title: z.string().describe("The title of the recipe."),
-  description: z.string().describe("A brief description of the recipe."),
-  instructions: z
-    .string()
-    .describe(
-      "The recipe instructions, formatted as a Markdown string. Include headings, lists, and bold text for clarity.",
-    ),
-  preparationTime: z
-    .number()
-    .describe("The estimated preparation time in minutes."),
-  tags: z
-    .array(z.string())
-    .describe(
-      "A list of tags to categorize the recipe (e.g., 'vegetarian', 'spicy', 'quick-meal').",
-    ),
-});
-
-const recipesSchema = z.object({
-  recipes: z
-    .array(recipeSchema)
-    .describe("An array of three generated recipes."),
-});
+import { render } from "ai";
+import { eq } from "drizzle-orm";
+import { env } from "@/lib/env";
 
 export const generateRecipes = async ({
   user,
@@ -42,9 +18,10 @@ export const generateRecipes = async ({
   }
 
   try {
-    const userProducts = await db.query.product.findMany({
-      where: (product, { eq }) => eq(product.userId, user.id),
-    });
+    const userProducts = await db
+      .select()
+      .from(product)
+      .where(eq(product.userId, user.id));
 
     if (userProducts.length === 0) {
       status(400);
@@ -67,19 +44,15 @@ export const generateRecipes = async ({
       })
       .join(", ");
 
-    const tool = createTool({
-      description: "A tool to create a list of recipes.",
-      name: "create-recipes",
-      parameters: recipesSchema,
-    });
+    const recipeTool = ai.createRecipeTool();
 
     const { toolResults } = await render({
       model: "openai/gpt-4o-mini",
       provider: ai,
       tools: {
-        recipes: tool,
+        recipes: recipeTool,
       },
-      prompt: `Based on the following products: ${productsList}, generate three diverse recipes:
+      prompt: `Based on the following products: ${productsList}, generate three diverse recipes in ${env.USER_LANGUAGE}:
       1. A simple and quick recipe.
       2. A vegetarian recipe.
       3. A more complex and elaborate recipe.

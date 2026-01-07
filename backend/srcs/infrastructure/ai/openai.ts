@@ -2,7 +2,7 @@ import { AiProvider, recipesSchema } from "@/infrastructure/ai";
 import { CoreTool } from "ai";
 import { createTool } from "ai";
 
-export class GeminiProvider implements AiProvider {
+export class OpenAiProvider implements AiProvider {
   createRecipeTool(): CoreTool<typeof recipesSchema> {
     return createTool({
       description: "A tool to create a list of recipes.",

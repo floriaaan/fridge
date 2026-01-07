@@ -1,16 +1,17 @@
 import { db } from "@/infrastructure/database";
-import { Context, t } from "elysia";
+import { Context } from "elysia";
 import { User } from "better-auth/types";
 import { FridgeResponse } from "@/application/entities/response";
 import { recipe } from "@/infrastructure/database/schema";
 import { desc, eq, count } from "drizzle-orm";
+import { Recipe } from "@/domain/entity/recipe";
 
 export const listRecipes = async ({
   user,
   query,
   status,
 }: Context<{ query: { page?: string; limit?: string } }> & { user: User }): Promise<
-  FridgeResponse<any>
+  FridgeResponse<Recipe[]>
 > => {
   if (!user) {
     status(401);
@@ -22,12 +23,13 @@ export const listRecipes = async ({
   const offset = (page - 1) * limit;
 
   try {
-    const recipes = await db.query.recipe.findMany({
-      where: eq(recipe.ownerUserId, user.id),
-      orderBy: [desc(recipe.createdAt)],
-      limit,
-      offset,
-    });
+    const recipes = await db
+      .select()
+      .from(recipe)
+      .where(eq(recipe.ownerUserId, user.id))
+      .orderBy(desc(recipe.createdAt))
+      .limit(limit)
+      .offset(offset);
 
     const totalRecipesResult = await db
       .select({ count: count() })
