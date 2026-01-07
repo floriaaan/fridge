@@ -76,6 +76,20 @@ class FridgeCompanionApiClient:
         ) as response:
             response.raise_for_status()
 
+    async def async_generate_recipes(self) -> None:
+        """Generate new recipes."""
+        async with self._session.post(
+            f"{self._base_url}/api/recipe/generate", headers=self._headers
+        ) as response:
+            response.raise_for_status()
+
+    async def get_recipes(self) -> list:
+        """Get the list of recipes."""
+        async with self._session.get(f"{self._base_url}/api/recipe", headers=self._headers) as response:
+            response.raise_for_status()
+            data = await response.json()
+            return data.get("data", [])
+
     async def get_shopping_items(self) -> list:
         """Get the list of shopping items."""
         async with self._session.get(f"{self._base_url}/api/shopping-item", headers=self._headers) as response:

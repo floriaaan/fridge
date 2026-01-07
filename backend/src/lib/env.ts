@@ -18,6 +18,7 @@ const envSchema = z.object({
   OPENAI_MODEL: z.string().optional(),
   OLLAMA_BASE_URL: z.url().optional(),
   OLLAMA_MODEL: z.string().optional(),
+  USER_LANGUAGE: z.string().default("en"),
 });
 
 const parsedEnv = envSchema.safeParse(process.env);

@@ -1,0 +1,3 @@
+generate_recipes:
+  description: Generates new recipes based on the products in your fridge.
+  fields: {}
