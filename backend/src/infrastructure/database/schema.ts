@@ -119,6 +119,8 @@ export const product = pgTable(
     expiresAt: timestamp("expires_at"),
     openedAt: timestamp("opened_at"),
     category: text("category").notNull(),
+    openfoodfactId: text("openfoodfact_id"),
+    slug: text("slug"),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at")
       .defaultNow()

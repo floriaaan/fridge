@@ -43,6 +43,13 @@
       "when": 1767795281555,
       "tag": "0005_tearful_hercules",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1767913607873,
+      "tag": "0006_needy_pete_wisdom",
+      "breakpoints": true
     }
   ]
 }
