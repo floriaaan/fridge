@@ -120,7 +120,7 @@ export const product = pgTable(
     openedAt: timestamp("opened_at"),
     category: text("category").notNull(),
     openfoodfactId: text("openfoodfact_id"),
-    slug: text("slug"),
+    categories: text("categories").array(),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at")
       .defaultNow()

@@ -11,7 +11,7 @@ export interface Product {
   openedAt: Date | null;
   category: string;
   openfoodfactId: string | null;
-  slug: string | null;
+  categories: string[] | null;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -38,7 +38,7 @@ export const productSchema = t.Object({
   openedAt: t.Union([t.Date(), t.Null()]),
   category: t.String(),
   openfoodfactId: t.Optional(t.Union([t.String(), t.Null()])),
-  slug: t.Optional(t.Union([t.String(), t.Null()])),
+  categories: t.Optional(t.Union([t.Array(t.String()), t.Null()])),
   createdAt: t.Optional(t.Date()),
   updatedAt: t.Optional(t.Date()),
 });
