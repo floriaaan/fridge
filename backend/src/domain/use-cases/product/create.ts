@@ -1,9 +1,10 @@
 import { db } from "@/infrastructure/database";
 import { product } from "@/infrastructure/database/schema";
-import { productSchema, type Product } from "@/domain/entity/product";
+import { CreateProductInput, type Product } from "@/domain/entity/product";
 import { Context, t } from "elysia";
 import { User } from "better-auth/types";
 import { FridgeResponse } from "@/application/entities/response";
+import { getOpenFoodFactsData } from "@/infrastructure/openfoodfacts/connector";
 
 export const createProducts = async ({
   user,
@@ -16,13 +17,13 @@ export const createProducts = async ({
     return { error: "Unauthorized" };
   }
 
-  const products = body as Omit<Product, "id" | "userId" | "createdAt" | "updatedAt">[]; 
+  const products = body as CreateProductInput[];
 
   try {
-    const createdProducts = await db
-      .insert(product)
-      .values(
-        products.map((p) => ({
+    const productsToInsert = await Promise.all(
+      products.map(async (p) => {
+        const offData = await getOpenFoodFactsData(p.name, p.openfoodfactId);
+        return {
           userId: user.id,
           name: p.name,
           quantity: p.quantity,
@@ -31,8 +32,15 @@ export const createProducts = async ({
           expiresAt: p.expiresAt ? new Date(p.expiresAt) : null,
           openedAt: p.openedAt ? new Date(p.openedAt) : null,
           category: p.category,
-        })),
-      )
+          openfoodfactId: offData?.openfoodfactId ?? null,
+          categories: offData?.categories ?? null,
+        };
+      })
+    );
+
+    const createdProducts = await db
+      .insert(product)
+      .values(productsToInsert)
       .returning();
 
     status(201);
@@ -50,4 +58,15 @@ export const createProducts = async ({
   }
 };
 
-export const createProductSchema = t.Array(t.Omit(productSchema, ["id", "userId", "createdAt", "updatedAt", "expiresAt", "openedAt"]));
+export const createProductSchema = t.Array(
+  t.Object({
+    name: t.String(),
+    quantity: t.Integer(),
+    unit: t.String(),
+    location: t.String(),
+    expiresAt: t.Optional(t.String()),
+    openedAt: t.Optional(t.String()),
+    category: t.String(),
+    openfoodfactId: t.Optional(t.String()),
+  }),
+);

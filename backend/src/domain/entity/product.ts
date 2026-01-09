@@ -10,6 +10,8 @@ export interface Product {
   expiresAt: Date | null;
   openedAt: Date | null;
   category: string;
+  openfoodfactId: string | null;
+  categories: string[] | null;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -22,6 +24,7 @@ export interface CreateProductInput {
   expiresAt?: string; // ISO date string
   openedAt?: string; // ISO date string
   category: string;
+  openfoodfactId?: string;
 }
 
 export const productSchema = t.Object({
@@ -34,6 +37,8 @@ export const productSchema = t.Object({
   expiresAt: t.Union([t.Date(), t.Null()]),
   openedAt: t.Union([t.Date(), t.Null()]),
   category: t.String(),
+  openfoodfactId: t.Optional(t.Union([t.String(), t.Null()])),
+  categories: t.Optional(t.Union([t.Array(t.String()), t.Null()])),
   createdAt: t.Optional(t.Date()),
   updatedAt: t.Optional(t.Date()),
 });
