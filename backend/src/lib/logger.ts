@@ -5,9 +5,9 @@ export const logger = pino({
     target: "pino-pretty",
     options: {
       colorize: true,
-      translateTime: "UTC:yyyy-mm-dd'T'HH:MM:ss.l'Z'",
-      messageFormat: "{time} | {status} | {method} {path} | {user}",
-      ignore: "pid,hostname,status,method,path,user,responseTime",
+      translateTime: "UTC:yyyy-mm-dd HH:MM:ss.l o",
+      messageFormat: "[{time}] | {hostname} | {status} | {method} {path} | {responseTime} | {user}",
+      ignore: "pid,time,level,hostname,status,method,path,user,responseTime",
     },
   },
 });

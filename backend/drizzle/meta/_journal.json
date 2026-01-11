@@ -5,57 +5,8 @@
     {
       "idx": 0,
       "version": "7",
-      "when": 1767444756098,
-      "tag": "0000_nebulous_santa_claus",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "7",
-      "when": 1767562000135,
-      "tag": "0001_bizarre_deathbird",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "7",
-      "when": 1767562343473,
-      "tag": "0002_careful_sphinx",
-      "breakpoints": true
-    },
-    {
-      "idx": 3,
-      "version": "7",
-      "when": 1767654266792,
-      "tag": "0003_spicy_vin_gonzales",
-      "breakpoints": true
-    },
-    {
-      "idx": 4,
-      "version": "7",
-      "when": 1767710338479,
-      "tag": "0004_famous_norman_osborn",
-      "breakpoints": true
-    },
-    {
-      "idx": 5,
-      "version": "7",
-      "when": 1767795281555,
-      "tag": "0005_tearful_hercules",
-      "breakpoints": true
-    },
-    {
-      "idx": 6,
-      "version": "7",
-      "when": 1767913607873,
-      "tag": "0006_needy_pete_wisdom",
-      "breakpoints": true
-    },
-    {
-      "idx": 7,
-      "version": "7",
-      "when": 1767951938363,
-      "tag": "0007_open_dust",
+      "when": 1768153949695,
+      "tag": "0000_conscious_nicolaos",
       "breakpoints": true
     }
   ]

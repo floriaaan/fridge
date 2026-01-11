@@ -1,6 +1,6 @@
 import { AiProvider, recipesSchema } from "@/infrastructure/ai";
 import { env } from "@/lib/env";
-import { createTool, render } from "ai";
+import { tool, generateText } from "ai";
 import { createOllama } from "ai-sdk-ollama";
 
 export class OllamaProvider implements AiProvider {
@@ -13,18 +13,15 @@ export class OllamaProvider implements AiProvider {
   }
 
   async generateRecipesFromProducts(productsList: string, language: string) {
-    const recipeTool = createTool({
+    const recipeTool = tool({
       description: "A tool to create a list of recipes.",
-      name: "create-recipes",
-      parameters: recipesSchema,
+      inputSchema: recipesSchema,
+      execute: async (input) => input,
     });
 
-    const { toolResults } = await render({
+    const { toolResults } = await generateText({
       model: this.ollamaInstance(env.OLLAMA_MODEL!),
-      provider: this.ollamaInstance,
-      tools: {
-        recipes: recipeTool,
-      },
+      tools: { recipes: recipeTool },
       prompt: `Based on the following products: ${productsList}, generate three diverse recipes in ${language}:
       1. A simple and quick recipe.
       2. A vegetarian recipe.

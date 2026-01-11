@@ -1,7 +1,7 @@
 import { AiProvider, recipesSchema } from "@/infrastructure/ai";
 import { env } from "@/lib/env";
 import { createOpenAI } from "@ai-sdk/openai";
-import { createTool, render } from "ai";
+import { tool, generateText } from "ai";
 
 export class OpenAiProvider implements AiProvider {
   private openaiInstance: ReturnType<typeof createOpenAI>;
@@ -13,18 +13,15 @@ export class OpenAiProvider implements AiProvider {
   }
 
   async generateRecipesFromProducts(productsList: string, language: string) {
-    const recipeTool = createTool({
+    const recipeTool = tool({
       description: "A tool to create a list of recipes.",
-      name: "create-recipes",
-      parameters: recipesSchema,
+      inputSchema: recipesSchema,
+      execute: async (input) => input,
     });
 
-    const { toolResults } = await render({
+    const { toolResults } = await generateText({
       model: this.openaiInstance(env.OPENAI_MODEL!),
-      provider: this.openaiInstance,
-      tools: {
-        recipes: recipeTool,
-      },
+      tools: { recipes: recipeTool },
       prompt: `Based on the following products: ${productsList}, generate three diverse recipes in ${language}:
       1. A simple and quick recipe.
       2. A vegetarian recipe.

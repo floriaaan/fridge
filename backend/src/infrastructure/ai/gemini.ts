@@ -1,7 +1,7 @@
 import { AiProvider, recipesSchema } from "@/infrastructure/ai";
 import { env } from "@/lib/env";
 import { createGoogleGenerativeAI } from "@ai-sdk/google";
-import { createTool, render } from "ai";
+import { tool, generateText } from "ai";
 
 export class GeminiProvider implements AiProvider {
   private googleInstance: ReturnType<typeof createGoogleGenerativeAI>;
@@ -13,18 +13,15 @@ export class GeminiProvider implements AiProvider {
   }
 
   async generateRecipesFromProducts(productsList: string, language: string) {
-    const recipeTool = createTool({
+    const recipeTool = tool({
       description: "A tool to create a list of recipes.",
-      name: "create-recipes",
-      parameters: recipesSchema,
+      inputSchema: recipesSchema,
+      execute: async (input) => input,
     });
 
-    const { toolResults } = await render({
+    const { toolResults } = await generateText({
       model: this.googleInstance(env.GEMINI_MODEL!),
-      provider: this.googleInstance,
-      tools: {
-        recipes: recipeTool,
-      },
+      tools: { recipes: recipeTool },
       prompt: `Based on the following products: ${productsList}, generate three diverse recipes in ${language}:
       1. A simple and quick recipe.
       2. A vegetarian recipe.
