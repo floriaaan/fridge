@@ -1,5 +1,6 @@
 import React from "react";
-import { View, ScrollView, Text, TouchableOpacity } from "react-native";
+import { View, ScrollView, Text, TouchableOpacity, RefreshControl } from "react-native";
+import { useRouter } from "expo-router";
 import { type Product } from "@/api/fetch-products";
 import { ProductCard } from "@/components/product-card";
 
@@ -10,16 +11,16 @@ type FridgeListProps = {
 };
 
 export function FridgeList({ products, refresh, isLoading }: FridgeListProps) {
+  const router = useRouter();
+
   const handleProductPress = (product: Product) => {
-    console.log("Product pressed:", product.name);
+    console.log("Product pressed:", product.openfoodfactData);
     // Navigate to product detail or edit screen
     // navigation.navigate('ProductDetail', { productId: product.id });
   };
 
   const handleAddProduct = () => {
-    console.log("Add product pressed");
-    // Navigate to add product screen
-    // navigation.navigate('AddProduct');
+    router.push("/product/scan");
   };
 
   return (
@@ -28,6 +29,13 @@ export function FridgeList({ products, refresh, isLoading }: FridgeListProps) {
         className="flex-1 p-4"
         contentContainerStyle={{ paddingBottom: 100 }}
         showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl
+            refreshing={isLoading}
+            onRefresh={refresh}
+            tintColor="black"
+          />
+        }
       >
         <View className="flex-row flex-wrap justify-between max-w-2xl mx-auto">
           {products.map((product) => (

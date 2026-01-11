@@ -28,7 +28,7 @@ export const getOpenFoodFactsData = async (
       const searchData = (await searchResponse.json()) as OpenFoodFactsSearchResponse;
 
       if (searchData.products && searchData.products.length > 0) {
-        finalOpenFoodFactId = searchData.products[0]._id;
+        finalOpenFoodFactId = searchData.products[0]?._id;
       }
     }
 

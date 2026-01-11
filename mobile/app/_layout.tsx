@@ -18,6 +18,8 @@ export default function RootLayout() {
       <ThemeProvider value={DefaultTheme}>
         <Stack>
           <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+          <Stack.Screen name="product/scan" options={{ presentation: 'modal', title: 'Scan a barcode' }} />
+          <Stack.Screen name="product/create" options={{ presentation: 'modal', title: 'Add product' }} />
         </Stack>
         <StatusBar style="auto" />
       </ThemeProvider>

@@ -59,16 +59,17 @@ export async function fetchProducts(): Promise<Product[]> {
     throw new Error(result.message || "API returned an error");
   }
 
-  const products = result.data.map((product) => ({
+  const products = await Promise.all(result.data.map(async (product) => ({
     ...product,
-    ...(product.openfoodfactId ? { openfoodfactData: fetchOpenFoodFactProduct(product.openfoodfactId) } : {})
-  }));
+    ...(product.openfoodfactId ? { openfoodfactData: await fetchOpenFoodFactProduct(product.openfoodfactId) } : {})
+  })));
   return products;
 }
 
 
 export const fetchOpenFoodFactProductByBarcode = async (barcode: string) => {
-  const response = await fetch(`https://world.openfoodfacts.org/api/v0/product/${barcode}.json`);
+
+  const response = await fetch(`https://world.openfoodfacts.org/api/v2/product/${barcode}.json`);
   if (!response.ok) {
     throw new Error("Failed to fetch product from OpenFoodFacts");
   }
@@ -82,7 +83,7 @@ export const fetchOpenFoodFactProductByBarcode = async (barcode: string) => {
 };
 
 const fetchOpenFoodFactProduct = async (openfoodfactId   : string) => {
-  const response = await fetch(`https://world.openfoodfacts.org/api/v0/product/${openfoodfactId}.json`);
+  const response = await fetch(`https://world.openfoodfacts.org/api/v2/product/${openfoodfactId}.json`);
   if (!response.ok) {
     throw new Error("Failed to fetch product from OpenFoodFacts");
   }
