@@ -1,3 +1,7 @@
+import { API_BASE_URL } from '@/lib/api-config';
+import { authClient } from '@/lib/auth-client';
+
+
 export interface ShoppingItem {
   id: string;
   userId: string;
@@ -17,14 +21,16 @@ interface ApiResponse<T> {
   message?: string;
 }
 
-import { API_BASE_URL } from '@/lib/api-config';
 
 const API_URL = `${API_BASE_URL}/shopping-item`;
 
 export async function fetchShoppingItems(): Promise<ShoppingItem[]> {
-  // We'll need to handle authentication later
-  // For now, we assume the API is accessible without a token
-  const response = await fetch(API_URL);
+const cookies = authClient.getCookie();
+  const headers = { Cookie: cookies };
+  const response = await fetch(API_URL, { headers });
+  if (!response.ok) {
+    throw new Error("Failed to fetch products");
+  }
 
   if (!response.ok) {
     throw new Error('Failed to fetch shopping items');
