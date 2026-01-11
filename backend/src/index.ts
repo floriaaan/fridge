@@ -1,6 +1,7 @@
 import { Elysia } from "elysia";
 import { node } from "@elysiajs/node";
 import { authMiddleware } from "@/application/middleware/auth";
+import { loggerMiddleware } from "@/application/middleware/logger";
 import { productController } from "@/application/controller/product";
 import { recipeController } from "@/application/controller/recipe";
 import { shoppingItemController } from "@/application/controller/shopping-item";
@@ -12,6 +13,7 @@ const api = new Elysia({ prefix: "/api" })
 
 const app = new Elysia({ adapter: node() })
   .use(authMiddleware)
+  .use(loggerMiddleware)
   .get("/", () => "Hello Elysia")
   .get("/user", ({ user }) => user, { auth: true })
   .use(api)
