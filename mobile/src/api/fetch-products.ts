@@ -15,6 +15,25 @@ export interface Product {
   categories: string[] | null;
   createdAt: string;
   updatedAt: string;
+
+  openfoodfactData?: {
+    _h?: number;
+    _i?: number;
+    _j?: {
+      image_url?: string;
+      image_front_url?: string;
+      image_front_small_url?: string;
+      image_front_thumb_url?: string;
+      product_name?: string;
+      brands?: string;
+      [key: string]: any;
+    };
+    _k?: any;
+    image_url?: string;
+    product_name?: string;
+    brands?: string;
+    [key: string]: any;
+  } | null;
 }
 
 interface ApiResponse<T> {
@@ -40,5 +59,38 @@ export async function fetchProducts(): Promise<Product[]> {
     throw new Error(result.message || "API returned an error");
   }
 
-  return result.data;
+  const products = result.data.map((product) => ({
+    ...product,
+    ...(product.openfoodfactId ? { openfoodfactData: fetchOpenFoodFactProduct(product.openfoodfactId) } : {})
+  }));
+  return products;
+}
+
+
+export const fetchOpenFoodFactProductByBarcode = async (barcode: string) => {
+  const response = await fetch(`https://world.openfoodfacts.org/api/v0/product/${barcode}.json`);
+  if (!response.ok) {
+    throw new Error("Failed to fetch product from OpenFoodFacts");
+  }
+
+  const result = await response.json();
+  if (result.status !== 1) {
+    throw new Error("Product not found in OpenFoodFacts");
+  }
+
+  return result.product;
+};
+
+const fetchOpenFoodFactProduct = async (openfoodfactId   : string) => {
+  const response = await fetch(`https://world.openfoodfacts.org/api/v0/product/${openfoodfactId}.json`);
+  if (!response.ok) {
+    throw new Error("Failed to fetch product from OpenFoodFacts");
+  }
+
+  const result = await response.json();
+  if (result.status !== 1) {
+    throw new Error("Product not found in OpenFoodFacts");
+  }
+
+  return result.product;
 }

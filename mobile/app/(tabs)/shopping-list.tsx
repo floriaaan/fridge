@@ -2,7 +2,7 @@ import React from 'react';
 import { Text, View, ActivityIndicator } from 'react-native';
 import { useShoppingItems } from '@/hooks/use-shopping-items';
 import { List } from '@/components/ui/list';
-import { ShoppingItemCard } from '@/features/shopping-list/components/shopping-item-card';
+import { ShoppingItemCard } from '@/components/shopping-item-card';
 
 export default function ShoppingListScreen() {
   const { data: items, isLoading, isError, error } = useShoppingItems();
