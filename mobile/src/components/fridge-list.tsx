@@ -1,8 +1,15 @@
-import React from "react";
-import { View, ScrollView, Text, TouchableOpacity, RefreshControl } from "react-native";
+import React, { useState } from "react";
+import {
+  View,
+  ScrollView,
+  Text,
+  TouchableOpacity,
+  RefreshControl,
+} from "react-native";
 import { useRouter } from "expo-router";
 import { type Product } from "@/api/fetch-products";
 import { ProductCard } from "@/components/product-card";
+import { Chip } from "@/components/ui/chip";
 
 type FridgeListProps = {
   products: Product[];
@@ -12,6 +19,20 @@ type FridgeListProps = {
 
 export function FridgeList({ products, refresh, isLoading }: FridgeListProps) {
   const router = useRouter();
+  const [activeFilter, setActiveFilter] = useState<"expiring" | "asc">(
+    "asc"
+  );
+
+  const sortedProducts = products.sort((a, b) => {
+    if (activeFilter === "expiring") {
+      const dateA = a.expiresAt ? new Date(a.expiresAt).getTime() : Infinity;
+      const dateB = b.expiresAt ? new Date(b.expiresAt).getTime() : Infinity;
+      return dateA - dateB;
+    } else if (activeFilter === "asc") {
+      return a.name.localeCompare(b.name);
+    }
+    return 0;
+  });
 
   const handleProductPress = (product: Product) => {
     console.log("Product pressed:", product.openfoodfactData);
@@ -26,7 +47,7 @@ export function FridgeList({ products, refresh, isLoading }: FridgeListProps) {
   return (
     <>
       <ScrollView
-        className="flex-1 p-4"
+        className="flex-1"
         contentContainerStyle={{ paddingBottom: 100 }}
         showsVerticalScrollIndicator={false}
         refreshControl={
@@ -37,12 +58,25 @@ export function FridgeList({ products, refresh, isLoading }: FridgeListProps) {
           />
         }
       >
-        <View className="flex-row flex-wrap justify-between max-w-2xl mx-auto">
-          {products.map((product) => (
+        <View className="flex flex-row items-center gap-1 mb-4 px-4">
+          <Chip
+            label="Expiring soon"
+            isActive={activeFilter === "expiring"}
+            onPress={() => setActiveFilter("expiring")}
+          />
+          <Chip
+            label="Alphabetical"
+            isActive={activeFilter === "asc"}
+            onPress={() => setActiveFilter("asc")}
+          />
+        </View>
+        <View className='flex flex-row flex-wrap flex-1 px-4 gap-4'>
+          {sortedProducts.map((product, index) => (
             <ProductCard
               key={product.id}
               product={product}
               onPress={() => handleProductPress(product)}
+              index={index}
             />
           ))}
         </View>
