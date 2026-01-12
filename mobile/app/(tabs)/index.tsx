@@ -1,35 +1,25 @@
-import { StyleSheet } from 'react-native';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import SignUp from '@/components/sign-up';
-import { authClient } from '@/lib/auth-client';
+import React from 'react';
+import { Text, View, ActivityIndicator } from 'react-native';
+import { useProducts } from '@/hooks/use-products';
+import { List } from '@/components/ui/list';
+import { ProductCard } from '@/components/product-card';
+import { FridgeList } from '@/components/fridge-list';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
-export default function HomeScreen() {
-  const { data: session } = authClient.useSession();
+export default function ProductsScreen() {
+  const { data: products, isLoading, isError, error, refetch } = useProducts();
 
-  return (
-    <ThemedView>
-      <SignUp/>
-      <ThemedText>{session?.user.name}</ThemedText>
-    </ThemedView>
-  );
+
+  if (isError) {
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+        <Text>Error fetching data</Text>
+        <Text>{error?.message}</Text>
+      </View>
+    );
+  }
+
+  return <SafeAreaView className="flex-1 bg-gray-100">
+    <FridgeList products={products?.filter(({quantity}) => quantity > 0) || []} refresh={refetch} isLoading={isLoading} />
+  </SafeAreaView>;
 }
-
-const styles = StyleSheet.create({
-  titleContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
-  },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
-  },
-});
