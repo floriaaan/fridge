@@ -19,9 +19,7 @@ type FridgeListProps = {
 
 export function FridgeList({ products, refresh, isLoading }: FridgeListProps) {
   const router = useRouter();
-  const [activeFilter, setActiveFilter] = useState<"expiring" | "asc">(
-    "asc"
-  );
+  const [activeFilter, setActiveFilter] = useState<"expiring" | "asc">("asc");
 
   const sortedProducts = products.sort((a, b) => {
     if (activeFilter === "expiring") {
@@ -70,15 +68,21 @@ export function FridgeList({ products, refresh, isLoading }: FridgeListProps) {
             onPress={() => setActiveFilter("asc")}
           />
         </View>
-        <View className='flex flex-row flex-wrap flex-1 px-4 gap-4'>
-          {sortedProducts.map((product, index) => (
-            <ProductCard
-              key={product.id}
-              product={product}
-              onPress={() => handleProductPress(product)}
-              index={index}
-            />
-          ))}
+        <View className="flex flex-row flex-wrap flex-1 px-4 gap-4">
+          {sortedProducts.length > 0 ? (
+            sortedProducts.map((product, index) => (
+              <ProductCard
+                key={product.id}
+                product={product}
+                onPress={() => handleProductPress(product)}
+                index={index}
+              />
+            ))
+          ) : (
+            <View className="flex-1 items-center justify-center mt-20">
+              <Text className="text-gray-500 text-lg">No products found.</Text>
+            </View>
+          )}
         </View>
       </ScrollView>
 
