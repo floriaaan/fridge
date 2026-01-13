@@ -1,0 +1,56 @@
+
+> mobile@1.0.0 web
+> expo start --web
+
+Starting project at /app/mobile
+React Compiler enabled
+Starting Metro Bundler
+The following packages should be updated for best compatibility with the installed expo version:
+  @react-native-community/datetimepicker@8.6.0 - expected version: 8.4.4
+Your project may not work correctly until you install the expected versions of the packages.
+Waiting on http://localhost:8081
+Logs for your project will appear below.
+Web node_modules/expo-router/entry.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+Web node_modules/expo-router/entry.js ▓▓▓▓▓▓▓▓▓▓▓▓▓▓░░ 90.6% (1212/1273)
+λ node_modules/expo-router/node/render.js ▓▓▓▓▓▓▓▓▓▓▓▓▓▓░░ 90.5% (1169/1229)
+λ Bundled 4562ms node_modules/expo-router/node/render.js (1416 modules)
+"shadow*" style props are deprecated. Use "boxShadow".
+λ  ERROR  Unsafe legacy lifecycles will not be called for components using new component APIs.
+
+%s uses %s but also contains the following legacy lifecycles:%s%s%s
+
+The above lifecycles should be removed. Learn more about this warning here:
+https://react.dev/link/unsafe-component-lifecycles [Function (anonymous)] getDerivedStateFromProps()
+  componentWillMount
+  componentWillReceiveProps
+  componentWillUpdate
+λ  ERROR  contextType was defined as an instance property on %s. Use a static property to define contextType instead. [Function (anonymous)]
+λ  ERROR  %s uses the legacy childContextTypes API which was removed in React 19. Use React.createContext() instead. (https://react.dev/link/legacy-context) [Function (anonymous)]
+λ  ERROR  %s uses the legacy contextTypes API which was removed in React 19. Use React.createContext() with static contextType instead. (https://react.dev/link/legacy-context) [Function (anonymous)]
+λ  ERROR  %s has a method called componentShouldUpdate(). Did you mean shouldComponentUpdate()? The name is phrased as a question because the function is expected to return a value. [Function (anonymous)]
+λ  ERROR  %s has a method called shouldComponentUpdate(). shouldComponentUpdate should not be used when extending React.PureComponent. Please extend React.Component if shouldComponentUpdate is used. [Function (anonymous)]
+λ  ERROR  %s has a method called componentDidUnmount(). But there is no such lifecycle method. Did you mean componentWillUnmount()? [Function (anonymous)]
+λ  ERROR  %s has a method called componentDidReceiveProps(). But there is no such lifecycle method. If you meant to update the state in response to changing props, use componentWillReceiveProps(). If you meant to fetch data or run side-effects or mutations after React has updated the UI, use componentDidUpdate(). [Function (anonymous)]
+λ  ERROR  %s has a method called componentWillRecieveProps(). Did you mean componentWillReceiveProps()? [Function (anonymous)]
+λ  ERROR  %s has a method called UNSAFE_componentWillRecieveProps(). Did you mean UNSAFE_componentWillReceiveProps()? [Function (anonymous)]
+λ  ERROR  When calling super() in `%s`, make sure to pass up the same props that your component's constructor was passed. [Function (anonymous)]
+λ  ERROR  Setting defaultProps as an instance property on %s is not supported and will be ignored. Instead, define defaultProps as a static property on %s. [Function (anonymous)] [Function (anonymous)]
+λ  ERROR  %s: getDerivedStateFromProps() is defined as an instance method and will be ignored. Instead, declare it as a static method. [Function (anonymous)]
+λ  ERROR  %s: getDerivedStateFromError() is defined as an instance method and will be ignored. Instead, declare it as a static method. [Function (anonymous)]
+λ  ERROR  %s: getSnapshotBeforeUpdate() is defined as a static method and will be ignored. Instead, declare it as an instance method. [Function (anonymous)]
+λ  ERROR  %s.state: must be set to an object or null [Function (anonymous)]
+λ  ERROR  %s.getChildContext(): childContextTypes must be defined in order to use getChildContext(). [Function (anonymous)]
+/app/mobile/node_modules/expo/node_modules/@expo/cli/build/src/utils/errors.js:130
+    throw error;
+    ^
+
+TypeError: Converting circular structure to JSON
+    --> starting at object with constructor 'Object'
+    --- property 'Provider' closes the circle
+    at JSON.stringify (<anonymous>)
+    at getBody (/app/mobile/node_modules/@better-fetch/fetch/dist/index.js:331:17)
+    at betterFetch (/app/mobile/node_modules/@better-fetch/fetch/dist/index.js:545:16)
+    at $fetch (/app/mobile/node_modules/@better-fetch/fetch/dist/index.js:472:12)
+    at Object.apply (/app/mobile/node_modules/better-auth/dist/client/proxy.mjs:39:12)
+
+Node.js v22.21.1
