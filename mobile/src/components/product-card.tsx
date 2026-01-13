@@ -1,5 +1,5 @@
 import { Product } from "@/api/fetch-products";
-import { Image, Text, TouchableOpacity, View } from "react-native";
+import { Text, TouchableOpacity, View } from "react-native";
 import Animated, {
   FadeInDown,
   FadeOutUp,
@@ -8,23 +8,36 @@ import Animated, {
 
 const getCategoryColor = (category: string): string => {
   const colors: Record<string, string> = {
-    vegetables: "#8BC34A",
-    dairy: "#81C4E8",
-    meat: "#D98841",
-    poultry: "#4A4238",
-    fruits: "#FF9800",
-    beverages: "#03A9F4",
-    snacks: "#FFC107",
-    condiments: "#795548",
+    vegetables: "#E8F5E9",
+    dairy: "#E3F2FD",
+    meat: "#FBE9E7",
+    poultry: "#EFEBE9",
+    fruits: "#FFF3E0",
+    beverages: "#E1F5FE",
+    snacks: "#FFFDE7",
+    condiments: "#EFEBE9",
   };
-  return colors[category.toLowerCase()] || "#9E9E9E";
+  return colors[category.toLowerCase()] || "#F5F5F5";
+};
+
+const getCategoryTextColor = (category: string): string => {
+  const colors: Record<string, string> = {
+    vegetables: "#2E7D32",
+    dairy: "#1565C0",
+    meat: "#BF360C",
+    poultry: "#4E342E",
+    fruits: "#EF6C00",
+    beverages: "#0277BD",
+    snacks: "#F9A825",
+    condiments: "#4E342E",
+  };
+  return colors[category.toLowerCase()] || "#424242";
 };
 
 const formatDate = (dateString: string | null): string => {
   if (!dateString) return "No expiry date";
   const date = new Date(dateString);
   return date.toLocaleDateString("en-US", {
-    year: "numeric",
     month: "long",
     day: "numeric",
   });
@@ -56,21 +69,19 @@ export const ProductCard: React.FC<ProductCardProps> = ({
   onPress,
   index,
 }) => {
-  const color = getCategoryColor(product.category);
+  const bgColor = getCategoryColor(product.category);
+  const textColor = getCategoryTextColor(product.category);
   const expiring = isExpiringSoon(product.expiresAt);
   const expired = isExpired(product.expiresAt);
 
   const dotColor = expired ? "#EF4444" : expiring ? "#FBBF24" : "#4CAF50";
-  // Extract image URL from openfoodfactData structure
-  const imageUrl =
-    product.openfoodfactData?._j?.image_front_url ||
-    product.openfoodfactData?._j?.image_url ||
-    product.openfoodfactData?.image_url;
+
   return (
     <TouchableOpacity
       onPress={onPress}
-      className="relative rounded-3xl overflow-hidden shadow-lg w-[48%] aspect-square "
-      activeOpacity={0.9}
+      className="w-full"
+      activeOpacity={0.8}
+      testID={`product-card-${product.id}`}
     >
       <Animated.View
         entering={FadeInDown.delay(index ? index * 50 : 0)
@@ -78,91 +89,49 @@ export const ProductCard: React.FC<ProductCardProps> = ({
           .damping(100)
           .stiffness(600)}
         exiting={FadeOutUp.springify()}
-        layout={LinearTransition.springify(0).damping(80).stiffness(600)}
-
-
-        className="w-full p-1.5"
+        layout={LinearTransition.springify().damping(80).stiffness(600)}
+        className="flex-row items-center justify-between p-4 rounded-2xl h-20"
+        style={{ backgroundColor: bgColor }}
       >
-        {/* Background image - blurred and zoomed */}
-        {imageUrl ? (
-          <>
-            <Image
-              source={{ uri: imageUrl }}
-              className="absolute inset-0 w-full h-full"
-              style={{
-                resizeMode: "cover",
-                transform: [{ scale: 1.5 }],
-              }}
-              blurRadius={20}
-            />
-            {/* Dark overlay for better text readability */}
+        <View className="flex-1">
+          <Text
+            className="text-lg font-bold"
+            style={{ color: textColor }}
+            numberOfLines={1}
+          >
+            {product.name}
+          </Text>
+          <Text
+            className="text-sm opacity-80"
+            style={{ color: textColor }}
+            numberOfLines={1}
+          >
+            {product.quantity} {product.unit} • {product.location}
+          </Text>
+        </View>
+        <View className="items-end">
+          <View className="flex-row items-center gap-2">
             <View
-              className="absolute inset-0"
-              style={{ backgroundColor: "rgba(0, 0, 0, 0.4)" }}
+              className="w-2.5 h-2.5 rounded-full"
+              style={{ backgroundColor: dotColor }}
             />
-          </>
-        ) : (
-          <View
-            className="absolute inset-0"
-            style={{ backgroundColor: color }}
-          />
-        )}
-
-        <TouchableOpacity
-          className="absolute top-3 right-3 w-8 h-8 rounded-full items-center justify-center z-10"
-          style={{ backgroundColor: "rgba(255, 255, 255, 0.3)" }}
-          onPress={(e) => {
-            e.stopPropagation();
-            console.log("Menu clicked for:", product.name);
-          }}
-        >
-          <View className="flex-row gap-0.5">
-            <View className="w-1 h-1 rounded-full bg-white" />
-            <View className="w-1 h-1 rounded-full bg-white" />
-            <View className="w-1 h-1 rounded-full bg-white" />
-          </View>
-        </TouchableOpacity>
-
-        <View className="h-full flex-col justify-between p-4">
-          <View className="flex-1 items-center justify-center">
-            {imageUrl ? (
-              <Image
-                source={{ uri: imageUrl }}
-                className="w-full h-full"
-                style={{
-                  resizeMode: "contain",
-                }}
-              />
-            ) : (
-              <Text
-                className="text-5xl text-white font-bold"
-                style={{ opacity: 0.3 }}
-              >
-                {product.name.charAt(0).toUpperCase()}
-              </Text>
-            )}
-          </View>
-
-          <View>
             <Text
-              className="text-2xl font-bold text-white mb-0.5"
-              numberOfLines={1}
+              className="text-sm font-medium"
+              style={{ color: textColor }}
             >
-              {product.name}
+              {formatDate(product.expiresAt)}
             </Text>
-            <Text className="text-sm text-white mb-2" style={{ opacity: 0.9 }}>
-              {product.quantity} {product.unit} • {product.location}
-            </Text>
-            <View className="flex-row items-center gap-2">
-              <View
-                className="w-2 h-2 rounded-full"
-                style={{ backgroundColor: dotColor }}
-              />
-              <Text className="text-sm text-white" style={{ opacity: 0.95 }}>
-                {formatDate(product.expiresAt)}
-              </Text>
-            </View>
           </View>
+          <Text
+            className="text-xs mt-1 px-2 py-0.5 rounded-full"
+            style={{
+              backgroundColor: textColor,
+              color: bgColor,
+              opacity: 0.9,
+            }}
+          >
+            {product.category}
+          </Text>
         </View>
       </Animated.View>
     </TouchableOpacity>

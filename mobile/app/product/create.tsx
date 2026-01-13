@@ -1,4 +1,4 @@
-import React, { useMemo, useState, useEffect } from "react";
+import React, { useState } from "react";
 import {
   View,
   Text,
@@ -10,7 +10,6 @@ import {
   KeyboardAvoidingView,
   Platform,
   Image,
-  ActivityIndicator,
 } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -20,6 +19,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useCreateProduct } from "@/hooks/use-products";
 import { SelectModal } from "@/components/select-modal";
 import { DatePickerModal } from "@/components/date-picker-modal";
+import { Snackbar } from "@/components/ui/snackbar";
 
 const UNITS = ["g", "kg", "ml", "L", "pièce", "portion"];
 const CATEGORIES = [
@@ -51,27 +51,14 @@ export default function ProductCreateScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const createProduct = useCreateProduct();
+  const [snackbar, setSnackbar] = useState<{
+    visible: boolean;
+    message: string;
+  }>({ visible: false, message: "" });
 
-  const { barcode, name } = useMemo(
-    () => ({
-      barcode:
-        typeof params.barcode === "string"
-          ? params.barcode
-          : Array.isArray(params.barcode)
-            ? params.barcode[0]
-            : "",
-      name:
-        typeof params.name === "string"
-          ? params.name
-          : Array.isArray(params.name)
-            ? params.name[0]
-            : "",
-    }),
-    [params]
-  );
+  const product = JSON.parse(params.product as string);
 
-  const [productImage, setProductImage] = useState<string | null>(null);
-  const [loadingImage, setLoadingImage] = useState(false);
+  const productImage = product?.image_url || null;
   const [showUnitModal, setShowUnitModal] = useState(false);
   const [showCategoryModal, setShowCategoryModal] = useState(false);
   const [showDatePicker, setShowDatePicker] = useState(false);
@@ -106,35 +93,14 @@ export default function ProductCreateScreen() {
   } = useForm<ProductFormData>({
     resolver: zodResolver(productSchema),
     defaultValues: {
-      name: name || "",
+      name: product?.product_name || "",
       quantity: "1",
-      unit: "g",
+      unit: "pièce",
       location: "frigo",
-      category: "other",
-      openfoodfactId: barcode || undefined,
+      category: mapOpenFoodFactsCategory(product?.categories),
+      openfoodfactId: product?.code || undefined,
     },
   });
-
-  useEffect(() => {
-    if (barcode) {
-      setLoadingImage(true);
-      fetch(`https://world.openfoodfacts.org/api/v2/product/${barcode}.json`)
-        .then((res) => res.json())
-        .then((data) => {
-          if (data.status === 1) {
-            if (data.product?.image_url) {
-              setProductImage(data.product.image_url);
-            }
-            const mappedCategory = mapOpenFoodFactsCategory(
-              data.product?.categories
-            );
-            setValue("category", mappedCategory);
-          }
-        })
-        .catch((error) => console.error("Error fetching product image:", error))
-        .finally(() => setLoadingImage(false));
-    }
-  }, [barcode, setValue]);
 
   const selectedUnit = watch("unit");
   const selectedCategory = watch("category");
@@ -148,9 +114,16 @@ export default function ProductCreateScreen() {
           quantity: parseInt(data.quantity, 10),
         },
       ]);
-      router.back();
+      setSnackbar({ visible: true, message: "Produit créé avec succès !" });
+      setTimeout(() => {
+        router.go(-2);
+      }, 1000);
     } catch (error) {
       console.error("Error creating product:", error);
+      setSnackbar({
+        visible: true,
+        message: "Erreur lors de la création du produit",
+      });
     }
   };
 
@@ -165,27 +138,18 @@ export default function ProductCreateScreen() {
           className="flex-1 bg-gray-50 px-5"
           style={{ paddingTop: 16, paddingBottom: insets.bottom + 24 }}
         >
-          {barcode && (
+          {product?.code && (
             <View className="bg-gray-100 p-3 rounded-lg mb-4">
               <Text className="text-xs text-gray-500 mb-1">
                 Code-barres détecté
               </Text>
               <Text className="text-sm font-semibold text-gray-900">
-                {barcode}
+                {product?.code}
               </Text>
             </View>
           )}
 
-          {loadingImage && (
-            <View className="items-center justify-center bg-white rounded-xl p-8 mb-4 border border-gray-200">
-              <ActivityIndicator size="large" color="#111827" />
-              <Text className="text-gray-500 text-sm mt-2">
-                Chargement de l&apos;image...
-              </Text>
-            </View>
-          )}
-
-          {productImage && !loadingImage && (
+          {productImage && (
             <View className="mb-4 bg-white p-2 rounded-xl overflow-hidden border border-gray-200">
               <Image
                 source={{ uri: productImage }}
@@ -379,6 +343,11 @@ export default function ProductCreateScreen() {
           </View>
         </View>
       </TouchableWithoutFeedback>
+      <Snackbar
+        visible={snackbar.visible}
+        message={snackbar.message}
+        onDismiss={() => setSnackbar({ ...snackbar, visible: false })}
+      />
     </KeyboardAvoidingView>
   );
 }

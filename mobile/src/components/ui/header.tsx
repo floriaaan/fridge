@@ -4,7 +4,6 @@ import { useRouter } from "expo-router";
 
 import { Ionicons } from "@expo/vector-icons";
 
-import { useState } from "react";
 import { authClient } from "@/lib/auth-client";
 
 interface HeaderProps {

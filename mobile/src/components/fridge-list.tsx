@@ -5,11 +5,14 @@ import {
   Text,
   TouchableOpacity,
   RefreshControl,
+  TextInput,
+  Modal,
 } from "react-native";
 import { useRouter } from "expo-router";
 import { type Product } from "@/api/fetch-products";
 import { ProductCard } from "@/components/product-card";
 import { Chip } from "@/components/ui/chip";
+import { GradientChip } from "@/components/ui/gradient-chip";
 
 type FridgeListProps = {
   products: Product[];
@@ -20,6 +23,8 @@ type FridgeListProps = {
 export function FridgeList({ products, refresh, isLoading }: FridgeListProps) {
   const router = useRouter();
   const [activeFilter, setActiveFilter] = useState<"expiring" | "asc">("asc");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [isAiModalVisible, setAiModalVisible] = useState(false);
 
   const sortedProducts = products.sort((a, b) => {
     if (activeFilter === "expiring") {
@@ -32,10 +37,17 @@ export function FridgeList({ products, refresh, isLoading }: FridgeListProps) {
     return 0;
   });
 
+  const filteredProducts = sortedProducts.filter(
+    (product) =>
+      product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      product.category.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
   const handleProductPress = (product: Product) => {
-    console.log("Product pressed:", product.openfoodfactData);
-    // Navigate to product detail or edit screen
-    // navigation.navigate('ProductDetail', { productId: product.id });
+    router.push({
+      pathname: `/product/${product.id}`,
+      params: { product: JSON.stringify(product) },
+    });
   };
 
   const handleAddProduct = () => {
@@ -67,10 +79,22 @@ export function FridgeList({ products, refresh, isLoading }: FridgeListProps) {
             isActive={activeFilter === "asc"}
             onPress={() => setActiveFilter("asc")}
           />
+          <GradientChip
+            label="AI Recipe"
+            onPress={() => setAiModalVisible(true)}
+          />
         </View>
-        <View className="flex flex-row flex-wrap flex-1 px-4 gap-4">
-          {sortedProducts.length > 0 ? (
-            sortedProducts.map((product, index) => (
+        <View className="px-4 mb-4">
+          <TextInput
+            placeholder="Search products..."
+            value={searchQuery}
+            onChangeText={setSearchQuery}
+            className="bg-gray-100 rounded-xl px-4 py-3 text-lg"
+          />
+        </View>
+        <View className="flex flex-col flex-1 px-4 gap-4">
+          {filteredProducts.length > 0 ? (
+            filteredProducts.map((product, index) => (
               <ProductCard
                 key={product.id}
                 product={product}
@@ -86,11 +110,34 @@ export function FridgeList({ products, refresh, isLoading }: FridgeListProps) {
         </View>
       </ScrollView>
 
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={isAiModalVisible}
+        onRequestClose={() => setAiModalVisible(false)}
+      >
+        <View className="flex-1 justify-center items-center bg-black bg-opacity-50">
+          <View className="bg-white p-8 rounded-xl w-11/12">
+            <Text className="text-2xl font-bold mb-4">AI Recipe Generator</Text>
+            <Text className="text-lg mb-8">
+              This feature is coming soon!
+            </Text>
+            <TouchableOpacity
+              onPress={() => setAiModalVisible(false)}
+              className="bg-black py-3 rounded-xl items-center"
+            >
+              <Text className="text-white font-semibold text-lg">Close</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+
       <View className="absolute bottom-5 left-5 right-5">
         <TouchableOpacity
           onPress={handleAddProduct}
           className="bg-black py-4 rounded-xl shadow-xl items-center"
           activeOpacity={0.8}
+          testID="add-product-button"
         >
           <Text className="text-white font-semibold text-lg">
             Add a product

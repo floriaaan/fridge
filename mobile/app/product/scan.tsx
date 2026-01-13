@@ -91,9 +91,7 @@ export default function ScanScreen() {
         router.push({
           pathname: "/product/create",
           params: {
-            barcode: value,
-            name: productName,
-            brand: product?.brands || "",
+            product: JSON.stringify(product),
           },
         });
       } catch (error) {
