@@ -17,6 +17,7 @@ export default function TabLayout() {
           tabBarIcon: ({ color, size }) => <Ionicons name="cart" size={size} color={color} />,
         }}
       />
+
       <Tabs.Screen
         name="index"
         options={{

@@ -106,6 +106,8 @@ export default function ProductCreateScreen() {
   const selectedCategory = watch("category");
   const selectedDate = watch("expiresAt");
 
+  console.log("Product image", productImage);
+
   const onSubmit = async (data: ProductFormData) => {
     try {
       await createProduct.mutateAsync([
@@ -116,7 +118,7 @@ export default function ProductCreateScreen() {
       ]);
       setSnackbar({ visible: true, message: "Produit créé avec succès !" });
       setTimeout(() => {
-        router.go(-2);
+        router.dismissTo("/(tabs)");
       }, 1000);
     } catch (error) {
       console.error("Error creating product:", error);

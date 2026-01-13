@@ -1,13 +1,12 @@
-import { DefaultTheme, ThemeProvider } from '@react-navigation/native';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { Stack } from 'expo-router';
-import { StatusBar } from 'expo-status-bar';
-import 'react-native-reanimated';
+import { DefaultTheme, ThemeProvider } from "@react-navigation/native";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { Stack } from "expo-router";
+import { StatusBar } from "expo-status-bar";
+import "react-native-reanimated";
 import "../assets/global.css";
 
-
 export const unstable_settings = {
-  anchor: '(tabs)',
+  anchor: "(tabs)",
 };
 
 const queryClient = new QueryClient();
@@ -17,9 +16,23 @@ export default function RootLayout() {
     <QueryClientProvider client={queryClient}>
       <ThemeProvider value={DefaultTheme}>
         <Stack>
-          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-          <Stack.Screen name="product/scan" options={{ presentation: 'modal', title: 'Scan a barcode' }} />
-          <Stack.Screen name="product/create" options={{ presentation: 'modal', title: 'Add product' }} />
+          <Stack.Screen name="(tabs)" options={{ headerShown: false, title: "Fridge" }} />
+          <Stack.Screen
+            name="product/scan"
+            options={{ presentation: "modal", title: "Scan a barcode" }}
+          />
+          <Stack.Screen
+            name="product/create"
+            options={{ presentation: "modal", title: "Add product" }}
+          />
+          <Stack.Screen
+            name="product/[id]"
+            options={{ title: "Product details", headerShown: false }}
+          />
+          <Stack.Screen
+            name="recipe/generate"
+            options={{ title: "AI Recipe Generator", headerShown: false }}
+          />
         </Stack>
         <StatusBar style="auto" />
       </ThemeProvider>

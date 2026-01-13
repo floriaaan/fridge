@@ -6,14 +6,12 @@ import { productController } from "@/application/controller/product";
 import { recipeController } from "@/application/controller/recipe";
 import { shoppingItemController } from "@/application/controller/shopping-item";
 
-const api = new Elysia({ prefix: "/api" })
-  .use(productController)
-  .use(shoppingItemController)
-  .use(recipeController);
+const api = new Elysia({ prefix: "/api" }).use(productController).use(shoppingItemController).use(recipeController);
 
 const app = new Elysia({ adapter: node() })
   .use(authMiddleware)
   .use(loggerMiddleware)
+
   .get("/", () => "Hello Elysia")
   .get("/user", ({ user }) => user, { auth: true })
   .use(api)
