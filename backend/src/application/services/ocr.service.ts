@@ -38,7 +38,12 @@ export class OCRService {
   async extractReceiptData(imageBase64: string): Promise<ReceiptData> {
     const { ai } = await import("@/infrastructure/ai");
     const result = await ai.parseReceiptImage(imageBase64, "fr");
-    return result;
+    
+    // Convert date string to Date object
+    return {
+      ...result,
+      date: new Date(result.date),
+    };
   }
 
   async enhanceWithOpenFoodFacts(
@@ -64,18 +69,7 @@ export class OCRService {
             };
           }
 
-          const bestMatch = offResults[0];
-          if (!bestMatch) {
-            return {
-              name: item.name,
-              quantity: item.quantity,
-              unit: item.unit || "pièce",
-              price: item.price,
-              category: "other",
-              confidence: "low" as const,
-            };
-          }
-
+          const bestMatch = offResults[0]!;
           const category = this.categorizeProduct(bestMatch.categories || "");
           const expiryDays = estimateExpiryDays(category);
 
