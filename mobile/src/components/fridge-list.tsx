@@ -58,6 +58,10 @@ export function FridgeList({ products, refresh, isLoading }: FridgeListProps) {
     router.push("/product/scan");
   };
 
+  const handleScanReceipt = () => {
+    router.push("/receipt/scan");
+  };
+
   const handleGenerateRecipe = () => {
     router.push("/recipe/generate");
   };
@@ -156,22 +160,40 @@ export function FridgeList({ products, refresh, isLoading }: FridgeListProps) {
       </ScrollView>
 
       <View className="absolute bottom-5 left-5 right-5">
-        <TouchableOpacity
-          onPress={handleAddProduct}
-          className="bg-black py-4 rounded-xl shadow-xl flex flex-row items-center justify-center"
-          activeOpacity={0.8}
-          testID="add-product-button"
-        >
-          <Ionicons
-            name="add-circle-outline"
-            size={24}
-            color="white"
-            className="mr-2"
-          />
-          <Text className="text-white font-semibold text-lg">
-            Add a product
-          </Text>
-        </TouchableOpacity>
+        <View className="flex-row gap-3">
+          <TouchableOpacity
+            onPress={handleScanReceipt}
+            className="flex-1 bg-green-600 py-4 rounded-xl shadow-xl flex flex-row items-center justify-center"
+            activeOpacity={0.8}
+          >
+            <Ionicons
+              name="document-text-outline"
+              size={24}
+              color="white"
+              className="mr-2"
+            />
+            <Text className="text-white font-semibold text-base">
+              Scan ticket
+            </Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            onPress={handleAddProduct}
+            className="flex-1 bg-black py-4 rounded-xl shadow-xl flex flex-row items-center justify-center"
+            activeOpacity={0.8}
+            testID="add-product-button"
+          >
+            <Ionicons
+              name="add-circle-outline"
+              size={24}
+              color="white"
+              className="mr-2"
+            />
+            <Text className="text-white font-semibold text-base">
+              Add product
+            </Text>
+          </TouchableOpacity>
+        </View>
       </View>
     </GestureHandlerRootView>
   );
