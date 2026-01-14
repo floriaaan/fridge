@@ -1,12 +1,16 @@
 import React from "react";
 import { Text, View } from "react-native";
-import { useProducts } from "@/hooks/use-products";
-import { FridgeList } from "@/components/fridge-list";
+import { useProducts } from "@/domain/hooks/use-products";
+import { FridgeList } from "@/presentation/components/fridge-list";
 import { SafeAreaView } from "react-native-safe-area-context";
-import Header from "@/components/ui/header";
+import Header from "@/presentation/components/ui/header";
+import { useResponsive } from "@/domain/hooks/use-responsive";
+import { QuickStats } from "@/presentation/components/quick-stats";
 
 export default function ProductsScreen() {
   const { data: products, isLoading, isError, error, refetch } = useProducts();
+  const { isTablet, isLandscape } = useResponsive();
+  const isTabletLandscape = isTablet && isLandscape;
 
   if (isError) {
     return (
@@ -20,11 +24,20 @@ export default function ProductsScreen() {
   return (
     <SafeAreaView className="flex-1 bg-gray-100">
       <Header title="Fridge" />
-      <FridgeList
-        products={products?.filter(({ quantity }) => quantity > 0) || []}
-        refresh={refetch}
-        isLoading={isLoading}
-      />
+      <View className="flex-1 flex-row">
+        <View className="flex-1">
+          <FridgeList
+            products={products?.filter(({ quantity }) => quantity > 0) || []}
+            refresh={refetch}
+            isLoading={isLoading}
+          />
+        </View>
+        {isTabletLandscape && (
+          <View className="w-1/3">
+            <QuickStats />
+          </View>
+        )}
+      </View>
     </SafeAreaView>
   );
 }
