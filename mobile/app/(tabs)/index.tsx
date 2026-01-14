@@ -1,11 +1,12 @@
 import React from "react";
 import { Text, View } from "react-native";
-import { useProducts } from "@/domain/hooks/use-products";
-import { FridgeList } from "@/presentation/components/fridge-list";
+import { useProducts } from "@/hooks/use-products";
+import { FridgeList } from "@/components/fridge-list";
 import { SafeAreaView } from "react-native-safe-area-context";
-import Header from "@/presentation/components/ui/header";
-import { useResponsive } from "@/domain/hooks/use-responsive";
-import { QuickStats } from "@/presentation/components/quick-stats";
+import Header from "@/components/ui/header";
+import { useResponsive } from "@/hooks/use-responsive";
+import { QuickStats } from "@/components/quick-stats";
+import { RecentProductsFeed } from "@/components/recent-products-feed";
 
 export default function ProductsScreen() {
   const { data: products, isLoading, isError, error, refetch } = useProducts();
@@ -33,8 +34,9 @@ export default function ProductsScreen() {
           />
         </View>
         {isTabletLandscape && (
-          <View className="w-1/3">
+          <View className="w-1/3 flex flex-col">
             <QuickStats />
+            <RecentProductsFeed />
           </View>
         )}
       </View>

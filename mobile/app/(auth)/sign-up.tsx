@@ -11,12 +11,12 @@ import {
 } from "react-native";
 import { Link, useRouter } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { AuthLayout } from "@/presentation/components/auth-layout";
+import { AuthLayout } from "@/components/auth-layout";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { authClient } from "@/lib/auth-client";
-import Snackbar, { SnackbarRef } from "@/presentation/components/ui/snackbar";
+import Snackbar, { SnackbarRef } from "@/components/ui/snackbar";
 import Animated, { FadeInDown, FadeInUp } from "react-native-reanimated";
 import { Ionicons } from "@expo/vector-icons";
 

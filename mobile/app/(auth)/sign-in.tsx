@@ -2,14 +2,15 @@ import React, { useRef, useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, ActivityIndicator, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
 import { Link, useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { AuthLayout } from '@/presentation/components/auth-layout';
+import { AuthLayout } from '@/components/auth-layout';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { authClient } from '@/lib/auth-client';
-import Snackbar, { SnackbarRef } from '@/presentation/components/ui/snackbar';
+
 import Animated, { FadeInDown, FadeInUp } from 'react-native-reanimated';
 import { Ionicons } from '@expo/vector-icons';
+import Snackbar, { SnackbarRef } from '@/components/ui/snackbar';
 
 const signInSchema = z.object({
   email: z.string().email('Invalid email address'),

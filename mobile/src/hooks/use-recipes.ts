@@ -3,7 +3,7 @@ import {
   fetchRecipes,
   fetchRecipeSuggestions,
   generateRecipes,
-} from "../api/fetch-recipes";
+} from "@/lib/api/fetch-recipes";
 
 export function useRecipes() {
   return useQuery({

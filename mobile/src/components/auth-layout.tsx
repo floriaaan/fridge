@@ -2,8 +2,8 @@ import React from 'react';
 import { View, Text } from 'react-native';
 import LottieView from 'lottie-react-native';
 import Animated, { FadeInUp } from 'react-native-reanimated';
-import { useResponsive } from '@/domain/hooks/use-responsive';
-import welcomeAnimation from '../../../assets/lottie/welcome.json';
+import { useResponsive } from '@/hooks/use-responsive';
+import welcomeAnimation from '../../assets/lottie/welcome.json';
 
 type AuthLayoutProps = {
   children: React.ReactNode;

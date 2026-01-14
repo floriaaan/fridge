@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import * as ScreenOrientation from 'expo-screen-orientation';
-import { isTablet } from 'react-native-device-info';
+import * as Device from 'expo-device';
 
 export function useResponsive() {
   const [orientation, setOrientation] = useState<ScreenOrientation.Orientation | null>(null);
@@ -26,5 +26,5 @@ export function useResponsive() {
     orientation === ScreenOrientation.Orientation.LANDSCAPE_LEFT ||
     orientation === ScreenOrientation.Orientation.LANDSCAPE_RIGHT;
 
-  return { isTablet: isTablet(), isLandscape };
+  return { isTablet: Device.deviceType === Device.DeviceType.TABLET, isLandscape };
 }

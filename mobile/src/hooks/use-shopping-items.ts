@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { fetchShoppingItems } from '../api/fetch-shopping-items';
+import { fetchShoppingItems } from '@/lib/api/fetch-shopping-items';
 
 export function useShoppingItems() {
   return useQuery({

@@ -3,7 +3,7 @@
     "name": "fridge",
     "slug": "fridge",
     "version": "1.0.0",
-    "orientation": "portrait",
+    "orientation": "default",
     "icon": "./assets/images/icon.png",
     "scheme": "fridge",
     "userInterfaceStyle": "automatic",
