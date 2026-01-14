@@ -1,6 +1,4 @@
 import React from "react";
-import { Product } from "@/api/fetch-products";
-import { useUpdateProduct } from "@/hooks/use-update-product";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import {
   Image,
@@ -15,6 +13,8 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import Animated, { FadeInDown, FadeInUp } from "react-native-reanimated";
 import { Ionicons } from "@expo/vector-icons";
+import { Product } from "@/lib/api/fetch-products";
+import { useUpdateProduct } from "@/hooks/use-update-product";
 
 const getCategoryColor = (category: string): string => {
   const colors: Record<string, string> = {

@@ -8,7 +8,7 @@ import {
 } from "react-native";
 import { Ionicons, MaterialIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
-import { type Recipe } from "@/api/fetch-recipes";
+import { type Recipe } from "@/lib/api/fetch-recipes";
 import { RecipeCard } from "@/components/recipe-card";
 import { Chip } from "@/components/ui/chip";
 

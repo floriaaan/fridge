@@ -1,7 +1,8 @@
+import { API_BASE_URL } from '@/lib/api-config';
+import { fetchProducts } from '@/lib/api/fetch-products';
+import { authClient } from '@/lib/auth-client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { fetchProducts } from '../api/fetch-products';
-import { API_BASE_URL } from '../lib/api-config';
-import { authClient } from '../lib/auth-client';
+
 
 interface CreateProductInput {
   name: string;

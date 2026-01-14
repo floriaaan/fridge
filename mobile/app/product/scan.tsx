@@ -20,7 +20,7 @@ import {
 import { useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useIsFocused } from "@react-navigation/native";
-import { fetchOpenFoodFactProductByBarcode } from "@/api/fetch-products";
+import { fetchOpenFoodFactProductByBarcode } from "@/lib/api/fetch-products";
 
 export default function ScanScreen() {
   const router = useRouter();

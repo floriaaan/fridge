@@ -1,6 +1,6 @@
 import React from 'react';
 import { Text, View, StyleSheet } from 'react-native';
-import { type ShoppingItem } from '@/api/fetch-shopping-items';
+import { type ShoppingItem } from '@/lib/api/fetch-shopping-items';
 import { Card } from '@/components/ui/card';
 
 type ShoppingItemCardProps = {

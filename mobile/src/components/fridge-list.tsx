@@ -7,9 +7,10 @@ import {
   RefreshControl,
   TextInput,
 } from "react-native";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { Ionicons, MaterialIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
-import { type Product } from "@/api/fetch-products";
+import { type Product } from "@/lib/api/fetch-products";
 import { ProductCard } from "@/components/product-card";
 import { Chip } from "@/components/ui/chip";
 import { GradientChip } from "@/components/ui/gradient-chip";
@@ -24,7 +25,7 @@ export function FridgeList({ products, refresh, isLoading }: FridgeListProps) {
   const router = useRouter();
   const [activeFilter, setActiveFilter] = useState<
     "expiring" | "asc" | "category"
-  >("asc");
+  >("expiring");
   const [searchQuery, setSearchQuery] = useState("");
 
   const sortedProducts = products.sort((a, b) => {
@@ -62,32 +63,54 @@ export function FridgeList({ products, refresh, isLoading }: FridgeListProps) {
   };
 
   return (
-    <>
+    <GestureHandlerRootView style={{ flex: 1 }}>
       <ScrollView
         horizontal
         className="flex-grow-0"
         contentContainerClassName="flex items-center gap-1 flex flex-row mb-4 px-4 h-12"
         showsHorizontalScrollIndicator={false}
       >
+        <GradientChip
+          label="AI Recipe"
+          onPress={handleGenerateRecipe}
+          icon={<Ionicons name="sparkles" size={16} />}
+        />
+        <View className="w-px h-6 bg-gray-300 mx-1" />
         <Chip
           label="Expiring soon"
           isActive={activeFilter === "expiring"}
           onPress={() => setActiveFilter("expiring")}
+          icon={
+            <Ionicons
+              name="time"
+              size={16}
+              color={activeFilter === "expiring" ? "white" : "#6B7280"}
+            />
+          }
         />
         <Chip
           label="Alphabetical"
           isActive={activeFilter === "asc"}
           onPress={() => setActiveFilter("asc")}
+          icon={
+            <Ionicons
+              name="text"
+              size={16}
+              color={activeFilter === "asc" ? "white" : "#6B7280"}
+            />
+          }
         />
         <Chip
           label="Category"
           isActive={activeFilter === "category"}
           onPress={() => setActiveFilter("category")}
-        />
-        <GradientChip
-          label="AI Recipe"
-          onPress={handleGenerateRecipe}
-          icon={<Ionicons name="sparkles" size={16} />}
+          icon={
+            <Ionicons
+              name="grid-outline"
+              size={16}
+              color={activeFilter === "category" ? "white" : "#6B7280"}
+            />
+          }
         />
       </ScrollView>
       <ScrollView
@@ -135,15 +158,21 @@ export function FridgeList({ products, refresh, isLoading }: FridgeListProps) {
       <View className="absolute bottom-5 left-5 right-5">
         <TouchableOpacity
           onPress={handleAddProduct}
-          className="bg-black py-4 rounded-xl shadow-xl items-center"
+          className="bg-black py-4 rounded-xl shadow-xl flex flex-row items-center justify-center"
           activeOpacity={0.8}
           testID="add-product-button"
         >
+          <Ionicons
+            name="add-circle-outline"
+            size={24}
+            color="white"
+            className="mr-2"
+          />
           <Text className="text-white font-semibold text-lg">
             Add a product
           </Text>
         </TouchableOpacity>
       </View>
-    </>
+    </GestureHandlerRootView>
   );
 }

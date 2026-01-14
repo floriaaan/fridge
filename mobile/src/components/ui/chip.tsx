@@ -1,14 +1,16 @@
-import { Pressable, Text } from "react-native";
+import { Pressable, Text, View } from "react-native";
 import Animated, { FadeInLeft, FadeOutLeft } from "react-native-reanimated";
 
 export const Chip = ({
   label,
   isActive,
   onPress,
+  icon,
 }: {
   label: string;
   isActive: boolean;
   onPress: () => void;
+  icon?: React.ReactNode;
 }) => {
   return (
     <Pressable
@@ -22,11 +24,18 @@ export const Chip = ({
           className="absolute inset-0 bg-black rounded-full"
         />
       )}
-      <Text
-        className={`text-sm font-semibold relative z-10 ${isActive ? "text-white" : "opacity-60"}`}
-      >
-        {label}
-      </Text>
+      <View className="flex-row items-center gap-1.5 relative z-10">
+        {icon && (
+          <View className={isActive ? "text-white" : "opacity-60"}>
+            {icon}
+          </View>
+        )}
+        <Text
+          className={`text-sm font-semibold ${isActive ? "text-white" : "opacity-60"}`}
+        >
+          {label}
+        </Text>
+      </View>
     </Pressable>
   );
 };
