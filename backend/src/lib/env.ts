@@ -6,8 +6,11 @@ const envSchema = z.object({
   DATABASE_URL: z.url(),
   BETTER_AUTH_SECRET: z.string(),
   BETTER_AUTH_URL: z.url(),
-  AUTH_GOOGLE_ID: z.string().optional(),
-  AUTH_GOOGLE_SECRET: z.string().optional(),
+  GOOGLE_CLIENT_ID: z.string().optional(),
+  GOOGLE_CLIENT_SECRET: z.string().optional(),
+  POCKETID_CLIENT_ID: z.string().optional(),
+  POCKETID_CLIENT_SECRET: z.string().optional(),
+  POCKETID_ISSUER: z.string().optional(),
 
   // Recipes Suggestions
   AI_PROVIDER: z.enum(["gemini", "openai", "ollama"]).default("ollama"),
