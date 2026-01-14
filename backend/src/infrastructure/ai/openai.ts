@@ -76,7 +76,7 @@ export class OpenAiProvider implements AiProvider {
    - Unit if applicable (g, kg, ml, L, pièce, portion)
 4. Total amount (the final total at the bottom)
 
-Be as accurate as possible. If you can't find specific information, make reasonable estimates. Return the data in French (${language}).`,
+Be as accurate as possible. If you can't find specific information, make reasonable estimates. Return the data in ${language}.`,
               },
               {
                 type: "image",

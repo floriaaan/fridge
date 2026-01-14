@@ -4,6 +4,7 @@ import { FridgeResponse } from "@/application/entities/response";
 import { db } from "@/infrastructure/database";
 import { receipt, product } from "@/infrastructure/database/schema";
 import { Product } from "@/domain/entity/product";
+import { Receipt } from "@/domain/entity/receipt";
 
 interface ImportReceiptItem {
   name: string;
@@ -29,7 +30,7 @@ export const importReceipt = async ({
   user,
   body,
   status,
-}: Context & { user: User }): Promise<FridgeResponse<{ receipt: any; products: Product[] }>> => {
+}: Context & { user: User }): Promise<FridgeResponse<{ receipt: Receipt; products: Product[] }>> => {
   if (!user) {
     status(401);
     return { error: "Unauthorized" };

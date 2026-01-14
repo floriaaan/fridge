@@ -1,5 +1,6 @@
 import { API_BASE_URL } from "@/lib/api-config";
 import { authClient } from "@/lib/auth-client";
+import type { Product } from "@/lib/api/fetch-products";
 
 export interface EnhancedProduct {
   name: string;
@@ -96,7 +97,7 @@ export async function scanReceipt(
 
 export async function importReceipt(
   input: ImportReceiptInput
-): Promise<{ receipt: any; products: any[] }> {
+): Promise<{ receipt: Receipt; products: Product[] }> {
   const cookies = authClient.getCookie();
   const headers = {
     Cookie: cookies,
@@ -113,7 +114,7 @@ export async function importReceipt(
     throw new Error("Failed to import receipt");
   }
 
-  const result: ApiResponse<{ receipt: any; products: any[] }> =
+  const result: ApiResponse<{ receipt: Receipt; products: Product[] }> =
     await response.json();
 
   if (!result.success || !result.data) {
