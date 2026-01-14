@@ -4,7 +4,6 @@ import {
   View,
   Text,
   TouchableOpacity,
-  ScrollView,
   ActivityIndicator,
 } from "react-native";
 import { useRouter } from "expo-router";
@@ -12,6 +11,7 @@ import { Ionicons } from "@expo/vector-icons";
 import Animated, { FadeInDown, FadeInUp } from "react-native-reanimated";
 import { useRecipes } from "@/hooks/use-recipes";
 import { RecipeList } from "@/components/recipe-list";
+import { Chip } from "@/components/ui/chip";
 
 export default function RecipesScreen() {
   const router = useRouter();
@@ -48,21 +48,12 @@ export default function RecipesScreen() {
             { value: "user" as const, label: "My Recipes" },
             { value: "community" as const, label: "Community" },
           ].map((tab) => (
-            <TouchableOpacity
+            <Chip
               key={tab.value}
+              label={tab.label}
+              isActive={filter === tab.value}
               onPress={() => setFilter(tab.value)}
-              className={`px-4 py-2 rounded-full ${
-                filter === tab.value ? "bg-black" : "bg-white"
-              }`}
-            >
-              <Text
-                className={`font-medium ${
-                  filter === tab.value ? "text-white" : "text-gray-700"
-                }`}
-              >
-                {tab.label}
-              </Text>
-            </TouchableOpacity>
+            />
           ))}
         </View>
       </Animated.View>
