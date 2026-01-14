@@ -89,7 +89,7 @@ const performGenerateRecipes = async (userId: string): Promise<{ data: any; stat
               .from(product)
               .where(eq(product.name, ingredient.label));
 
-            const productId = matchingProducts.length > 0 ? matchingProducts[0]!.id : null;
+            const productId = matchingProducts[0]?.id ?? null;
 
             // Insert the ingredient with or without a productId
             await tx.insert(recipeIngredient).values({

@@ -5,25 +5,25 @@ import { OpenAiProvider } from "./openai";
 import { env } from "@/lib/env";
 import { Recipe } from "@/domain/entity/recipe";
 
-// Définir le schéma Zod pour vos recettes
+// Define the Zod schema for recipes
 const recipeIngredientSchema = z.object({
-  label: z.string().describe("Nom de l'ingrédient"),
-  quantity: z.number().optional().describe("Quantité de l'ingrédient"),
-  unit: z.string().optional().describe("Unité de mesure (g, ml, pièce, etc.)"),
-  productId: z.string().optional().describe("ID du produit si disponible"),
+  label: z.string().describe("Ingredient name"),
+  quantity: z.number().optional().describe("Ingredient quantity"),
+  unit: z.string().optional().describe("Unit of measurement (g, ml, piece, etc.)"),
+  productId: z.string().optional().describe("Product ID if available"),
 });
 
 const recipeSchema = z.object({
-  title: z.string().describe("Titre de la recette"),
-  description: z.string().optional().describe("Description courte de la recette"),
-  instructions: z.string().describe("Instructions en Markdown"),
-  preparationTime: z.number().optional().describe("Temps de préparation en minutes"),
-  tags: z.array(z.string()).describe("Tags pertinents pour la recette"),
-  ingredients: z.array(recipeIngredientSchema).describe("Liste des ingrédients"),
+  title: z.string().describe("Recipe title"),
+  description: z.string().optional().describe("Short recipe description"),
+  instructions: z.string().describe("Instructions in Markdown"),
+  preparationTime: z.number().optional().describe("Preparation time in minutes"),
+  tags: z.array(z.string()).describe("Relevant tags for the recipe"),
+  ingredients: z.array(recipeIngredientSchema).describe("List of ingredients"),
 });
 
 export const recipesListSchema = z.object({
-  recipes: z.array(recipeSchema).length(3).describe("Liste de 3 recettes diverses"),
+  recipes: z.array(recipeSchema).length(3).describe("List of 3 diverse recipes"),
 });
 
 // Define schema for receipt parsing
