@@ -1,9 +1,5 @@
 import { db } from "@/infrastructure/database";
-import {
-  recipe,
-  product,
-  recipeIngredient,
-} from "@/infrastructure/database/schema";
+import { recipe, product, recipeIngredient } from "@/infrastructure/database/schema";
 import { Context } from "elysia";
 import { User } from "better-auth/types";
 import { FridgeResponse } from "@/application/entities/response";
@@ -22,22 +18,11 @@ const getLanguageName = (langCode: string) => {
   }
 };
 
-const performGenerateRecipes = async (
-  userId: string
-): Promise<{ data: any; statusCode: number; error?: string }> => {
-  logger.info("🚀 Starting recipe generation for user: %s", userId);
-
+const performGenerateRecipes = async (userId: string): Promise<{ data: any; statusCode: number; error?: string }> => {
   try {
-    logger.debug("📦 Fetching user products...");
-    const userProducts = await db
-      .select()
-      .from(product)
-      .where(eq(product.userId, userId));
-
-    logger.info("✅ Found %d products", userProducts.length);
+    const userProducts = await db.select().from(product).where(eq(product.userId, userId));
 
     if (userProducts.length === 0) {
-      logger.warn("⚠️ No products found for user");
       return {
         statusCode: 400,
         data: {
@@ -47,39 +32,28 @@ const performGenerateRecipes = async (
       };
     }
 
-    logger.debug("📝 Formatting products list...");
     const productsList = userProducts
       .map((p) => {
         let productInfo = `${p.name} (${p.quantity} ${p.unit})`;
         if (p.expiresAt) {
-          const expiresIn = Math.ceil(
-            (p.expiresAt.getTime() - new Date().getTime()) / (1000 * 3600 * 24),
-          );
+          const expiresIn = Math.ceil((p.expiresAt.getTime() - new Date().getTime()) / (1000 * 3600 * 24));
           productInfo += ` - expires in ${expiresIn} days`;
         }
         return productInfo;
       })
       .join(", ");
 
-    logger.debug("📋 Products list: %s", productsList);
+    console.log("User products for recipe generation:", productsList);
 
     const language = getLanguageName(env.USER_LANGUAGE);
-    logger.info("🌍 Language setting: %s", language);
-    
-    logger.info("🤖 Calling AI to generate recipes...");
-    const toolResults = await ai.generateRecipesFromProducts(
-      productsList,
-      language,
-    );
-    
-    logger.info("✅ AI response received");
-    logger.debug("📊 Tool results: %O", toolResults);
-    
+
+    const toolResults = await ai.generateRecipesFromProducts(productsList, language);
+    console.log("AI tool results:", toolResults);
+
     const generatedRecipes = toolResults[0]?.result?.recipes;
-    logger.info("🎯 Generated %d recipes", generatedRecipes?.length || 0);
+    console.log("Generated recipes:", generatedRecipes);
 
     if (!generatedRecipes || generatedRecipes.length === 0) {
-      logger.warn("⚠️ No recipes generated from AI response");
       return {
         statusCode: 400,
         data: {
@@ -89,9 +63,7 @@ const performGenerateRecipes = async (
       };
     }
 
-    logger.info("💾 Saving recipes to database...");
     const savedRecipes = await db.transaction(async (tx) => {
-      logger.debug("📌 Inserting recipe records...");
       const insertedRecipes = await tx
         .insert(recipe)
         .values(
@@ -107,11 +79,8 @@ const performGenerateRecipes = async (
         )
         .returning();
 
-      logger.info("✅ Inserted %d recipe records", insertedRecipes.length);
-
       for (const r of generatedRecipes) {
         if (r.usedProducts && r.usedProducts.length > 0) {
-          logger.debug("🔗 Linking ingredients for recipe: %s", r.title);
           const productIds = await tx
             .select({ id: product.id })
             .from(product)
@@ -121,8 +90,6 @@ const performGenerateRecipes = async (
                 r.usedProducts.map((p) => p),
               ),
             );
-
-          logger.info("✅ Found %d matching products", productIds.length);
 
           if (productIds.length > 0) {
             await tx.insert(recipeIngredient).values(
@@ -138,8 +105,7 @@ const performGenerateRecipes = async (
       return insertedRecipes;
     });
 
-    logger.info("✅ Recipe generation completed successfully");
-    logger.info("📤 Returning saved recipes count: %d", savedRecipes.length);
+    console.log("Saved recipes to database:", savedRecipes);
 
     return {
       statusCode: 201,
@@ -149,8 +115,6 @@ const performGenerateRecipes = async (
       },
     };
   } catch (error) {
-    logger.error({ error }, "❌ Error generating recipes");
-    logger.error("📋 Error details: %O", error instanceof Error ? error.message : error);
     return {
       statusCode: 500,
       data: {
@@ -161,14 +125,8 @@ const performGenerateRecipes = async (
   }
 };
 
-export const generateRecipes = async ({
-  user,
-  status,
-}: Context & { user: User }): Promise<FridgeResponse<any>> => {
-  console.log("📨 Generate recipes handler called for user:", user?.id);
-  
+export const generateRecipes = async ({ user, status }: Context & { user: User }): Promise<FridgeResponse<any>> => {
   if (!user) {
-    logger.warn("❌ User not authenticated");
     status(401);
     return { error: "Unauthorized" };
   }

@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { forwardRef, useImperativeHandle, useState } from "react";
 import { Text } from "react-native";
 import Animated, {
   useSharedValue,
@@ -7,36 +7,33 @@ import Animated, {
   Easing,
 } from "react-native-reanimated";
 
-interface SnackbarProps {
-  visible: boolean;
-  message: string;
-  onDismiss: () => void;
+export interface SnackbarRef {
+  show: (message: string, duration?: number) => void;
 }
 
-export const Snackbar: React.FC<SnackbarProps> = ({
-  visible,
-  message,
-  onDismiss,
-}) => {
+const Snackbar = forwardRef<SnackbarRef>((props, ref) => {
+  const [visible, setVisible] = useState(false);
+  const [message, setMessage] = useState("");
   const translateY = useSharedValue(100);
 
-  useEffect(() => {
-    if (visible) {
+  useImperativeHandle(ref, () => ({
+    show: (msg: string, duration: number = 3000) => {
+      setMessage(msg);
+      setVisible(true);
       translateY.value = withTiming(0, {
         duration: 300,
         easing: Easing.out(Easing.ease),
       });
-      const timer = setTimeout(() => {
-        onDismiss();
-      }, 3000);
-      return () => clearTimeout(timer);
-    } else {
-      translateY.value = withTiming(100, {
-        duration: 300,
-        easing: Easing.in(Easing.ease),
-      });
-    }
-  }, [visible, onDismiss, translateY]);
+      
+      setTimeout(() => {
+        translateY.value = withTiming(100, {
+          duration: 300,
+          easing: Easing.in(Easing.ease),
+        });
+        setTimeout(() => setVisible(false), 300);
+      }, duration);
+    },
+  }));
 
   const animatedStyle = useAnimatedStyle(() => {
     return {
@@ -44,7 +41,7 @@ export const Snackbar: React.FC<SnackbarProps> = ({
     };
   });
 
-  if (!visible && translateY.value === 100) {
+  if (!visible) {
     return null;
   }
 
@@ -59,6 +56,7 @@ export const Snackbar: React.FC<SnackbarProps> = ({
           backgroundColor: "#323232",
           padding: 16,
           borderRadius: 8,
+          zIndex: 1000,
         },
         animatedStyle,
       ]}
@@ -66,4 +64,8 @@ export const Snackbar: React.FC<SnackbarProps> = ({
       <Text style={{ color: "white" }}>{message}</Text>
     </Animated.View>
   );
-};
+});
+
+Snackbar.displayName = "Snackbar";
+
+export default Snackbar;

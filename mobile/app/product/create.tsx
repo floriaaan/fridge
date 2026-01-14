@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import {
   View,
   Text,
@@ -19,7 +19,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useCreateProduct } from "@/hooks/use-products";
 import { SelectModal } from "@/components/select-modal";
 import { DatePickerModal } from "@/components/date-picker-modal";
-import { Snackbar } from "@/components/ui/snackbar";
+import Snackbar, { SnackbarRef } from "@/components/ui/snackbar";
 
 const UNITS = ["g", "kg", "ml", "L", "pièce", "portion"];
 const CATEGORIES = [
@@ -51,10 +51,7 @@ export default function ProductCreateScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const createProduct = useCreateProduct();
-  const [snackbar, setSnackbar] = useState<{
-    visible: boolean;
-    message: string;
-  }>({ visible: false, message: "" });
+  const snackBarRef = useRef<SnackbarRef>(null);
 
   const product = JSON.parse(params.product as string);
 
@@ -116,16 +113,14 @@ export default function ProductCreateScreen() {
           quantity: parseInt(data.quantity, 10),
         },
       ]);
-      setSnackbar({ visible: true, message: "Produit créé avec succès !" });
+      snackBarRef.current?.show("Produit créé avec succès !", 3000);
+
       setTimeout(() => {
         router.dismissTo("/(tabs)");
       }, 1000);
     } catch (error) {
       console.error("Error creating product:", error);
-      setSnackbar({
-        visible: true,
-        message: "Erreur lors de la création du produit",
-      });
+      snackBarRef.current?.show("Erreur lors de la création du produit", 3000);
     }
   };
 
@@ -345,11 +340,7 @@ export default function ProductCreateScreen() {
           </View>
         </View>
       </TouchableWithoutFeedback>
-      <Snackbar
-        visible={snackbar.visible}
-        message={snackbar.message}
-        onDismiss={() => setSnackbar({ ...snackbar, visible: false })}
-      />
+      <Snackbar ref={snackBarRef} />
     </KeyboardAvoidingView>
   );
 }

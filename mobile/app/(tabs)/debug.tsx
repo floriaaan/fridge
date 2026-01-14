@@ -58,14 +58,15 @@ export default function DebugScreen() {
             {
               session,
               error,
-    isPending,
-    isRefetching,
+              isPending,
+              isRefetching,
             },
             null,
             2
           )}
         </Text>
       </View>
+      <Button title="Logout" onPress={() => authClient.signOut()} />
     </View>
   );
 }
