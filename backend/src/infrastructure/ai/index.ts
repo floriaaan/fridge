@@ -26,15 +26,18 @@ export const recipesListSchema = z.object({
 });
 
 // Define schema for receipt parsing
-const receiptProductSchema = z.object({
+const receiptItemSchema = z.object({
   name: z.string().describe("Product name as it appears on the receipt"),
-  quantity: z.number().describe("Quantity of the product"),
-  unit: z.string().describe("Unit of measurement (g, kg, ml, L, pièce, portion)"),
-  category: z.enum(["meat", "frozen", "vegetables", "dairy", "bread", "fruits", "pantry", "other"]).describe("Product category"),
+  quantity: z.number().describe("Quantity of the product (default to 1 if not specified)"),
+  price: z.number().describe("Price of the product in euros"),
+  unit: z.string().optional().describe("Unit of measurement (g, kg, ml, L, pièce, portion)"),
 });
 
 export const receiptParseSchema = z.object({
-  products: z.array(receiptProductSchema).describe("List of products extracted from the receipt"),
+  storeName: z.string().describe("Name of the store where the receipt is from"),
+  date: z.string().describe("Date of the purchase (ISO format)"),
+  items: z.array(receiptItemSchema).describe("List of items extracted from the receipt"),
+  totalAmount: z.number().describe("Total amount on the receipt in euros"),
 });
 
 // Define a common interface for AI providers

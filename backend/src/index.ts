@@ -5,8 +5,9 @@ import { loggerMiddleware } from "@/application/middleware/logger";
 import { productController } from "@/application/controller/product";
 import { recipeController } from "@/application/controller/recipe";
 import { shoppingItemController } from "@/application/controller/shopping-item";
+import { receiptController } from "@/application/controller/receipt";
 
-const api = new Elysia({ prefix: "/api" }).use(productController).use(shoppingItemController).use(recipeController);
+const api = new Elysia({ prefix: "/api" }).use(productController).use(shoppingItemController).use(recipeController).use(receiptController);
 
 const app = new Elysia({ adapter: node() })
   .use(authMiddleware)

@@ -1,5 +1,5 @@
 import { Recipe } from "@/domain/entity/recipe";
-import { AiProvider, recipesListSchema, receiptParseSchema, recipesSchema } from "@/infrastructure/ai";
+import { AiProvider, recipesListSchema, receiptParseSchema } from "@/infrastructure/ai";
 import { env } from "@/lib/env";
 import { createOpenAI } from "@ai-sdk/openai";
 import { tool, generateText, Output } from "ai";
@@ -66,13 +66,17 @@ export class OpenAiProvider implements AiProvider {
             content: [
               {
                 type: "text",
-                text: `Analyze this receipt image and extract all the products. For each product, identify:
-- The product name
-- The quantity (estimate if not explicitly stated, default to 1 if unclear)
-- The unit (g, kg, ml, L, pièce, or portion - use "pièce" for items sold by unit)
-- The category (meat, frozen, vegetables, dairy, bread, fruits, pantry, or other)
+                text: `Analyze this receipt image and extract the following information:
+1. Store name (the merchant/store name at the top)
+2. Purchase date (in ISO format YYYY-MM-DD)
+3. All items/products with their:
+   - Product name
+   - Quantity (if visible, otherwise default to 1)
+   - Price (in euros)
+   - Unit if applicable (g, kg, ml, L, pièce, portion)
+4. Total amount (the final total at the bottom)
 
-Return the data in ${language}. Be as accurate as possible based on the visible text in the receipt.`,
+Be as accurate as possible. If you can't find specific information, make reasonable estimates. Return the data in French (${language}).`,
               },
               {
                 type: "image",
@@ -86,7 +90,7 @@ Return the data in ${language}. Be as accurate as possible based on the visible 
         }),
       });
 
-      return output.products;
+      return output;
     } catch (error) {
       console.error("Error parsing receipt with OpenAiProvider:", error);
       throw error;
