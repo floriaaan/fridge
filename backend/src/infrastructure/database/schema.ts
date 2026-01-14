@@ -256,6 +256,7 @@ export const recipe = pgTable(
     instructions: text("instructions").notNull(),
     preparationTime: integer("preparation_time"),
     tags: text("tags").array().default(sql`'{}'::text[]`).notNull(),
+    generationParams: jsonb("generation_params"),
     createdAt: timestamp("created_at").defaultNow().notNull(),
   },
   (table) => [index("recipe_ownerUserId_idx").on(table.ownerUserId)],

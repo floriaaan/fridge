@@ -9,6 +9,13 @@ import { eq, inArray } from "drizzle-orm";
 import { env } from "@/lib/env";
 import { logger } from "@/lib/logger";
 
+export interface GenerateRecipesParams {
+  cuisine?: string;
+  difficulty?: "easy" | "medium" | "hard";
+  maxTime?: number;
+  servings?: number;
+}
+
 const getLanguageName = (langCode: string) => {
   switch (langCode) {
     case "fr":
@@ -19,7 +26,10 @@ const getLanguageName = (langCode: string) => {
   }
 };
 
-const performGenerateRecipes = async (userId: string): Promise<{ data: any; statusCode: number; error?: string }> => {
+const performGenerateRecipes = async (
+  userId: string,
+  params: GenerateRecipesParams = {}
+): Promise<{ data: any; statusCode: number; error?: string }> => {
   try {
     const userProducts = await db.select().from(product).where(eq(product.userId, userId));
 
@@ -45,10 +55,11 @@ const performGenerateRecipes = async (userId: string): Promise<{ data: any; stat
       .join(", ");
 
     console.log("User products for recipe generation:", productsList);
+    console.log("Generation params:", params);
 
     const language = getLanguageName(env.USER_LANGUAGE);
 
-    const generatedRecipes = await ai.generateRecipesFromProducts(productsList, language);
+    const generatedRecipes = await ai.generateRecipesFromProducts(productsList, language, params);
     console.log("Generated recipes:", generatedRecipes);
 
     if (!generatedRecipes || generatedRecipes.length === 0) {
@@ -73,6 +84,7 @@ const performGenerateRecipes = async (userId: string): Promise<{ data: any; stat
             preparationTime: r.preparationTime,
             tags: r.tags,
             source: "ai" as const,
+            generationParams: params,
           })),
         )
         .returning();
@@ -125,13 +137,26 @@ const performGenerateRecipes = async (userId: string): Promise<{ data: any; stat
   }
 };
 
-export const generateRecipes = async ({ user, status }: Context & { user: User }): Promise<FridgeResponse<any>> => {
+export const generateRecipes = async ({
+  user,
+  query,
+  status,
+}: Context<{ query: { cuisine?: string; difficulty?: string; maxTime?: string; servings?: string } }> & {
+  user: User;
+}): Promise<FridgeResponse<any>> => {
   if (!user) {
     status(401);
     return { error: "Unauthorized" };
   }
 
-  const result = await performGenerateRecipes(user.id);
+  const params: GenerateRecipesParams = {
+    cuisine: query.cuisine,
+    difficulty: query.difficulty as "easy" | "medium" | "hard" | undefined,
+    maxTime: query.maxTime ? parseInt(query.maxTime, 10) : undefined,
+    servings: query.servings ? parseInt(query.servings, 10) : undefined,
+  };
+
+  const result = await performGenerateRecipes(user.id, params);
   status(result.statusCode);
   return result.data;
 };

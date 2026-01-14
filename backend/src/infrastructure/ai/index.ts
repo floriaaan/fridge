@@ -43,8 +43,17 @@ export const receiptParseSchema = z.object({
 
 // Define a common interface for AI providers
 export interface AiProvider {
-  generateRecipesFromProducts(productsList: string, language: string): Promise<any>;
   parseReceiptImage(imageBase64: string, language: string): Promise<any>;
+  generateRecipesFromProducts(
+    productsList: string,
+    language: string,
+    params?: {
+      cuisine?: string;
+      difficulty?: "easy" | "medium" | "hard";
+      maxTime?: number;
+      servings?: number;
+    }
+  ): Promise<Recipe[]>;
 }
 
 // Factory to get the AI provider based on the environment variable
