@@ -25,9 +25,22 @@ export const recipesListSchema = z.object({
   recipes: z.array(recipeSchema).length(3).describe("Liste de 3 recettes diverses"),
 });
 
+// Define schema for receipt parsing
+const receiptProductSchema = z.object({
+  name: z.string().describe("Product name as it appears on the receipt"),
+  quantity: z.number().describe("Quantity of the product"),
+  unit: z.string().describe("Unit of measurement (g, kg, ml, L, pièce, portion)"),
+  category: z.enum(["meat", "frozen", "vegetables", "dairy", "bread", "fruits", "pantry", "other"]).describe("Product category"),
+});
+
+export const receiptParseSchema = z.object({
+  products: z.array(receiptProductSchema).describe("List of products extracted from the receipt"),
+});
+
 // Define a common interface for AI providers
 export interface AiProvider {
   generateRecipesFromProducts(productsList: string, language: string): Promise<any>;
+  parseReceiptImage(imageBase64: string, language: string): Promise<any>;
 }
 
 // Factory to get the AI provider based on the environment variable

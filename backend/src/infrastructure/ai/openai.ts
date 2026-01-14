@@ -1,5 +1,5 @@
 import { Recipe } from "@/domain/entity/recipe";
-import { AiProvider, recipesListSchema, recipesSchema } from "@/infrastructure/ai";
+import { AiProvider, recipesListSchema, receiptParseSchema, recipesSchema } from "@/infrastructure/ai";
 import { env } from "@/lib/env";
 import { createOpenAI } from "@ai-sdk/openai";
 import { tool, generateText, Output } from "ai";
@@ -54,5 +54,42 @@ export class OpenAiProvider implements AiProvider {
         productId: ing.productId,
       })),
     })) as Recipe[];
+  }
+
+  async parseReceiptImage(imageBase64: string, language: string): Promise<any> {
+    try {
+      const { output } = await generateText({
+        model: this.openaiInstance(env.OPENAI_MODEL!),
+        messages: [
+          {
+            role: "user",
+            content: [
+              {
+                type: "text",
+                text: `Analyze this receipt image and extract all the products. For each product, identify:
+- The product name
+- The quantity (estimate if not explicitly stated, default to 1 if unclear)
+- The unit (g, kg, ml, L, pièce, or portion - use "pièce" for items sold by unit)
+- The category (meat, frozen, vegetables, dairy, bread, fruits, pantry, or other)
+
+Return the data in ${language}. Be as accurate as possible based on the visible text in the receipt.`,
+              },
+              {
+                type: "image",
+                image: imageBase64,
+              },
+            ],
+          },
+        ],
+        output: Output.object({
+          schema: receiptParseSchema,
+        }),
+      });
+
+      return output.products;
+    } catch (error) {
+      console.error("Error parsing receipt with OpenAiProvider:", error);
+      throw error;
+    }
   }
 }
