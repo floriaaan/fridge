@@ -2,7 +2,7 @@ import { Recipe } from "@/domain/entity/recipe";
 import { AiProvider, recipesListSchema, receiptParseSchema } from "@/infrastructure/ai";
 import { env } from "@/lib/env";
 import { createOpenAI } from "@ai-sdk/openai";
-import { tool, generateText, Output } from "ai";
+import { generateText, Output } from "ai";
 
 export class OpenAiProvider implements AiProvider {
   private openaiInstance: ReturnType<typeof createOpenAI>;

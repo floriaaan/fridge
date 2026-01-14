@@ -3,6 +3,7 @@ import { GeminiProvider } from "./gemini";
 import { OllamaProvider } from "./ollama";
 import { OpenAiProvider } from "./openai";
 import { env } from "@/lib/env";
+import { Recipe } from "@/domain/entity/recipe";
 
 // Définir le schéma Zod pour vos recettes
 const recipeIngredientSchema = z.object({

@@ -1,7 +1,7 @@
 import { Recipe } from "@/domain/entity/recipe";
 import { AiProvider, recipesListSchema, receiptParseSchema } from "@/infrastructure/ai";
 import { env } from "@/lib/env";
-import { tool, generateText, Output } from "ai";
+import { generateText, Output } from "ai";
 import { createOllama } from "ai-sdk-ollama";
 
 export class OllamaProvider implements AiProvider {

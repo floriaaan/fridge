@@ -4,6 +4,7 @@ import { Context } from "elysia";
 import { User } from "better-auth/types";
 import { FridgeResponse } from "@/application/entities/response";
 import { ai } from "@/infrastructure/ai";
+import { Recipe } from "@/domain/entity/recipe";
 import { eq, inArray } from "drizzle-orm";
 import { env } from "@/lib/env";
 import { logger } from "@/lib/logger";
@@ -47,10 +48,7 @@ const performGenerateRecipes = async (userId: string): Promise<{ data: any; stat
 
     const language = getLanguageName(env.USER_LANGUAGE);
 
-    const toolResults = await ai.generateRecipesFromProducts(productsList, language);
-    console.log("AI tool results:", toolResults);
-
-    const generatedRecipes = toolResults[0]?.result?.recipes;
+    const generatedRecipes = await ai.generateRecipesFromProducts(productsList, language);
     console.log("Generated recipes:", generatedRecipes);
 
     if (!generatedRecipes || generatedRecipes.length === 0) {
@@ -67,7 +65,7 @@ const performGenerateRecipes = async (userId: string): Promise<{ data: any; stat
       const insertedRecipes = await tx
         .insert(recipe)
         .values(
-          generatedRecipes.map((r) => ({
+          generatedRecipes.map((r: Recipe) => ({
             ownerUserId: userId,
             title: r.title,
             description: r.description,
@@ -80,25 +78,27 @@ const performGenerateRecipes = async (userId: string): Promise<{ data: any; stat
         .returning();
 
       for (const r of generatedRecipes) {
-        if (r.usedProducts && r.usedProducts.length > 0) {
-          const productIds = await tx
-            .select({ id: product.id })
-            .from(product)
-            .where(
-              inArray(
-                product.name,
-                r.usedProducts.map((p) => p),
-              ),
-            );
+        if (r.ingredients && r.ingredients.length > 0) {
+          const insertedRecipe = insertedRecipes.find((ir) => ir.title === r.title);
+          if (!insertedRecipe) continue;
 
-          if (productIds.length > 0) {
-            await tx.insert(recipeIngredient).values(
-              productIds.map((p) => ({
-                recipeId: insertedRecipes.find((ir) => ir.title === r.title)!.id,
-                productId: p.id,
-                label: r.usedProducts.find((up) => up === up)!,
-              })),
-            );
+          for (const ingredient of r.ingredients) {
+            // Try to find a matching product by name
+            const matchingProducts = await tx
+              .select({ id: product.id })
+              .from(product)
+              .where(eq(product.name, ingredient.label));
+
+            const productId = matchingProducts.length > 0 ? matchingProducts[0]!.id : null;
+
+            // Insert the ingredient with or without a productId
+            await tx.insert(recipeIngredient).values({
+              recipeId: insertedRecipe.id,
+              productId: productId,
+              label: ingredient.label,
+              quantity: ingredient.quantity || null,
+              unit: ingredient.unit || null,
+            });
           }
         }
       }
