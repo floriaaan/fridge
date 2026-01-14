@@ -4,43 +4,35 @@ import { OllamaProvider } from "./ollama";
 import { OpenAiProvider } from "./openai";
 import { env } from "@/lib/env";
 
-export const recipeSchema = z.object({
-  title: z.string().describe("The title of the recipe."),
-  description: z.string().describe("A brief description of the recipe."),
-  instructions: z
-    .string()
-    .describe(
-      "The recipe instructions, formatted as a Markdown string. Include headings, lists, and bold text for clarity.",
-    ),
-  preparationTime: z
-    .number()
-    .describe("The estimated preparation time in minutes."),
-  tags: z
-    .array(z.string())
-    .describe(
-      "A list of tags to categorize the recipe (e.g., 'vegetarian', 'spicy', 'quick-meal').",
-    ),
-  usedProducts: z
-    .array(z.string())
-    .describe("A list of product names used in the recipe."),
+// Définir le schéma Zod pour vos recettes
+const recipeIngredientSchema = z.object({
+  label: z.string().describe("Nom de l'ingrédient"),
+  quantity: z.number().optional().describe("Quantité de l'ingrédient"),
+  unit: z.string().optional().describe("Unité de mesure (g, ml, pièce, etc.)"),
+  productId: z.string().optional().describe("ID du produit si disponible"),
 });
 
-export const recipesSchema = z.object({
-  recipes: z
-    .array(recipeSchema)
-    .describe("An array of three generated recipes."),
+const recipeSchema = z.object({
+  title: z.string().describe("Titre de la recette"),
+  description: z.string().optional().describe("Description courte de la recette"),
+  instructions: z.string().describe("Instructions en Markdown"),
+  preparationTime: z.number().optional().describe("Temps de préparation en minutes"),
+  tags: z.array(z.string()).describe("Tags pertinents pour la recette"),
+  ingredients: z.array(recipeIngredientSchema).describe("Liste des ingrédients"),
+});
+
+export const recipesListSchema = z.object({
+  recipes: z.array(recipeSchema).length(3).describe("Liste de 3 recettes diverses"),
 });
 
 // Define a common interface for AI providers
 export interface AiProvider {
-  generateRecipesFromProducts(
-    productsList: string,
-    language: string,
-  ): Promise<any>;
+  generateRecipesFromProducts(productsList: string, language: string): Promise<any>;
 }
 
 // Factory to get the AI provider based on the environment variable
 const getAiProvider = (): AiProvider => {
+  console.log("Selected AI Provider:", env.AI_PROVIDER);
   switch (env.AI_PROVIDER) {
     case "gemini":
       if (!env.GEMINI_API_KEY) throw new Error("GEMINI_API_KEY is not set");

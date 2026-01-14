@@ -1,6 +1,7 @@
-import { AiProvider, recipesSchema } from "@/infrastructure/ai";
+import { Recipe } from "@/domain/entity/recipe";
+import { AiProvider, recipesListSchema } from "@/infrastructure/ai";
 import { env } from "@/lib/env";
-import { tool, generateText } from "ai";
+import { tool, generateText, Output } from "ai";
 import { createOllama } from "ai-sdk-ollama";
 
 export class OllamaProvider implements AiProvider {
@@ -12,26 +13,50 @@ export class OllamaProvider implements AiProvider {
     });
   }
 
-  async generateRecipesFromProducts(productsList: string, language: string) {
-    const recipeTool = tool({
-      description: "A tool to create a list of recipes.",
-      inputSchema: recipesSchema,
-      execute: async (input) => input,
-    });
-
-    const { toolResults } = await generateText({
-      model: this.ollamaInstance(env.OLLAMA_MODEL!),
-      tools: { recipes: recipeTool },
-      prompt: `Based on the following products: ${productsList}, generate three diverse recipes in ${language}:
-      1. A simple and quick recipe.
+  async generateRecipesFromProducts(productsList: string, language: string): Promise<Recipe[]> {
+    try {
+      const { output } = await generateText({
+        model: this.ollamaInstance(env.OLLAMA_MODEL!),
+        prompt: `Based on the following products: ${productsList}, generate three diverse recipes in ${language}:
+            
+      1. A simple and quick recipe (less than 30 minutes).
       2. A vegetarian recipe.
       3. A more complex and elaborate recipe.
-
+      
       Prioritize using products that are expiring soon, but feel free to include other common ingredients.
-      For each recipe, provide a title, a short description, Markdown instructions, an estimated preparation time, relevant tags, and a list of the products used.
-      `,
-    });
+      
+      For each recipe, provide:
+      - A clear and appealing title
+      - A short description (1-2 sentences)
+      - Detailed instructions in Markdown format with numbered steps
+      - An estimated preparation time in minutes
+      - Relevant tags (e.g., "quick", "vegetarian", "healthy", cuisine type)
+      - A complete list of ingredients with quantities and units when possible
+      
+      Ensure the recipes are practical and well-balanced.`,
+        output: Output.object({
+          schema: recipesListSchema,
+        }),
+      });
 
-    return toolResults;
+      // Transformer l'objet retourné pour correspondre à votre type Recipe
+      return output.recipes.map((recipe) => ({
+        title: recipe.title,
+        description: recipe.description || "",
+        source: "ai" as const,
+        instructions: recipe.instructions,
+        preparationTime: recipe.preparationTime || 0,
+        tags: recipe.tags,
+        ingredients: recipe.ingredients.map((ing) => ({
+          label: ing.label,
+          quantity: ing.quantity,
+          unit: ing.unit,
+          productId: ing.productId,
+        })),
+      })) as Recipe[];
+    } catch (error) {
+      console.error("Error generating recipes with OllamaProvider:", error);
+      throw error;
+    }
   }
 }
