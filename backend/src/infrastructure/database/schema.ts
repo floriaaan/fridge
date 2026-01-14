@@ -1,4 +1,4 @@
-import { relations } from "drizzle-orm";
+import { relations, sql } from "drizzle-orm";
 import {
   pgTable,
   text,
@@ -107,11 +107,163 @@ export const apikey = pgTable(
     permissions: text("permissions"),
     metadata: text("metadata"),
   },
+  (table) => [index("apikey_key_idx").on(table.key), index("apikey_userId_idx").on(table.userId)],
+);
+
+export const product = pgTable(
+  "product",
+  {
+    id: text("id")
+      .primaryKey()
+      .default(sql`gen_random_uuid()`),
+    userId: text("user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    name: text("name").notNull(),
+    quantity: integer("quantity").notNull(),
+    unit: text("unit").notNull(), // g, ml, piece
+    location: text("location").notNull(), // fridge, freezer, pantry
+    expiresAt: timestamp("expires_at"),
+    openedAt: timestamp("opened_at"),
+    category: text("category").notNull(),
+    openfoodfactId: text("openfoodfact_id"),
+    categories: text("categories").array(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at")
+      .defaultNow()
+      .$onUpdate(() => /* @__PURE__ */ new Date())
+      .notNull(),
+  },
+  (table) => [index("product_userId_idx").on(table.userId), index("product_expiresAt_idx").on(table.expiresAt)],
+);
+
+export const userRelations = relations(user, ({ many }) => ({
+  sessions: many(session),
+  accounts: many(account),
+  apikeys: many(apikey),
+  recipes: many(recipe),
+}));
+
+export const sessionRelations = relations(session, ({ one }) => ({
+  user: one(user, {
+    fields: [session.userId],
+    references: [user.id],
+  }),
+}));
+
+export const accountRelations = relations(account, ({ one }) => ({
+  user: one(user, {
+    fields: [account.userId],
+    references: [user.id],
+  }),
+}));
+
+export const apikeyRelations = relations(apikey, ({ one }) => ({
+  user: one(user, {
+    fields: [apikey.userId],
+    references: [user.id],
+  }),
+}));
+
+export const productRelations = relations(product, ({ one, many }) => ({
+  user: one(user, {
+    fields: [product.userId],
+    references: [user.id],
+  }),
+  recipeIngredients: many(recipeIngredient),
+}));
+
+export const shoppingItem = pgTable(
+  "shopping_item",
+  {
+    id: text("id")
+      .primaryKey()
+      .default(sql`gen_random_uuid()`),
+    userId: text("user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    name: text("name").notNull(),
+    quantity: integer("quantity").notNull(),
+    unit: text("unit").notNull(),
+    checked: boolean("checked").default(false).notNull(),
+    source: text("source", {
+      enum: ["manual", "auto_expired", "recipe"],
+    }).notNull(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at")
+      .defaultNow()
+      .$onUpdate(() => new Date())
+      .notNull(),
+  },
+  (table) => [index("shopping_item_userId_idx").on(table.userId)],
+);
+
+export const shoppingItemRelations = relations(shoppingItem, ({ one }) => ({
+  user: one(user, {
+    fields: [shoppingItem.userId],
+    references: [user.id],
+  }),
+}));
+
+export const recipe = pgTable(
+  "recipe",
+  {
+    id: text("id")
+      .primaryKey()
+      .default(sql`gen_random_uuid()`),
+    ownerUserId: text("owner_user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    title: text("title").notNull(),
+    description: text("description"),
+    source: text("source", { enum: ["ai", "user", "community"] }).notNull(),
+    instructions: text("instructions").notNull(),
+    preparationTime: integer("preparation_time"),
+    tags: text("tags").array().default(sql`'{}'::text[]`).notNull(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+  },
+  (table) => [index("recipe_ownerUserId_idx").on(table.ownerUserId)],
+);
+
+export const recipeIngredient = pgTable(
+  "recipe_ingredient",
+  {
+    id: text("id")
+      .primaryKey()
+      .default(sql`gen_random_uuid()`),
+    recipeId: text("recipe_id")
+      .notNull()
+      .references(() => recipe.id, { onDelete: "cascade" }),
+    productId: text("product_id").references(() => product.id, { onDelete: "set null" }),
+    label: text("label").notNull(),
+    quantity: integer("quantity"),
+    unit: text("unit"),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+  },
   (table) => [
-    index("apikey_key_idx").on(table.key),
-    index("apikey_userId_idx").on(table.userId),
+    index("recipe_ingredient_recipeId_idx").on(table.recipeId),
+    index("recipe_ingredient_productId_idx").on(table.productId),
   ],
 );
+
+export const recipeRelations = relations(recipe, ({ one, many }) => ({
+  owner: one(user, {
+    fields: [recipe.ownerUserId],
+    references: [user.id],
+  }),
+  ingredients: many(recipeIngredient),
+}));
+
+export const recipeIngredientRelations = relations(recipeIngredient, ({ one }) => ({
+  recipe: one(recipe, {
+    fields: [recipeIngredient.recipeId],
+    references: [recipe.id],
+  }),
+  product: one(product, {
+    fields: [recipeIngredient.productId],
+    references: [product.id],
+  }),
+}));
 
 export const passkey = pgTable(
   "passkey",
@@ -136,33 +288,7 @@ export const passkey = pgTable(
   ],
 );
 
-export const userRelations = relations(user, ({ many }) => ({
-  sessions: many(session),
-  accounts: many(account),
-  apikeys: many(apikey),
-  passkeys: many(passkey),
-}));
 
-export const sessionRelations = relations(session, ({ one }) => ({
-  user: one(user, {
-    fields: [session.userId],
-    references: [user.id],
-  }),
-}));
-
-export const accountRelations = relations(account, ({ one }) => ({
-  user: one(user, {
-    fields: [account.userId],
-    references: [user.id],
-  }),
-}));
-
-export const apikeyRelations = relations(apikey, ({ one }) => ({
-  user: one(user, {
-    fields: [apikey.userId],
-    references: [user.id],
-  }),
-}));
 
 export const passkeyRelations = relations(passkey, ({ one }) => ({
   user: one(user, {
@@ -170,3 +296,16 @@ export const passkeyRelations = relations(passkey, ({ one }) => ({
     references: [user.id],
   }),
 }));
+
+export const schema = {
+  user,
+  session,
+  account,
+  verification,
+  apikey,
+  product,
+  shoppingItem,
+  recipe,
+  recipeIngredient,
+  passkey
+};

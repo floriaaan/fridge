@@ -15,12 +15,12 @@ export const auth = betterAuth({
   emailAndPassword: {
     enabled: true,
   },
-  socialProviders: {
-    google: {
-      clientId: env.GOOGLE_CLIENT_ID,
-      clientSecret: env.GOOGLE_CLIENT_SECRET,
-    },
-  },
+  // socialProviders: {
+  //   google: {
+  //     clientId: env.GOOGLE_CLIENT_ID,
+  //     clientSecret: env.GOOGLE_CLIENT_SECRET,
+  //   },
+  // },
   plugins: [
     expo(),
     openAPI(),
@@ -28,16 +28,16 @@ export const auth = betterAuth({
       enableSessionForAPIKeys: true,
     }),
     passkey(),
-    genericOAuth({
-      config: [
-        {
-          providerId: "pocketid",
-          clientId: env.POCKETID_CLIENT_ID,
-          clientSecret: env.POCKETID_CLIENT_SECRET,
-          discoveryUrl: env.POCKETID_ISSUER,
-        },
-      ],
-    }),
+    // genericOAuth({
+    //   config: [
+    //     {
+    //       providerId: "pocketid",
+    //       clientId: env.POCKETID_CLIENT_ID,
+    //       clientSecret: env.POCKETID_CLIENT_SECRET,
+    //       discoveryUrl: env.POCKETID_ISSUER,
+    //     },
+    //   ],
+    // }),
   ],
   trustedOrigins: [
     "fridge://",
