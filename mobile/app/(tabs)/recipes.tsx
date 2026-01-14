@@ -43,14 +43,14 @@ export default function RecipesScreen() {
         {/* Filter Tabs */}
         <View className="flex-row gap-2">
           {[
-            { value: "all", label: "All" },
-            { value: "ai", label: "AI" },
-            { value: "user", label: "My Recipes" },
-            { value: "community", label: "Community" },
+            { value: "all" as const, label: "All" },
+            { value: "ai" as const, label: "AI" },
+            { value: "user" as const, label: "My Recipes" },
+            { value: "community" as const, label: "Community" },
           ].map((tab) => (
             <TouchableOpacity
               key={tab.value}
-              onPress={() => setFilter(tab.value as any)}
+              onPress={() => setFilter(tab.value)}
               className={`px-4 py-2 rounded-full ${
                 filter === tab.value ? "bg-black" : "bg-white"
               }`}

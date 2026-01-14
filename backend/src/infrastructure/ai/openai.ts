@@ -65,7 +65,7 @@ export class OpenAiProvider implements AiProvider {
       }),
     });
 
-    // Transformer l'objet retourné pour correspondre à votre type Recipe
+    // Transform the returned object to match your Recipe type
     return output.recipes.map((recipe) => ({
       title: recipe.title,
       description: recipe.description || "",
