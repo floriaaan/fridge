@@ -24,7 +24,7 @@ const Snackbar = forwardRef<SnackbarRef>((props, ref) => {
         duration: 300,
         easing: Easing.out(Easing.ease),
       });
-      
+
       setTimeout(() => {
         translateY.value = withTiming(100, {
           duration: 300,
@@ -60,6 +60,7 @@ const Snackbar = forwardRef<SnackbarRef>((props, ref) => {
         },
         animatedStyle,
       ]}
+      pointerEvents="none"
     >
       <Text style={{ color: "white" }}>{message}</Text>
     </Animated.View>

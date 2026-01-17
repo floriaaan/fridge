@@ -7,6 +7,7 @@ import Animated, { FadeInUp } from 'react-native-reanimated';
 import { Ionicons } from '@expo/vector-icons';
 import welcomeAnimation from "@/../assets/lottie/welcome.json";
 
+
 export default function AuthIndexScreen() {
 
   return (
