@@ -5,58 +5,88 @@ import {
   Text,
   TouchableOpacity,
   ActivityIndicator,
+  ScrollView,
+  TextInput,
 } from "react-native";
 import { useRouter } from "expo-router";
-import { Ionicons } from "@expo/vector-icons";
-import Animated, { FadeInDown, FadeInUp } from "react-native-reanimated";
+import { Ionicons, MaterialIcons } from "@expo/vector-icons";
+import Animated, { FadeInUp } from "react-native-reanimated";
 import { useRecipes } from "@/hooks/use-recipes";
 import { RecipeList } from "@/components/recipe-list";
 import { Chip } from "@/components/ui/chip";
+import Header from "@/components/ui/header";
 
 export default function RecipesScreen() {
   const router = useRouter();
   const { data: recipes = [], isLoading, refetch } = useRecipes();
   const [filter, setFilter] = React.useState<"all" | "ai" | "user" | "community">("all");
+  const [searchQuery, setSearchQuery] = React.useState("");
 
   const filteredRecipes = React.useMemo(() => {
-    if (filter === "all") return recipes;
-    return recipes.filter((recipe) => recipe.source === filter);
-  }, [recipes, filter]);
+    let filtered = recipes;
+    
+    // Filter by source
+    if (filter !== "all") {
+      filtered = filtered.filter((recipe) => recipe.source === filter);
+    }
+    
+    // Filter by search query
+    if (searchQuery) {
+      filtered = filtered.filter((recipe) =>
+        recipe.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        recipe.description?.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+    }
+    
+    return filtered;
+  }, [recipes, filter, searchQuery]);
 
   return (
-    <SafeAreaView className="flex-1 bg-gray-50">
-      {/* Header */}
-      <Animated.View
-        entering={FadeInDown.duration(400)}
-        className="px-4 py-3"
+    <SafeAreaView edges={["top", "left", "right"]} className="flex-1 bg-gray-50">
+      <Header title="Recipes" />
+      
+      {/* Filter Tabs */}
+      <ScrollView
+        horizontal
+        className="flex-grow-0"
+        contentContainerClassName="flex items-center gap-1 flex flex-row mb-4 px-4 h-12"
+        showsHorizontalScrollIndicator={false}
       >
-        <View className="flex-row items-center justify-between mb-4">
-          <Text className="text-2xl font-bold text-gray-900">My Recipes</Text>
-          <TouchableOpacity
-            onPress={() => router.push("/recipe/generate")}
-            className="w-10 h-10 rounded-full bg-black items-center justify-center"
-          >
-            <Ionicons name="sparkles" size={20} color="white" />
-          </TouchableOpacity>
-        </View>
+        {[
+          { value: "all" as const, label: "All", icon: "grid-outline" },
+          { value: "ai" as const, label: "AI", icon: "sparkles" },
+          { value: "user" as const, label: "My Recipes", icon: "person" },
+          { value: "community" as const, label: "Community", icon: "people" },
+        ].map((tab) => (
+          <Chip
+            key={tab.value}
+            label={tab.label}
+            isActive={filter === tab.value}
+            onPress={() => setFilter(tab.value)}
+            icon={
+              <Ionicons
+                name={tab.icon as any}
+                size={16}
+                color={filter === tab.value ? "white" : "#6b7280"}
+              />
+            }
+          />
+        ))}
+      </ScrollView>
 
-        {/* Filter Tabs */}
-        <View className="flex-row gap-2">
-          {[
-            { value: "all" as const, label: "All" },
-            { value: "ai" as const, label: "AI" },
-            { value: "user" as const, label: "My Recipes" },
-            { value: "community" as const, label: "Community" },
-          ].map((tab) => (
-            <Chip
-              key={tab.value}
-              label={tab.label}
-              isActive={filter === tab.value}
-              onPress={() => setFilter(tab.value)}
-            />
-          ))}
+      {/* Search Bar */}
+      <View className="px-4 mb-4">
+        <View className="flex-row items-center bg-gray-200 rounded-xl px-4 py-3">
+          <MaterialIcons name="search" size={20} color="#6B7280" />
+          <TextInput
+            className="flex-1 ml-3 text-gray-900"
+            onChangeText={setSearchQuery}
+            value={searchQuery}
+            placeholder="Search recipes..."
+            placeholderTextColor="#9CA3AF"
+          />
         </View>
-      </Animated.View>
+      </View>
 
       {/* Recipes List */}
       {isLoading ? (
@@ -72,18 +102,13 @@ export default function RecipesScreen() {
             <Ionicons name="restaurant-outline" size={40} color="#9ca3af" />
           </View>
           <Text className="text-xl font-bold text-gray-900 mb-2">
-            No Recipes Yet
+            No Recipes Found
           </Text>
-          <Text className="text-center text-gray-600 mb-6">
-            Generate your first recipe using AI or add your own recipes manually
+          <Text className="text-center text-gray-600">
+            {searchQuery
+              ? "Try adjusting your search or filters"
+              : "Generate your first recipe using AI"}
           </Text>
-          <TouchableOpacity
-            onPress={() => router.push("/recipe/generate")}
-            className="bg-black px-6 py-3 rounded-xl flex-row items-center gap-2"
-          >
-            <Ionicons name="sparkles" size={20} color="white" />
-            <Text className="text-white font-semibold">Generate Recipe</Text>
-          </TouchableOpacity>
         </Animated.View>
       ) : (
         <RecipeList
@@ -92,6 +117,19 @@ export default function RecipesScreen() {
           isLoading={isLoading}
         />
       )}
+
+      <View className="absolute bottom-5 left-5 right-5">
+        <TouchableOpacity
+          onPress={() => router.push("/recipe/generate")}
+          className="bg-black py-4 rounded-xl shadow-xl flex-row items-center justify-center"
+          activeOpacity={0.8}
+        >
+          <Ionicons name="sparkles" size={24} color="white" />
+          <Text className="text-white font-semibold text-base ml-2">
+            Generate Recipe
+          </Text>
+        </TouchableOpacity>
+      </View>
     </SafeAreaView>
   );
 }

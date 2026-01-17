@@ -22,6 +22,13 @@
       "when": 1768642188217,
       "tag": "0002_bumpy_kylun",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1768675192586,
+      "tag": "0003_safe_rafael_vega",
+      "breakpoints": true
     }
   ]
 }
