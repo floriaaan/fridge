@@ -30,8 +30,6 @@ function RootLayoutNav() {
   const navigationState = useRootNavigationState();
 
   useEffect(() => {
-    if (!navigationState?.key || isLoading) return;
-
     const inAuthGroup = segments[0] === "(auth)";
 
     if (isLoggedIn && inAuthGroup) {
@@ -58,6 +56,16 @@ function RootLayoutNav() {
         name="product/[id]"
         options={{ title: "Product details", headerShown: false }}
       />
+
+      <Stack.Screen
+        name="receipt/scan"
+        options={{ presentation: "modal", title: "Scan a ticket" }}
+      />
+      <Stack.Screen
+        name="receipt/confirm"
+        options={{ presentation: "modal", title: "Confirm products" }}
+      />
+
       <Stack.Screen
         name="recipe/generate"
         options={{ title: "AI Recipe Generator", headerShown: false }}

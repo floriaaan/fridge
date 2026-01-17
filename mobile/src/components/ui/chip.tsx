@@ -24,17 +24,19 @@ export const Chip = ({
           className="absolute inset-0 bg-black rounded-full"
         />
       )}
-      <View className="flex-row items-center gap-1.5 relative z-10">
+      <View
+        className={`flex-row items-center relative z-10 ${
+          isActive ? "gap-1.5" : "gap-0"
+        }`}
+      >
         {icon && (
           <View className={isActive ? "text-white" : "opacity-60"}>
             {icon}
           </View>
         )}
-        <Text
-          className={`text-sm font-semibold ${isActive ? "text-white" : "opacity-60"}`}
-        >
-          {label}
-        </Text>
+        {isActive && (
+          <Text className="text-sm font-semibold text-white">{label}</Text>
+        )}
       </View>
     </Pressable>
   );

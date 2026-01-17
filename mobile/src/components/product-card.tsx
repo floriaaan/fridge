@@ -8,7 +8,7 @@ import Animated, {
 } from "react-native-reanimated";
 import ReanimatedSwipeable from "react-native-gesture-handler/ReanimatedSwipeable";
 import { useRef, useState } from "react";
-import { Ionicons } from "@expo/vector-icons";
+import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 
 const getCategoryColor = (category: string): string => {
   const colors: Record<string, string> = {
@@ -20,6 +20,8 @@ const getCategoryColor = (category: string): string => {
     beverages: "#E1F5FE",
     snacks: "#FFFDE7",
     condiments: "#EFEBE9",
+    bread: "#FFEAA7",
+    pantry: "#F3E5F5",
   };
   return colors[category.toLowerCase()] || "#F5F5F5";
 };
@@ -34,8 +36,26 @@ const getCategoryTextColor = (category: string): string => {
     beverages: "#0277BD",
     snacks: "#F9A825",
     condiments: "#4E342E",
+    bread: "#E65100",
+    pantry: "#6A1B9A",
   };
   return colors[category.toLowerCase()] || "#424242";
+};
+
+const getCategoryIcon = (category: string): keyof typeof MaterialCommunityIcons.glyphMap => {
+  const icons: Record<string, keyof typeof MaterialCommunityIcons.glyphMap> = {
+    vegetables: "carrot",
+    dairy: "cheese",
+    meat: "food-steak",
+    poultry: "food-turkey",
+    fruits: "food-apple",
+    beverages: "cup",
+    snacks: "cookie",
+    condiments: "bottle-tonic",
+    bread: "bread-slice",
+    pantry: "warehouse",
+  };
+  return icons[category.toLowerCase()] || "cube";
 };
 
 const formatDate = (dateString: string | null): string => {
@@ -150,21 +170,28 @@ export const ProductCard: React.FC<ProductCardProps> = ({
           className="flex-row items-center justify-between p-4 rounded-2xl h-20"
           style={{ backgroundColor: bgColor }}
         >
-          <View className="flex-1">
-            <Text
-              className="text-lg font-bold"
-              style={{ color: textColor }}
-              numberOfLines={1}
-            >
-              {product.name}
-            </Text>
-            <Text
-              className="text-sm opacity-80"
-              style={{ color: textColor }}
-              numberOfLines={1}
-            >
-              {product.quantity} {product.unit} • {product.location}
-            </Text>
+          <View className="flex-row items-center flex-1 gap-3">
+            <MaterialCommunityIcons
+              name={getCategoryIcon(product.category)}
+              size={28}
+              color={textColor}
+            />
+            <View className="flex-1">
+              <Text
+                className="text-lg font-bold"
+                style={{ color: textColor }}
+                numberOfLines={1}
+              >
+                {product.name}
+              </Text>
+              <Text
+                className="text-sm opacity-80"
+                style={{ color: textColor }}
+                numberOfLines={1}
+              >
+                {product.quantity} {product.unit} • {product.location}
+              </Text>
+            </View>
           </View>
           <View className="items-end">
             <View className="flex-row items-center gap-2">
@@ -179,16 +206,29 @@ export const ProductCard: React.FC<ProductCardProps> = ({
                 {formatDate(product.expiresAt)}
               </Text>
             </View>
-            <Text
-              className="text-xs mt-1 px-2 py-0.5 rounded-full"
-              style={{
-                backgroundColor: textColor,
-                color: bgColor,
-                opacity: 0.9,
-              }}
-            >
-              {product.category}
-            </Text>
+            <View className="flex-row gap-2 mt-1">
+              <Text
+                className="text-xs px-2 py-0.5 rounded-full"
+                style={{
+                  backgroundColor: textColor,
+                  color: bgColor,
+                  opacity: 0.9,
+                }}
+              >
+                {product.category}
+              </Text>
+              {expired && (
+                <Text
+                  className="text-xs font-bold px-2 py-0.5 rounded-full"
+                  style={{
+                    backgroundColor: "#EF4444",
+                    color: "white",
+                  }}
+                >
+                  Expired
+                </Text>
+              )}
+            </View>
           </View>
         </Animated.View>
       </TouchableOpacity>
