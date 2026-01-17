@@ -1,12 +1,5 @@
 import { relations, sql } from "drizzle-orm";
-import {
-  pgTable,
-  text,
-  timestamp,
-  boolean,
-  integer,
-  index,
-} from "drizzle-orm/pg-core";
+import { pgTable, text, timestamp, boolean, integer, index, numeric, jsonb } from "drizzle-orm/pg-core";
 
 export const user = pgTable("user", {
   id: text("id").primaryKey(),
@@ -110,6 +103,30 @@ export const apikey = pgTable(
   (table) => [index("apikey_key_idx").on(table.key), index("apikey_userId_idx").on(table.userId)],
 );
 
+export const receipt = pgTable(
+  "receipt",
+  {
+    id: text("id")
+      .primaryKey()
+      .default(sql`gen_random_uuid()`),
+    userId: text("user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    storeName: text("store_name").notNull(),
+    scannedAt: timestamp("scanned_at").defaultNow().notNull(),
+    totalAmount: numeric("total_amount", { precision: 10, scale: 2 }).notNull(),
+    imageUrl: text("image_url"),
+    ocrRawData: jsonb("ocr_raw_data"),
+    itemsCount: integer("items_count").notNull(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at")
+      .defaultNow()
+      .$onUpdate(() => /* @__PURE__ */ new Date())
+      .notNull(),
+  },
+  (table) => [index("receipt_userId_idx").on(table.userId)],
+);
+
 export const product = pgTable(
   "product",
   {
@@ -119,6 +136,7 @@ export const product = pgTable(
     userId: text("user_id")
       .notNull()
       .references(() => user.id, { onDelete: "cascade" }),
+    receiptId: text("receipt_id").references(() => receipt.id, { onDelete: "set null" }),
     name: text("name").notNull(),
     quantity: integer("quantity").notNull(),
     unit: text("unit").notNull(), // g, ml, piece
@@ -128,13 +146,18 @@ export const product = pgTable(
     category: text("category").notNull(),
     openfoodfactId: text("openfoodfact_id"),
     categories: text("categories").array(),
+    price: numeric("price", { precision: 10, scale: 2 }),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at")
       .defaultNow()
       .$onUpdate(() => /* @__PURE__ */ new Date())
       .notNull(),
   },
-  (table) => [index("product_userId_idx").on(table.userId), index("product_expiresAt_idx").on(table.expiresAt)],
+  (table) => [
+    index("product_userId_idx").on(table.userId),
+    index("product_expiresAt_idx").on(table.expiresAt),
+    index("product_receiptId_idx").on(table.receiptId),
+  ],
 );
 
 export const userRelations = relations(user, ({ many }) => ({
@@ -142,6 +165,7 @@ export const userRelations = relations(user, ({ many }) => ({
   accounts: many(account),
   apikeys: many(apikey),
   recipes: many(recipe),
+  receipts: many(receipt),
 }));
 
 export const sessionRelations = relations(session, ({ one }) => ({
@@ -165,10 +189,22 @@ export const apikeyRelations = relations(apikey, ({ one }) => ({
   }),
 }));
 
+export const receiptRelations = relations(receipt, ({ one, many }) => ({
+  user: one(user, {
+    fields: [receipt.userId],
+    references: [user.id],
+  }),
+  products: many(product),
+}));
+
 export const productRelations = relations(product, ({ one, many }) => ({
   user: one(user, {
     fields: [product.userId],
     references: [user.id],
+  }),
+  receipt: one(receipt, {
+    fields: [product.receiptId],
+    references: [receipt.id],
   }),
   recipeIngredients: many(recipeIngredient),
 }));
@@ -303,6 +339,7 @@ export const schema = {
   account,
   verification,
   apikey,
+  receipt,
   product,
   shoppingItem,
   recipe,

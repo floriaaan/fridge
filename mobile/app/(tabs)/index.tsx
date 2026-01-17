@@ -23,7 +23,7 @@ export default function ProductsScreen() {
   }
 
   return (
-    <SafeAreaView className="flex-1 bg-gray-100">
+    <SafeAreaView edges={["top", "left", "right"]} className="flex-1 bg-gray-100">
       <Header title="Fridge" />
       <View className="flex-1 flex-row">
         <View className="flex-1">

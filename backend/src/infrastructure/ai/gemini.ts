@@ -1,5 +1,5 @@
 import { Recipe } from "@/domain/entity/recipe";
-import { AiProvider, recipesListSchema } from "@/infrastructure/ai";
+import { AiProvider, recipesListSchema, receiptParseSchema } from "@/infrastructure/ai";
 import { env } from "@/lib/env";
 import { createGoogleGenerativeAI } from "@ai-sdk/google";
 import { generateText, jsonSchema, Output } from "ai";
@@ -56,6 +56,47 @@ Ensure the recipes are practical and well-balanced.`,
       })) as Recipe[];
     } catch (error) {
       console.error("Error generating recipes with GeminiProvider:", error);
+      throw error;
+    }
+  }
+
+  async parseReceiptImage(imageBase64: string, language: string): Promise<any> {
+    try {
+      const { output } = await generateText({
+        model: this.googleInstance(env.GEMINI_MODEL!),
+        messages: [
+          {
+            role: "user",
+            content: [
+              {
+                type: "text",
+                text: `Analyze this receipt image and extract the following information:
+1. Store name (the merchant/store name at the top)
+2. Purchase date (in ISO format YYYY-MM-DD)
+3. All items/products with their:
+   - Product name
+   - Quantity (if visible, otherwise default to 1)
+   - Price (in euros)
+   - Unit if applicable (g, kg, ml, L, pièce, portion)
+4. Total amount (the final total at the bottom)
+
+Be as accurate as possible. If you can't find specific information, make reasonable estimates. Return the data in ${language}.`,
+              },
+              {
+                type: "image",
+                image: imageBase64,
+              },
+            ],
+          },
+        ],
+        output: Output.object({
+          schema: receiptParseSchema,
+        }),
+      });
+
+      return output;
+    } catch (error) {
+      console.error("Error parsing receipt with GeminiProvider:", error);
       throw error;
     }
   }
