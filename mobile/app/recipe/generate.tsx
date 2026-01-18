@@ -54,8 +54,19 @@ export default function RecipeGenerate() {
         maxTime,
         servings,
       };
-      await generateMutation.mutateAsync(params);
-      router.back();
+      const result = await generateMutation.mutateAsync(params);
+      
+      // Show success message
+      Alert.alert(
+        "Success",
+        `${result.length} recipe${result.length > 1 ? 's' : ''} generated successfully!`,
+        [
+          {
+            text: "OK",
+            onPress: () => router.back(),
+          },
+        ]
+      );
     } catch (error) {
       Alert.alert(
         "Error",

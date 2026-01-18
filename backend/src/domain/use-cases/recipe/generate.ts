@@ -10,10 +10,10 @@ import { env } from "@/lib/env";
 import { logger } from "@/lib/logger";
 
 export interface GenerateRecipesParams {
-  cuisine?: string;
-  difficulty?: "easy" | "medium" | "hard";
-  maxTime?: number;
-  servings?: number;
+  cuisine?: string | undefined;
+  difficulty?: "easy" | "medium" | "hard" | undefined;
+  maxTime?: number | undefined;
+  servings?: number | undefined;
 }
 
 const getLanguageName = (langCode: string) => {
@@ -28,7 +28,7 @@ const getLanguageName = (langCode: string) => {
 
 const performGenerateRecipes = async (
   userId: string,
-  params: GenerateRecipesParams = {}
+  params: GenerateRecipesParams = {},
 ): Promise<{ data: any; statusCode: number; error?: string }> => {
   try {
     const userProducts = await db.select().from(product).where(eq(product.userId, userId));
@@ -54,13 +54,10 @@ const performGenerateRecipes = async (
       })
       .join(", ");
 
-    console.log("User products for recipe generation:", productsList);
-    console.log("Generation params:", params);
-
     const language = getLanguageName(env.USER_LANGUAGE);
 
+    // @ts-ignore: Unreachable code error
     const generatedRecipes = await ai.generateRecipesFromProducts(productsList, language, params);
-    console.log("Generated recipes:", generatedRecipes);
 
     if (!generatedRecipes || generatedRecipes.length === 0) {
       return {
@@ -72,7 +69,9 @@ const performGenerateRecipes = async (
       };
     }
 
+    logger.info("Starting database transaction to save recipes");
     const savedRecipes = await db.transaction(async (tx) => {
+      logger.info(`Inserting ${generatedRecipes.length} recipes into database`);
       const insertedRecipes = await tx
         .insert(recipe)
         .values(
@@ -89,11 +88,29 @@ const performGenerateRecipes = async (
         )
         .returning();
 
-      for (const r of generatedRecipes) {
-        if (r.ingredients && r.ingredients.length > 0) {
-          const insertedRecipe = insertedRecipes.find((ir) => ir.title === r.title);
-          if (!insertedRecipe) continue;
+      logger.info(
+        `Successfully inserted ${insertedRecipes.length} recipes:`,
+        insertedRecipes.map((r) => ({ id: r.id, title: r.title })),
+      );
 
+      for (let i = 0; i < generatedRecipes.length; i++) {
+        const r = generatedRecipes[i];
+        if (!r) {
+          logger.warn(`Null or undefined recipe at index ${i}`);
+          continue;
+        }
+        if (!r.ingredients) {
+          logger.warn(`No ingredients found for recipe: ${r.title}`);
+          continue;
+        }
+        if (r.ingredients && r.ingredients.length > 0) {
+          const insertedRecipe = insertedRecipes[i];
+          if (!insertedRecipe) {
+            logger.warn(`Could not find inserted recipe for: ${r.title}`);
+            continue;
+          }
+
+          logger.info(`Processing ${r.ingredients.length} ingredients for recipe: ${insertedRecipe.title}`);
           for (const ingredient of r.ingredients) {
             // Try to find a matching product by name
             const matchingProducts = await tx
@@ -112,12 +129,16 @@ const performGenerateRecipes = async (
               unit: ingredient.unit || null,
             });
           }
+          logger.info(`Saved ${r.ingredients.length} ingredients for recipe: ${insertedRecipe.title}`);
         }
       }
       return insertedRecipes;
     });
 
-    console.log("Saved recipes to database:", savedRecipes);
+    logger.info(
+      `Transaction complete. Saved ${savedRecipes.length} recipes to database:`,
+      savedRecipes.map((r) => r.id),
+    );
 
     return {
       statusCode: 201,

@@ -1,8 +1,12 @@
 import React from "react";
 import { View, Text, TouchableOpacity } from "react-native";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
-import { type Recipe } from "@/api/fetch-recipes";
-import Animated, { FadeInRight } from "react-native-reanimated";
+import { type Recipe } from "@/lib/api/fetch-recipes";
+import Animated, {
+  FadeInDown,
+  FadeOutUp,
+  LinearTransition,
+} from "react-native-reanimated";
 
 type RecipeCardProps = {
   recipe: Recipe;
@@ -10,132 +14,129 @@ type RecipeCardProps = {
   index: number;
 };
 
-const getSourceIcon = (source: "ai" | "user" | "community") => {
-  switch (source) {
-    case "ai":
-      return <Ionicons name="sparkles" size={14} color="#a855f7" />;
-    case "user":
-      return <Ionicons name="person" size={14} color="#3b82f6" />;
-    case "community":
-      return <Ionicons name="people" size={14} color="#10b981" />;
-  }
+const getSourceColor = (source: string): string => {
+  const colors: Record<string, string> = {
+    ai: "#F3E8FF",
+    user: "#E0F2FE",
+    community: "#FEF3C7",
+  };
+  return colors[source] || "#F5F5F5";
 };
 
-const getSourceLabel = (source: "ai" | "user" | "community") => {
-  switch (source) {
-    case "ai":
-      return "AI Generated";
-    case "user":
-      return "Your Recipe";
-    case "community":
-      return "Community";
-  }
+const getSourceTextColor = (source: string): string => {
+  const colors: Record<string, string> = {
+    ai: "#7C3AED",
+    user: "#0369A1",
+    community: "#D97706",
+  };
+  return colors[source] || "#424242";
 };
 
-const getSourceColor = (source: "ai" | "user" | "community") => {
-  switch (source) {
-    case "ai":
-      return "#faf5ff";
-    case "user":
-      return "#eff6ff";
-    case "community":
-      return "#ecfdf5";
-  }
+const getSourceIcon = (
+  source: string
+): keyof typeof MaterialCommunityIcons.glyphMap => {
+  const icons: Record<string, keyof typeof MaterialCommunityIcons.glyphMap> = {
+    ai: "robot-outline",
+    user: "account-outline",
+    community: "account-group-outline",
+  };
+  return icons[source] || "food-outline";
+};
+
+const getSourceLabel = (source: string): string => {
+  const labels: Record<string, string> = {
+    ai: "AI Generated",
+    user: "My Recipe",
+    community: "Community",
+  };
+  return labels[source] || source;
 };
 
 export function RecipeCard({ recipe, onPress, index }: RecipeCardProps) {
   const ingredientCount = recipe.ingredients?.length ?? 0;
   const prepTime = recipe.preparationTime;
+  const bgColor = getSourceColor(recipe.source);
+  const textColor = getSourceTextColor(recipe.source);
 
   return (
-    <Animated.View entering={FadeInRight.delay(index * 100).duration(300)}>
-      <TouchableOpacity
-        onPress={onPress}
-        activeOpacity={0.7}
-        className="bg-white rounded-2xl overflow-hidden shadow-sm"
+    <TouchableOpacity
+      onPress={onPress}
+      className="w-full"
+      activeOpacity={0.8}
+      testID={`recipe-card-${recipe.id}`}
+    >
+      <Animated.View
+        entering={FadeInDown.delay(index * 50)
+          .springify()
+          .damping(100)
+          .stiffness(600)}
+        exiting={FadeOutUp.springify()}
+        layout={LinearTransition.springify().damping(80).stiffness(600)}
+        className="p-4 rounded-2xl"
+        style={{ backgroundColor: bgColor }}
       >
-        {/* Header with source badge */}
-        <View className="px-4 pt-4 pb-2">
-          <View className="flex-row justify-between items-start mb-2">
-            <View className="flex-1">
+        <View className="flex-row items-start gap-3">
+          <MaterialCommunityIcons
+            name={getSourceIcon(recipe.source)}
+            size={28}
+            color={textColor}
+          />
+          <View className="flex-1">
+            <Text
+              className="text-lg font-bold"
+              style={{ color: textColor }}
+              numberOfLines={1}
+            >
+              {recipe.title}
+            </Text>
+            {recipe.description && (
               <Text
-                className="text-xl font-bold text-gray-900"
+                className="text-sm opacity-80 mt-1"
+                style={{ color: textColor }}
                 numberOfLines={2}
               >
-                {recipe.title}
+                {recipe.description}
               </Text>
-            </View>
-            <View
-              className="px-2.5 py-1.5 rounded-full ml-2"
-              style={{ backgroundColor: getSourceColor(recipe.source) }}
-            >
-              <View className="flex-row items-center gap-1">
-                {getSourceIcon(recipe.source)}
-                <Text className="text-xs font-semibold text-gray-700">
+            )}
+            <View className="flex-row items-center flex-wrap gap-3 mt-2">
+              {prepTime && (
+                <View className="flex-row items-center gap-1">
+                  <Ionicons name="time-outline" size={14} color={textColor} />
+                  <Text className="text-xs" style={{ color: textColor }}>
+                    {prepTime} min
+                  </Text>
+                </View>
+              )}
+              {ingredientCount > 0 && (
+                <View className="flex-row items-center gap-1">
+                  <MaterialCommunityIcons
+                    name="pot-mix"
+                    size={14}
+                    color={textColor}
+                  />
+                  <Text className="text-xs" style={{ color: textColor }}>
+                    {ingredientCount} ingredient{ingredientCount > 1 ? "s" : ""}
+                  </Text>
+                </View>
+              )}
+              <View
+                className="px-2 py-0.5 rounded-full"
+                style={{
+                  backgroundColor: textColor,
+                }}
+              >
+                <Text
+                  className="text-xs font-medium"
+                  style={{ color: bgColor }}
+                >
                   {getSourceLabel(recipe.source)}
                 </Text>
               </View>
             </View>
           </View>
-
-          {recipe.description && (
-            <Text
-              className="text-sm text-gray-600 mb-3"
-              numberOfLines={2}
-            >
-              {recipe.description}
-            </Text>
-          )}
+          <Ionicons name="chevron-forward" size={20} color={textColor} />
         </View>
-
-        {/* Info row */}
-        <View className="px-4 pb-4 flex-row gap-4">
-          {/* Ingredients */}
-          {ingredientCount > 0 && (
-            <View className="flex-row items-center gap-1">
-              <MaterialCommunityIcons
-                name="pot-mix"
-                size={16}
-                color="#6b7280"
-              />
-              <Text className="text-sm text-gray-600">
-                {ingredientCount} ingredient{ingredientCount > 1 ? "s" : ""}
-              </Text>
-            </View>
-          )}
-
-          {/* Preparation time */}
-          {prepTime && (
-            <View className="flex-row items-center gap-1">
-              <Ionicons name="time-outline" size={16} color="#6b7280" />
-              <Text className="text-sm text-gray-600">{prepTime} min</Text>
-            </View>
-          )}
-        </View>
-
-        {/* Tags */}
-        {recipe.tags && recipe.tags.length > 0 && (
-          <View className="px-4 pb-4 flex-row flex-wrap gap-2">
-            {recipe.tags.slice(0, 3).map((tag, idx) => (
-              <View
-                key={idx}
-                className="bg-gray-100 px-2.5 py-1 rounded-full"
-              >
-                <Text className="text-xs text-gray-700 font-medium">
-                  {tag}
-                </Text>
-              </View>
-            ))}
-            {recipe.tags.length > 3 && (
-              <View className="bg-gray-100 px-2.5 py-1 rounded-full">
-                <Text className="text-xs text-gray-700 font-medium">
-                  +{recipe.tags.length - 3}
-                </Text>
-              </View>
-            )}
-          </View>
-        )}
-      </TouchableOpacity>
-    </Animated.View>
+      </Animated.View>
+    </TouchableOpacity>
   );
 }

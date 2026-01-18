@@ -70,6 +70,10 @@ function RootLayoutNav() {
         name="recipe/generate"
         options={{ presentation: "modal", title: "Generate recipes", }}
       />
+      <Stack.Screen
+        name="recipe/[id]"
+        options={{ title: "Recipe details", headerShown: false }}
+      />
     </Stack>
   );
 }

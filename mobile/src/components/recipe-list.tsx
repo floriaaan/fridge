@@ -54,21 +54,49 @@ export function RecipeList({ recipes, refresh, isLoading }: RecipeListProps) {
           label="All"
           isActive={activeFilter === "all"}
           onPress={() => setActiveFilter("all")}
+          icon={
+            <Ionicons
+              name="grid-outline"
+              size={16}
+              color={activeFilter === "all" ? "white" : "#6b7280"}
+            />
+          }
         />
         <Chip
           label="AI Generated"
           isActive={activeFilter === "ai"}
           onPress={() => setActiveFilter("ai")}
+          icon={
+            <Ionicons
+              name="sparkles"
+              size={16}
+              color={activeFilter === "ai" ? "white" : "#6b7280"}
+            />
+          }
         />
         <Chip
           label="My Recipes"
           isActive={activeFilter === "user"}
           onPress={() => setActiveFilter("user")}
+          icon={
+            <Ionicons
+              name="person"
+              size={16}
+              color={activeFilter === "user" ? "white" : "#6b7280"}
+            />
+          }
         />
         <Chip
           label="Community"
           isActive={activeFilter === "community"}
           onPress={() => setActiveFilter("community")}
+          icon={
+            <Ionicons
+              name="people"
+              size={16}
+              color={activeFilter === "community" ? "white" : "#6b7280"}
+            />
+          }
         />
       </ScrollView>
 
@@ -97,7 +125,7 @@ export function RecipeList({ recipes, refresh, isLoading }: RecipeListProps) {
           </View>
         </View>
 
-        <View className="flex flex-col flex-1 px-4 gap-4">
+        <View className="flex flex-col flex-1 px-4 gap-3">
           {filteredRecipes.length > 0 ? (
             filteredRecipes.map((recipe, index) => (
               <RecipeCard
