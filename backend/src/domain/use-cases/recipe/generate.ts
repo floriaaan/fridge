@@ -4,9 +4,17 @@ import { Context } from "elysia";
 import { User } from "better-auth/types";
 import { FridgeResponse } from "@/application/entities/response";
 import { ai } from "@/infrastructure/ai";
+import { Recipe } from "@/domain/entity/recipe";
 import { eq, inArray } from "drizzle-orm";
 import { env } from "@/lib/env";
 import { logger } from "@/lib/logger";
+
+export interface GenerateRecipesParams {
+  cuisine?: string | undefined;
+  difficulty?: "easy" | "medium" | "hard" | undefined;
+  maxTime?: number | undefined;
+  servings?: number | undefined;
+}
 
 const getLanguageName = (langCode: string) => {
   switch (langCode) {
@@ -18,7 +26,10 @@ const getLanguageName = (langCode: string) => {
   }
 };
 
-const performGenerateRecipes = async (userId: string): Promise<{ data: any; statusCode: number; error?: string }> => {
+const performGenerateRecipes = async (
+  userId: string,
+  params: GenerateRecipesParams = {},
+): Promise<{ data: any; statusCode: number; error?: string }> => {
   try {
     const userProducts = await db.select().from(product).where(eq(product.userId, userId));
 
@@ -43,15 +54,10 @@ const performGenerateRecipes = async (userId: string): Promise<{ data: any; stat
       })
       .join(", ");
 
-    console.log("User products for recipe generation:", productsList);
-
     const language = getLanguageName(env.USER_LANGUAGE);
 
-    const toolResults = await ai.generateRecipesFromProducts(productsList, language);
-    console.log("AI tool results:", toolResults);
-
-    const generatedRecipes = toolResults[0]?.result?.recipes;
-    console.log("Generated recipes:", generatedRecipes);
+    // @ts-ignore: Unreachable code error
+    const generatedRecipes = await ai.generateRecipesFromProducts(productsList, language, params);
 
     if (!generatedRecipes || generatedRecipes.length === 0) {
       return {
@@ -63,11 +69,13 @@ const performGenerateRecipes = async (userId: string): Promise<{ data: any; stat
       };
     }
 
+    logger.info("Starting database transaction to save recipes");
     const savedRecipes = await db.transaction(async (tx) => {
+      logger.info(`Inserting ${generatedRecipes.length} recipes into database`);
       const insertedRecipes = await tx
         .insert(recipe)
         .values(
-          generatedRecipes.map((r) => ({
+          generatedRecipes.map((r: Recipe) => ({
             ownerUserId: userId,
             title: r.title,
             description: r.description,
@@ -75,37 +83,62 @@ const performGenerateRecipes = async (userId: string): Promise<{ data: any; stat
             preparationTime: r.preparationTime,
             tags: r.tags,
             source: "ai" as const,
+            generationParams: params,
           })),
         )
         .returning();
 
-      for (const r of generatedRecipes) {
-        if (r.usedProducts && r.usedProducts.length > 0) {
-          const productIds = await tx
-            .select({ id: product.id })
-            .from(product)
-            .where(
-              inArray(
-                product.name,
-                r.usedProducts.map((p) => p),
-              ),
-            );
+      logger.info(
+        `Successfully inserted ${insertedRecipes.length} recipes:`,
+        insertedRecipes.map((r) => ({ id: r.id, title: r.title })),
+      );
 
-          if (productIds.length > 0) {
-            await tx.insert(recipeIngredient).values(
-              productIds.map((p) => ({
-                recipeId: insertedRecipes.find((ir) => ir.title === r.title)!.id,
-                productId: p.id,
-                label: r.usedProducts.find((up) => up === up)!,
-              })),
-            );
+      for (let i = 0; i < generatedRecipes.length; i++) {
+        const r = generatedRecipes[i];
+        if (!r) {
+          logger.warn(`Null or undefined recipe at index ${i}`);
+          continue;
+        }
+        if (!r.ingredients) {
+          logger.warn(`No ingredients found for recipe: ${r.title}`);
+          continue;
+        }
+        if (r.ingredients && r.ingredients.length > 0) {
+          const insertedRecipe = insertedRecipes[i];
+          if (!insertedRecipe) {
+            logger.warn(`Could not find inserted recipe for: ${r.title}`);
+            continue;
           }
+
+          logger.info(`Processing ${r.ingredients.length} ingredients for recipe: ${insertedRecipe.title}`);
+          for (const ingredient of r.ingredients) {
+            // Try to find a matching product by name
+            const matchingProducts = await tx
+              .select({ id: product.id })
+              .from(product)
+              .where(eq(product.name, ingredient.label));
+
+            const productId = matchingProducts[0]?.id ?? null;
+
+            // Insert the ingredient with or without a productId
+            await tx.insert(recipeIngredient).values({
+              recipeId: insertedRecipe.id,
+              productId: productId,
+              label: ingredient.label,
+              quantity: ingredient.quantity || null,
+              unit: ingredient.unit || null,
+            });
+          }
+          logger.info(`Saved ${r.ingredients.length} ingredients for recipe: ${insertedRecipe.title}`);
         }
       }
       return insertedRecipes;
     });
 
-    console.log("Saved recipes to database:", savedRecipes);
+    logger.info(
+      `Transaction complete. Saved ${savedRecipes.length} recipes to database:`,
+      savedRecipes.map((r) => r.id),
+    );
 
     return {
       statusCode: 201,
@@ -125,13 +158,26 @@ const performGenerateRecipes = async (userId: string): Promise<{ data: any; stat
   }
 };
 
-export const generateRecipes = async ({ user, status }: Context & { user: User }): Promise<FridgeResponse<any>> => {
+export const generateRecipes = async ({
+  user,
+  query,
+  status,
+}: Context<{ query: { cuisine?: string; difficulty?: string; maxTime?: string; servings?: string } }> & {
+  user: User;
+}): Promise<FridgeResponse<any>> => {
   if (!user) {
     status(401);
     return { error: "Unauthorized" };
   }
 
-  const result = await performGenerateRecipes(user.id);
+  const params: GenerateRecipesParams = {
+    cuisine: query.cuisine,
+    difficulty: query.difficulty as "easy" | "medium" | "hard" | undefined,
+    maxTime: query.maxTime ? parseInt(query.maxTime, 10) : undefined,
+    servings: query.servings ? parseInt(query.servings, 10) : undefined,
+  };
+
+  const result = await performGenerateRecipes(user.id, params);
   status(result.statusCode);
   return result.data;
 };

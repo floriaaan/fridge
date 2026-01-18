@@ -3,6 +3,7 @@ import {
   fetchRecipes,
   fetchRecipeSuggestions,
   generateRecipes,
+  GenerateRecipesParams,
 } from "@/lib/api/fetch-recipes";
 
 export function useRecipes() {
@@ -23,7 +24,7 @@ export function useGenerateRecipes() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: generateRecipes,
+    mutationFn: (params?: GenerateRecipesParams) => generateRecipes(params),
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ["recipes"] });
       queryClient.invalidateQueries({ queryKey: ["recipe-suggestions"] });

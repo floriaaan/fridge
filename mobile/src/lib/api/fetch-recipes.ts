@@ -87,9 +87,25 @@ export async function fetchRecipeSuggestions(): Promise<Recipe[]> {
   }
 }
 
-export async function generateRecipes(): Promise<Recipe[]> {
+export interface GenerateRecipesParams {
+  cuisine?: string;
+  difficulty?: "easy" | "medium" | "hard";
+  maxTime?: number;
+  servings?: number;
+}
+
+export async function generateRecipes(params?: GenerateRecipesParams): Promise<Recipe[]> {
   const cookies = authClient.getCookie();
-  const response = await fetch(`${API_BASE_URL}/recipe/generate`, {
+  const queryParams = new URLSearchParams();
+  
+  if (params?.cuisine) queryParams.append("cuisine", params.cuisine);
+  if (params?.difficulty) queryParams.append("difficulty", params.difficulty);
+  if (params?.maxTime) queryParams.append("maxTime", params.maxTime.toString());
+  if (params?.servings) queryParams.append("servings", params.servings.toString());
+  
+  const url = `${API_BASE_URL}/recipe/generate${queryParams.toString() ? `?${queryParams.toString()}` : ""}`;
+  
+  const response = await fetch(url, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",

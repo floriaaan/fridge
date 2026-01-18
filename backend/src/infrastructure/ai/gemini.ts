@@ -13,17 +13,39 @@ export class GeminiProvider implements AiProvider {
     });
   }
 
-  async generateRecipesFromProducts(productsList: string, language: string): Promise<Recipe[]> {
+  async generateRecipesFromProducts(
+    productsList: string,
+    language: string,
+    params: {
+      cuisine?: string;
+      difficulty?: "easy" | "medium" | "hard";
+      maxTime?: number;
+      servings?: number;
+    } = {}
+  ): Promise<Recipe[]> {
     try {
-      const { output } = await generateText({
-        model: this.googleInstance(env.GEMINI_MODEL!),
-        prompt: `Based on the following products: ${productsList}, generate three diverse recipes in ${language}:
+      let prompt = `Based on the following products: ${productsList}, generate three diverse recipes in ${language}:
       
 1. A simple and quick recipe (less than 30 minutes).
 2. A vegetarian recipe.
 3. A more complex and elaborate recipe.
 
-Prioritize using products that are expiring soon, but feel free to include other common ingredients.
+Prioritize using products that are expiring soon, but feel free to include other common ingredients.`;
+
+      if (params.cuisine) {
+        prompt += `\n\nCuisine type: ${params.cuisine}`;
+      }
+      if (params.difficulty) {
+        prompt += `\n\nDifficulty level: ${params.difficulty}`;
+      }
+      if (params.maxTime) {
+        prompt += `\n\nMaximum preparation time: ${params.maxTime} minutes`;
+      }
+      if (params.servings) {
+        prompt += `\n\nNumber of servings: ${params.servings}`;
+      }
+
+      prompt += `
 
 For each recipe, provide:
 - A clear and appealing title
@@ -33,13 +55,17 @@ For each recipe, provide:
 - Relevant tags (e.g., "quick", "vegetarian", "healthy", cuisine type)
 - A complete list of ingredients with quantities and units when possible
 
-Ensure the recipes are practical and well-balanced.`,
+Ensure the recipes are practical and well-balanced.`;
+
+      const { output } = await generateText({
+        model: this.googleInstance(env.GEMINI_MODEL!),
+        prompt,
         output: Output.object({
           schema: recipesListSchema,
         }),
       });
 
-      // Transformer l'objet retourné pour correspondre à votre type Recipe
+      // Transform the returned object to match your Recipe type
       return output.recipes.map((recipe) => ({
         title: recipe.title,
         description: recipe.description || "",

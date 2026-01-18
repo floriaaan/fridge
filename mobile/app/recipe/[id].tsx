@@ -4,7 +4,7 @@ import { ScrollView, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Animated, { FadeInDown, FadeInUp } from "react-native-reanimated";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
-import { type Recipe } from "@/api/fetch-recipes";
+import { type Recipe } from "@/lib/api/fetch-recipes";
 
 const getSourceBadgeColor = (source: "ai" | "user" | "community") => {
   switch (source) {

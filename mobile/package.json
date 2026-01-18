@@ -17,6 +17,7 @@
     "@hookform/resolvers": "^5.2.2",
     "@lottiefiles/dotlottie-react": "^0.13.5",
     "@react-native-community/datetimepicker": "^8.6.0",
+    "@react-native-community/slider": "5.0.1",
     "@react-native-masked-view/masked-view": "^0.3.2",
     "@react-navigation/bottom-tabs": "^7.4.0",
     "@react-navigation/elements": "^2.6.3",

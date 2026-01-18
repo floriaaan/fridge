@@ -29,7 +29,15 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
     async def async_handle_generate_recipes(call: ServiceCall) -> None:
         """Handle the service call to generate recipes."""
-        await coordinator.api_client.async_generate_recipes()
+        params = {
+            "cuisine": call.data.get("cuisine"),
+            "difficulty": call.data.get("difficulty"),
+            "max_time": call.data.get("max_time"),
+            "servings": call.data.get("servings"),
+        }
+        # Remove None values
+        params = {k: v for k, v in params.items() if v is not None}
+        await coordinator.api_client.async_generate_recipes(params)
         await coordinator.async_refresh()
 
     hass.services.async_register(

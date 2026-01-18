@@ -76,11 +76,25 @@ class FridgeCompanionApiClient:
         ) as response:
             response.raise_for_status()
 
-    async def async_generate_recipes(self) -> None:
+    async def async_generate_recipes(self, params: dict = None) -> None:
         """Generate new recipes."""
-        async with self._session.post(
-            f"{self._base_url}/api/recipe/generate", headers=self._headers
-        ) as response:
+        from urllib.parse import urlencode
+        
+        url = f"{self._base_url}/api/recipe/generate"
+        if params:
+            query_params = {}
+            if params.get("cuisine"):
+                query_params["cuisine"] = params["cuisine"]
+            if params.get("difficulty"):
+                query_params["difficulty"] = params["difficulty"]
+            if params.get("max_time"):
+                query_params["maxTime"] = str(params["max_time"])
+            if params.get("servings"):
+                query_params["servings"] = str(params["servings"])
+            if query_params:
+                url = f"{url}?{urlencode(query_params)}"
+        
+        async with self._session.post(url, headers=self._headers) as response:
             response.raise_for_status()
 
     async def get_recipes(self) -> list:
