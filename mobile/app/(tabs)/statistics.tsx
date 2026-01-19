@@ -4,7 +4,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import Animated, { FadeInUp, FadeInDown } from "react-native-reanimated";
 import Header from "@/components/ui/header";
-import { useOverallStats, useWasteEvolution, useTopCategories } from "@/hooks/use-statistics";
+import { useOverallStats, useStatsByPeriod, useWasteEvolution, useTopCategories } from "@/hooks/use-statistics";
 
 type Period = "weekly" | "monthly" | "yearly" | "all";
 
@@ -103,7 +103,21 @@ function PeriodTabs({ selected, onSelect }: { selected: Period; onSelect: (p: Pe
 
 export default function StatisticsScreen() {
   const [selectedPeriod, setSelectedPeriod] = useState<Period>("all");
-  const { data: stats, isLoading, isError, error, refetch, isRefetching } = useOverallStats();
+  
+  // Use overall stats for "all" period, period-specific stats otherwise
+  const { data: overallStats, isLoading: overallLoading, isError: overallError, error: overallErrorData, refetch: refetchOverall, isRefetching: isRefetchingOverall } = useOverallStats();
+  const { data: periodStats, isLoading: periodLoading, isError: periodError, error: periodErrorData, refetch: refetchPeriod, isRefetching: isRefetchingPeriod } = useStatsByPeriod(
+    selectedPeriod === "all" ? "yearly" : selectedPeriod
+  );
+  
+  // Use the appropriate stats based on selected period
+  const stats = selectedPeriod === "all" ? overallStats : periodStats;
+  const isLoading = selectedPeriod === "all" ? overallLoading : periodLoading;
+  const isError = selectedPeriod === "all" ? overallError : periodError;
+  const error = selectedPeriod === "all" ? overallErrorData : periodErrorData;
+  const refetch = selectedPeriod === "all" ? refetchOverall : refetchPeriod;
+  const isRefetching = selectedPeriod === "all" ? isRefetchingOverall : isRefetchingPeriod;
+  
   const { data: evolution } = useWasteEvolution(6);
   const { data: categories } = useTopCategories(5);
 
