@@ -127,6 +127,9 @@ export const receipt = pgTable(
   (table) => [index("receipt_userId_idx").on(table.userId)],
 );
 
+export const discardReasonEnum = ["expired", "spoiled", "other"] as const;
+export type DiscardReason = typeof discardReasonEnum[number];
+
 export const product = pgTable(
   "product",
   {
@@ -143,6 +146,9 @@ export const product = pgTable(
     location: text("location").notNull(), // fridge, freezer, pantry
     expiresAt: timestamp("expires_at"),
     openedAt: timestamp("opened_at"),
+    consumedAt: timestamp("consumed_at"), // When the product was consumed
+    discardedAt: timestamp("discarded_at"), // When the product was discarded
+    discardReason: text("discard_reason", { enum: discardReasonEnum }), // Reason for discarding
     category: text("category").notNull(),
     openfoodfactId: text("openfoodfact_id"),
     categories: text("categories").array(),
@@ -335,6 +341,44 @@ export const passkeyRelations = relations(passkey, ({ one }) => ({
   }),
 }));
 
+export const periodEnum = ["daily", "weekly", "monthly", "yearly"] as const;
+export type Period = typeof periodEnum[number];
+
+export const statisticsSnapshot = pgTable(
+  "statistics_snapshot",
+  {
+    id: text("id")
+      .primaryKey()
+      .default(sql`gen_random_uuid()`),
+    userId: text("user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    period: text("period", { enum: periodEnum }).notNull(),
+    periodStart: timestamp("period_start").notNull(),
+    periodEnd: timestamp("period_end").notNull(),
+    totalProducts: integer("total_products").notNull(),
+    consumedProducts: integer("consumed_products").notNull(),
+    discardedProducts: integer("discarded_products").notNull(),
+    moneyWasted: numeric("money_wasted", { precision: 10, scale: 2 }).notNull(),
+    moneySaved: numeric("money_saved", { precision: 10, scale: 2 }).notNull(),
+    co2Avoided: numeric("co2_avoided", { precision: 10, scale: 2 }).notNull(),
+    topCategories: jsonb("top_categories"),
+    calculatedAt: timestamp("calculated_at").defaultNow().notNull(),
+  },
+  (table) => [
+    index("statistics_snapshot_userId_idx").on(table.userId),
+    index("statistics_snapshot_period_idx").on(table.period),
+    index("statistics_snapshot_periodStart_idx").on(table.periodStart),
+  ],
+);
+
+export const statisticsSnapshotRelations = relations(statisticsSnapshot, ({ one }) => ({
+  user: one(user, {
+    fields: [statisticsSnapshot.userId],
+    references: [user.id],
+  }),
+}));
+
 export const schema = {
   user,
   session,
@@ -346,5 +390,6 @@ export const schema = {
   shoppingItem,
   recipe,
   recipeIngredient,
-  passkey
+  passkey,
+  statisticsSnapshot
 };

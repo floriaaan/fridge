@@ -7,8 +7,9 @@ import { productController } from "@/application/controller/product";
 import { recipeController } from "@/application/controller/recipe";
 import { shoppingItemController } from "@/application/controller/shopping-item";
 import { receiptController } from "@/application/controller/receipt";
+import { statisticsController } from "@/application/controller/statistics";
 
-const api = new Elysia({ prefix: "/api" }).use(productController).use(shoppingItemController).use(recipeController).use(receiptController);
+const api = new Elysia({ prefix: "/api" }).use(productController).use(shoppingItemController).use(recipeController).use(receiptController).use(statisticsController);
 
 const app = new Elysia({ adapter: node() })
   .use(staticPlugin({
