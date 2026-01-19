@@ -54,6 +54,7 @@ export interface AiProvider {
       servings?: number;
     }
   ): Promise<Recipe[]>;
+  generateRecipeImage(recipeTitle: string, recipeDescription: string): Promise<Buffer | null>;
 }
 
 // Factory to get the AI provider based on the environment variable

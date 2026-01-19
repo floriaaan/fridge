@@ -29,6 +29,20 @@
       "when": 1768675192586,
       "tag": "0003_safe_rafael_vega",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1737331200000,
+      "tag": "0004_add_recipe_image_url",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1768826568842,
+      "tag": "0005_little_shockwave",
+      "breakpoints": true
     }
   ]
 }

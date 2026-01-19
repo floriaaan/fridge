@@ -1,5 +1,6 @@
 import { Elysia } from "elysia";
 import { node } from "@elysiajs/node";
+import { staticPlugin } from "@elysiajs/static";
 import { authMiddleware } from "@/application/middleware/auth";
 import { loggerMiddleware } from "@/application/middleware/logger";
 import { productController } from "@/application/controller/product";
@@ -10,6 +11,10 @@ import { receiptController } from "@/application/controller/receipt";
 const api = new Elysia({ prefix: "/api" }).use(productController).use(shoppingItemController).use(recipeController).use(receiptController);
 
 const app = new Elysia({ adapter: node() })
+  .use(staticPlugin({
+    assets: "public",
+    prefix: "/",
+  }))
   .use(authMiddleware)
   .use(loggerMiddleware)
 

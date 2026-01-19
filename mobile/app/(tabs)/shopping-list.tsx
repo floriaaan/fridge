@@ -48,9 +48,10 @@ export default function ShoppingListScreen() {
   const filteredItems = React.useMemo(() => {
     return items
       .filter((item) => {
+        const isChecked = Boolean(item.checked);
         if (statusFilter === "all") return true;
-        if (statusFilter === "pending") return !item.checked;
-        return item.checked;
+        if (statusFilter === "pending") return !isChecked;
+        return isChecked;
       })
       .filter((item) => {
         if (sourceFilter === "all") return true;

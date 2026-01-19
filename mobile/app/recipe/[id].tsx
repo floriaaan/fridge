@@ -1,6 +1,6 @@
 import React from "react";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { ScrollView, Text, TouchableOpacity, View } from "react-native";
+import { ScrollView, Text, TouchableOpacity, View, Image } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Animated, { FadeInDown, FadeInUp } from "react-native-reanimated";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
@@ -26,6 +26,12 @@ const getSourceIcon = (source: "ai" | "user" | "community") => {
     case "community":
       return "people";
   }
+};
+
+const formatDescription = (description: string): string[] => {
+  // Split by numbered points (1. 2. 3. etc.) - handles both "1. " and "1) " formats
+  const parts = description.split(/\s*(?=\d+[\.\)]\s)/);
+  return parts.map((part) => part.trim()).filter((part) => part.length > 0);
 };
 
 export default function RecipeDetail() {
@@ -70,6 +76,17 @@ export default function RecipeDetail() {
 
   const scrollContent = (
     <>
+      {/* Recipe Image */}
+      {recipe.imageUrl && (
+        <Animated.View entering={FadeInUp.duration(400)}>
+          <Image
+            source={{ uri: recipe.imageUrl }}
+            className="w-full h-56"
+            resizeMode="cover"
+          />
+        </Animated.View>
+      )}
+
       {/* Title Section */}
       <Animated.View
         entering={FadeInUp.delay(100).duration(400)}
@@ -158,9 +175,15 @@ export default function RecipeDetail() {
           <Text className="text-lg font-bold text-gray-900 mb-4">
             Instructions
           </Text>
-          <Text className="text-base text-gray-700 leading-7">
-            {recipe.instructions}
-          </Text>
+          {formatDescription(recipe.instructions).map((step, idx, arr) => (
+            <Text
+              key={idx}
+              className="text-base text-gray-700 leading-7"
+              style={{ marginBottom: idx < arr.length - 1 ? 12 : 0 }}
+            >
+              {step}
+            </Text>
+          ))}
         </View>
       </Animated.View>
 

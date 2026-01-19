@@ -6,6 +6,8 @@ import Animated, {
   FadeInDown,
   FadeOutUp,
   LinearTransition,
+  useAnimatedStyle,
+  withTiming,
 } from 'react-native-reanimated';
 import ReanimatedSwipeable from 'react-native-gesture-handler/ReanimatedSwipeable';
 import { useUpdateShoppingItems } from '@/hooks/use-update-shopping-items';
@@ -61,6 +63,12 @@ export function ShoppingItemCard({ item, onToggleCheck, onDelete, index }: Shopp
   const bgColor = getSourceColor(item.source);
   const textColor = getSourceTextColor(item.source);
   const sourceIcon = getSourceIcon(item.source);
+  // Ensure checked is a proper boolean (backend may return 0/1)
+  const isChecked = Boolean(item.checked);
+
+  const animatedOpacityStyle = useAnimatedStyle(() => ({
+    opacity: withTiming(isChecked ? 0.5 : 1, { duration: 200 }),
+  }));
 
   const handleToggleCheck = () => {
     onToggleCheck?.(item.id);
@@ -106,40 +114,39 @@ export function ShoppingItemCard({ item, onToggleCheck, onDelete, index }: Shopp
   );
 
   return (
-    <ReanimatedSwipeable
-      ref={swipeRef}
-      renderRightActions={renderRightActions}
-      overshootRight={false}
-      rightThreshold={40}
+    <Animated.View
+      layout={LinearTransition.springify().damping(80).stiffness(600)}
     >
-      <TouchableOpacity
-        onPress={handleToggleCheck}
-        onLongPress={handleLongPress}
-        className="w-full"
-        activeOpacity={0.8}
+      <ReanimatedSwipeable
+        ref={swipeRef}
+        renderRightActions={renderRightActions}
+        overshootRight={false}
+        rightThreshold={40}
       >
-        <Animated.View
-          entering={FadeInDown.delay(index ? index * 50 : 0)
-            .springify()
-            .damping(100)
-            .stiffness(600)}
-          exiting={FadeOutUp.springify()}
-          layout={LinearTransition.springify().damping(80).stiffness(600)}
-          className="flex-row items-center justify-between p-4 rounded-2xl h-20"
-          style={{ 
-            backgroundColor: bgColor,
-            opacity: item.checked ? 0.5 : 1,
-          }}
+        <TouchableOpacity
+          onPress={handleToggleCheck}
+          onLongPress={handleLongPress}
+          className="w-full"
+          activeOpacity={0.8}
         >
+          <Animated.View
+            entering={FadeInDown.delay(index ? index * 50 : 0)
+              .springify()
+              .damping(100)
+              .stiffness(600)}
+            exiting={FadeOutUp.springify()}
+            className="flex-row items-center justify-between p-4 rounded-2xl h-20"
+            style={[{ backgroundColor: bgColor }, animatedOpacityStyle]}
+          >
           <View className="flex-row items-center flex-1 gap-3">
             <View
               className="w-6 h-6 rounded-full border-2 items-center justify-center"
               style={{
                 borderColor: textColor,
-                backgroundColor: item.checked ? textColor : 'transparent',
+                backgroundColor: isChecked ? textColor : 'transparent',
               }}
             >
-              {item.checked && (
+              {isChecked && (
                 <Ionicons name="checkmark" size={16} color={bgColor} />
               )}
             </View>
@@ -163,7 +170,7 @@ export function ShoppingItemCard({ item, onToggleCheck, onDelete, index }: Shopp
                     className="font-bold"
                     style={{ 
                       color: textColor,
-                      textDecorationLine: item.checked ? 'line-through' : 'none',
+                      textDecorationLine: isChecked ? 'line-through' : 'none',
                     }}
                     numberOfLines={1}
                   >
@@ -217,8 +224,9 @@ export function ShoppingItemCard({ item, onToggleCheck, onDelete, index }: Shopp
               </Text>
             </View>
           </View>
-        </Animated.View>
-      </TouchableOpacity>
-    </ReanimatedSwipeable>
+          </Animated.View>
+        </TouchableOpacity>
+      </ReanimatedSwipeable>
+    </Animated.View>
   );
 }

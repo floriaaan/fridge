@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "tsx watch src/index.ts",
+    "dev": "NODE_ENV=development tsx watch src/index.ts",
     "build": "tsc src/index.ts --outDir dist",
     "start": "NODE_ENV=production node dist/index.js",
     "format": "prettier --write .",
@@ -21,6 +21,7 @@
     "@better-auth/expo": "^1.4.12",
     "@better-auth/passkey": "^1.4.12",
     "@elysiajs/node": "^1.4.2",
+    "@elysiajs/static": "^1.4.7",
     "ai": "^6.0.12",
     "ai-sdk-ollama": "^3.0.1",
     "better-auth": "^1.4.12",

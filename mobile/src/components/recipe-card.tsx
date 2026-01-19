@@ -1,5 +1,5 @@
 import React from "react";
-import { View, Text, TouchableOpacity } from "react-native";
+import { View, Text, TouchableOpacity, Image } from "react-native";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { type Recipe } from "@/lib/api/fetch-recipes";
 import Animated, {
@@ -72,10 +72,17 @@ export function RecipeCard({ recipe, onPress, index }: RecipeCardProps) {
           .stiffness(600)}
         exiting={FadeOutUp.springify()}
         layout={LinearTransition.springify().damping(80).stiffness(600)}
-        className="p-4 rounded-2xl"
+        className="rounded-2xl overflow-hidden"
         style={{ backgroundColor: bgColor }}
       >
-        <View className="flex-row items-start gap-3">
+        {recipe.imageUrl && (
+          <Image
+            source={{ uri: recipe.imageUrl }}
+            className="w-full h-32"
+            resizeMode="cover"
+          />
+        )}
+        <View className="p-4 flex-row items-start gap-3">
           <MaterialCommunityIcons
             name={getSourceIcon(recipe.source)}
             size={28}

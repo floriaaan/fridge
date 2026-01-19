@@ -27,13 +27,19 @@ export function useUpdateShoppingItems() {
 
       return { previousItems };
     },
+    onSuccess: (updatedItems) => {
+      // Update the cache with the actual data returned by the server
+      queryClient.setQueryData<ShoppingItem[]>(["shopping-items"], (oldItems = []) =>
+        oldItems.map((item) => {
+          const updatedItem = updatedItems.find((u) => u.id === item.id);
+          return updatedItem || item;
+        })
+      );
+    },
     onError: (_error, _variables, context) => {
       if (context?.previousItems) {
         queryClient.setQueryData(["shopping-items"], context.previousItems);
       }
-    },
-    onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ["shopping-items"] });
     },
   });
 }

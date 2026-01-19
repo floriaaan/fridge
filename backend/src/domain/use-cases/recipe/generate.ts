@@ -8,6 +8,7 @@ import { Recipe } from "@/domain/entity/recipe";
 import { eq, inArray } from "drizzle-orm";
 import { env } from "@/lib/env";
 import { logger } from "@/lib/logger";
+import { saveRecipeImage } from "@/infrastructure/storage/images";
 
 export interface GenerateRecipesParams {
   cuisine?: string | undefined;
@@ -69,9 +70,9 @@ const performGenerateRecipes = async (
       };
     }
 
-    logger.info("Starting database transaction to save recipes");
+    console.log("Starting database transaction to save recipes");
     const savedRecipes = await db.transaction(async (tx) => {
-      logger.info(`Inserting ${generatedRecipes.length} recipes into database`);
+      console.log(`Inserting ${generatedRecipes.length} recipes into database`);
       const insertedRecipes = await tx
         .insert(recipe)
         .values(
@@ -88,7 +89,7 @@ const performGenerateRecipes = async (
         )
         .returning();
 
-      logger.info(
+      console.log(
         `Successfully inserted ${insertedRecipes.length} recipes:`,
         insertedRecipes.map((r) => ({ id: r.id, title: r.title })),
       );
@@ -110,7 +111,7 @@ const performGenerateRecipes = async (
             continue;
           }
 
-          logger.info(`Processing ${r.ingredients.length} ingredients for recipe: ${insertedRecipe.title}`);
+          console.log(`Processing ${r.ingredients.length} ingredients for recipe: ${insertedRecipe.title}`);
           for (const ingredient of r.ingredients) {
             // Try to find a matching product by name
             const matchingProducts = await tx
@@ -129,16 +130,42 @@ const performGenerateRecipes = async (
               unit: ingredient.unit || null,
             });
           }
-          logger.info(`Saved ${r.ingredients.length} ingredients for recipe: ${insertedRecipe.title}`);
+          console.log(`Saved ${r.ingredients.length} ingredients for recipe: ${insertedRecipe.title}`);
         }
       }
       return insertedRecipes;
     });
 
-    logger.info(
+    console.log(
       `Transaction complete. Saved ${savedRecipes.length} recipes to database:`,
       savedRecipes.map((r) => r.id),
     );
+
+    // Generate images for each recipe in the background
+    console.log("Starting image generation for recipes");
+    for (const savedRecipe of savedRecipes) {
+      try {
+        const imageBuffer = await ai.generateRecipeImage(
+          savedRecipe.title,
+          savedRecipe.description || ""
+        );
+
+        if (imageBuffer) {
+          const imageUrl = await saveRecipeImage(imageBuffer, savedRecipe.id);
+          // Update the recipe with the image URL
+          await db
+            .update(recipe)
+            .set({ imageUrl })
+            .where(eq(recipe.id, savedRecipe.id));
+          savedRecipe.imageUrl = imageUrl;
+          console.log(`Generated and saved image for recipe: ${savedRecipe.title}`);
+        } else {
+          logger.warn(`Could not generate image for recipe: ${savedRecipe.title}`);
+        }
+      } catch (error) {
+        logger.error(`Error generating image for recipe ${savedRecipe.title}:`, error);
+      }
+    }
 
     return {
       statusCode: 201,

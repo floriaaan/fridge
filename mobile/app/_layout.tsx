@@ -24,19 +24,19 @@ SplashScreen.preventAutoHideAsync();
 function RootLayoutNav() {
   const { isPending, isRefetching, data: session } = authClient.useSession();
   const isLoading = isPending || isRefetching;
-  const isLoggedIn = session?.user != null;
+  const isLoggedIn = !!session;
   const router = useRouter();
   const segments = useSegments();
   const navigationState = useRootNavigationState();
 
   useEffect(() => {
-    const inAuthGroup = segments[0] === "(auth)";
+    const inAuthGroup = segments[0] === "(auth)"
 
-    if (isLoggedIn && inAuthGroup) {
-      router.replace("/(tabs)");
-    } else if (!isLoggedIn && !inAuthGroup) {
-      router.replace("/(auth)");
-    }
+    // if (isLoggedIn && inAuthGroup) {
+    //   router.replace("/(tabs)");
+    // } else if (!isLoggedIn && !inAuthGroup) {
+    //   router.replace("/(auth)");
+    // }
     SplashScreen.hideAsync();
   }, [isLoggedIn, segments, isLoading, navigationState?.key, router]);
 
@@ -68,7 +68,7 @@ function RootLayoutNav() {
 
       <Stack.Screen
         name="recipe/generate"
-        options={{ presentation: "modal", title: "Generate recipes", }}
+        options={{ presentation: "modal", title: "Generate recipes" }}
       />
       <Stack.Screen
         name="recipe/[id]"

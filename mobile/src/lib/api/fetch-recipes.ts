@@ -1,4 +1,4 @@
-import { API_BASE_URL } from "@/lib/api-config";
+import { API_BASE_URL, BASE_URL } from "@/lib/api-config";
 import { authClient } from "@/lib/auth-client";
 
 export interface RecipeIngredient {
@@ -28,6 +28,7 @@ export interface Recipe {
   tags: string[];
   createdAt: string;
   ingredients?: RecipeIngredient[];
+  imageUrl?: string | null;
 }
 
 export interface RecipeResponse {
@@ -55,7 +56,8 @@ export async function fetchRecipes(): Promise<Recipe[]> {
     const text = await response.text();
     if (!text) return [];
     const data = JSON.parse(text);
-    return (Array.isArray(data) ? data : data.data) || [];
+    const results = (Array.isArray(data) ? data : data.data) || []
+    return results.map((recipe: any) => ({...recipe, imageUrl: recipe.imageUrl ? `${BASE_URL}/${recipe.imageUrl}` : null} as Recipe));
   } catch (e) {
     console.error("Error parsing recipes:", e);
     return [];
