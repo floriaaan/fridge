@@ -26,7 +26,7 @@ export const buildRecipePrompt = (
 Generate 3 recipes in ${language}: 1) Quick (<30min), 2) Vegetarian, 3) Elaborate.
 Prioritize expiring products.${constraints ? ` ${constraints}.` : ""}
 
-Each recipe needs: title, description (1-2 sentences), instructions (Markdown), prep time (minutes), tags, ingredients (with quantities/units).`;
+Each recipe needs: title, description (1-2 sentences), instructions (Markdown), prep time (minutes), tags, ingredients (with quantities as integers and units separately, e.g. quantity: 500, unit: "g").`;
 };
 
 export const buildReceiptPrompt = (language: string): string => {

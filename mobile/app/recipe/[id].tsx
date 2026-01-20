@@ -4,6 +4,7 @@ import { ScrollView, Text, TouchableOpacity, View, Image, useColorScheme } from 
 import { SafeAreaView } from "react-native-safe-area-context";
 import Animated, { FadeInDown, FadeInUp } from "react-native-reanimated";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
+import Markdown from "react-native-markdown-display";
 import { type Recipe } from "@/lib/api/fetch-recipes";
 import { useTranslation } from "@/hooks/use-translation";
 
@@ -34,6 +35,131 @@ const formatDescription = (description: string): string[] => {
   const parts = description.split(/\s*(?=\d+[\.\)]\s)/);
   return parts.map((part) => part.trim()).filter((part) => part.length > 0);
 };
+
+const formatInstructionsToMarkdown = (instructions: string): string => {
+  // Check if instructions already contain markdown list syntax
+  if (/^\s*[-*]\s|^\s*\d+\.\s/m.test(instructions)) {
+    // Already has markdown list format, normalize numbered lists
+    return instructions
+      .split(/\n/)
+      .map((line) => {
+        // Convert "1) " format to "1. " format for proper markdown
+        return line.replace(/^(\s*)(\d+)\)\s/, "$1$2. ");
+      })
+      .join("\n");
+  }
+
+  // Check if instructions have inline numbered format like "1. Step one 2. Step two"
+  const hasInlineNumbers = /\d+[\.\)]\s/.test(instructions);
+  
+  if (hasInlineNumbers) {
+    // Split by numbered points and convert to markdown list
+    const parts = instructions.split(/\s*(?=\d+[\.\)]\s)/);
+    return parts
+      .map((part) => part.trim())
+      .filter((part) => part.length > 0)
+      .map((part) => {
+        // Replace "1) " with "1. " for proper markdown
+        return part.replace(/^(\d+)\)\s/, "$1. ");
+      })
+      .join("\n\n");
+  }
+
+  // No numbered format detected, return as-is
+  return instructions;
+};
+
+const getMarkdownStyles = (isDark: boolean) => ({
+  body: {
+    color: isDark ? "#d4d4d4" : "#404040",
+    fontSize: 16,
+    lineHeight: 26,
+  },
+  paragraph: {
+    marginTop: 0,
+    marginBottom: 12,
+  },
+  heading1: {
+    color: isDark ? "#fafafa" : "#171717",
+    fontSize: 24,
+    fontWeight: "bold" as const,
+    marginBottom: 8,
+  },
+  heading2: {
+    color: isDark ? "#fafafa" : "#171717",
+    fontSize: 20,
+    fontWeight: "bold" as const,
+    marginBottom: 8,
+  },
+  heading3: {
+    color: isDark ? "#fafafa" : "#171717",
+    fontSize: 18,
+    fontWeight: "600" as const,
+    marginBottom: 6,
+  },
+  strong: {
+    fontWeight: "bold" as const,
+    color: isDark ? "#fafafa" : "#171717",
+  },
+  em: {
+    fontStyle: "italic" as const,
+  },
+  bullet_list: {
+    marginBottom: 12,
+  },
+  ordered_list: {
+    marginBottom: 12,
+  },
+  list_item: {
+    marginBottom: 6,
+  },
+  bullet_list_icon: {
+    color: isDark ? "#a3a3a3" : "#525252",
+    fontSize: 14,
+    marginRight: 8,
+  },
+  ordered_list_icon: {
+    color: isDark ? "#a3a3a3" : "#525252",
+    fontSize: 14,
+    marginRight: 8,
+  },
+  code_inline: {
+    backgroundColor: isDark ? "#404040" : "#f5f5f5",
+    color: isDark ? "#fafafa" : "#171717",
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 4,
+    fontFamily: "monospace",
+  },
+  code_block: {
+    backgroundColor: isDark ? "#404040" : "#f5f5f5",
+    padding: 12,
+    borderRadius: 8,
+    marginBottom: 12,
+  },
+  fence: {
+    backgroundColor: isDark ? "#404040" : "#f5f5f5",
+    padding: 12,
+    borderRadius: 8,
+    marginBottom: 12,
+  },
+  blockquote: {
+    backgroundColor: isDark ? "#262626" : "#fafafa",
+    borderLeftColor: isDark ? "#525252" : "#d4d4d4",
+    borderLeftWidth: 4,
+    paddingLeft: 12,
+    paddingVertical: 8,
+    marginBottom: 12,
+  },
+  link: {
+    color: "#3b82f6",
+  },
+  hr: {
+    backgroundColor: isDark ? "#404040" : "#e5e5e5",
+    height: 1,
+    marginVertical: 16,
+  },
+});
 
 export default function RecipeDetail() {
   const router = useRouter();
@@ -179,15 +305,9 @@ export default function RecipeDetail() {
           <Text className="text-lg font-bold text-neutral-900 dark:text-neutral-100 mb-4">
             Instructions
           </Text>
-          {formatDescription(recipe.instructions).map((step, idx, arr) => (
-            <Text
-              key={idx}
-              className="text-base text-neutral-700 dark:text-neutral-300 leading-7"
-              style={{ marginBottom: idx < arr.length - 1 ? 12 : 0 }}
-            >
-              {step}
-            </Text>
-          ))}
+          <Markdown style={getMarkdownStyles(isDark)}>
+            {formatInstructionsToMarkdown(recipe.instructions)}
+          </Markdown>
         </View>
       </Animated.View>
 

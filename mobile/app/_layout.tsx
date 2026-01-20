@@ -41,11 +41,11 @@ function RootLayoutNav() {
 
     const inAuthGroup = segments[0] === "(auth)";
 
-    if (isLoggedIn && inAuthGroup) {
-      router.replace("/(tabs)");
-    } else if (!isLoggedIn && !inAuthGroup) {
-      router.replace("/(auth)");
-    }
+    // if (isLoggedIn && inAuthGroup) {
+    //   router.replace("/(tabs)");
+    // } else if (!isLoggedIn && !inAuthGroup) {
+    //   router.replace("/(auth)");
+    // }
     SplashScreen.hideAsync();
   }, [isLoggedIn, segments, isLoading, navigationState?.key, router]);
 
