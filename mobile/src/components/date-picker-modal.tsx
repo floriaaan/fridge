@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { View, Text, TouchableOpacity, Platform } from "react-native";
 import { AnimatedModal } from "./animated-modal";
 import DateTimePicker from "@react-native-community/datetimepicker";
+import { useTranslation } from "@/hooks/use-translation";
 
 interface DatePickerModalProps {
   visible: boolean;
@@ -17,6 +18,7 @@ export const DatePickerModal: React.FC<DatePickerModalProps> = ({
   onDateSelect,
 }) => {
   const [date, setDate] = useState(new Date(selectedDate || new Date()));
+  const { t } = useTranslation();
 
   const handleDateChange = (event: any, selectedDate?: Date) => {
     if (Platform.OS === "android") {
@@ -32,11 +34,11 @@ export const DatePickerModal: React.FC<DatePickerModalProps> = ({
   return (
     <AnimatedModal visible={visible} onClose={onClose}>
       <View className="gap-3 min-h-96">
-        <Text className="text-lg font-bold text-gray-900">Sélectionner une date</Text>
+        <Text className="text-lg font-bold text-neutral-900 dark:text-neutral-100">{t("datePicker.selectDate")}</Text>
         <DateTimePicker value={date} mode="date" display={Platform.OS === "ios" ? "spinner" : "default"} onChange={handleDateChange} />
         {Platform.OS === "ios" && (
-          <TouchableOpacity className="bg-gray-900 rounded-lg p-3" onPress={onClose}>
-            <Text className="text-white text-center font-semibold">Confirmer</Text>
+          <TouchableOpacity className="bg-neutral-900 dark:bg-neutral-100 rounded-lg p-3" onPress={onClose}>
+            <Text className="text-white dark:text-neutral-900 text-center font-semibold">{t("common.confirm")}</Text>
           </TouchableOpacity>
         )}
       </View>

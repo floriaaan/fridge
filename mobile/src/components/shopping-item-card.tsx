@@ -11,6 +11,7 @@ import Animated, {
 } from 'react-native-reanimated';
 import ReanimatedSwipeable from 'react-native-gesture-handler/ReanimatedSwipeable';
 import { useUpdateShoppingItems } from '@/hooks/use-update-shopping-items';
+import { useTranslation } from '@/hooks/use-translation';
 
 type ShoppingItemCardProps = {
   item: ShoppingItem;
@@ -46,11 +47,11 @@ const getSourceIcon = (source: string): keyof typeof Ionicons.glyphMap => {
   return icons[source] || 'cube-outline';
 };
 
-const getSourceLabel = (source: string): string => {
+const getSourceLabel = (source: string, t: (key: string) => string): string => {
   const labels: Record<string, string> = {
-    manual: 'Manual',
-    auto_expired: 'Auto',
-    recipe: 'Recipe',
+    manual: t("shoppingList.manual"),
+    auto_expired: t("shoppingList.autoExpired"),
+    recipe: t("shoppingList.fromRecipes"),
   };
   return labels[source] || source;
 };
@@ -58,6 +59,7 @@ const getSourceLabel = (source: string): string => {
 export function ShoppingItemCard({ item, onToggleCheck, onDelete, index }: ShoppingItemCardProps) {
   const swipeRef = useRef<any>(null);
   const { mutate: updateShoppingItems } = useUpdateShoppingItems();
+  const { t } = useTranslation();
   const [isEditing, setIsEditing] = useState(false);
   const [draftName, setDraftName] = useState(item.name);
   const bgColor = getSourceColor(item.source);
@@ -108,7 +110,7 @@ export function ShoppingItemCard({ item, onToggleCheck, onDelete, index }: Shopp
         activeOpacity={0.8}
       >
         <Ionicons name="trash-outline" size={24} color="white" />
-        <Text className="text-white font-semibold text-xs mt-1">Delete</Text>
+        <Text className="text-white font-semibold text-xs mt-1">{t("common.delete")}</Text>
       </TouchableOpacity>
     </View>
   );
@@ -161,7 +163,7 @@ export function ShoppingItemCard({ item, onToggleCheck, onDelete, index }: Shopp
                   returnKeyType="done"
                   className=""
                   style={{ color: textColor }}
-                  placeholder="Item name"
+                  placeholder={t("shoppingList.itemName")}
                   placeholderTextColor={textColor}
                 />
               ) : (
@@ -220,7 +222,7 @@ export function ShoppingItemCard({ item, onToggleCheck, onDelete, index }: Shopp
                   color={bgColor}
                   style={{ marginRight: 4 }}
                 />
-                {getSourceLabel(item.source)}
+                {getSourceLabel(item.source, t)}
               </Text>
             </View>
           </View>

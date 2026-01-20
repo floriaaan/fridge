@@ -3,6 +3,7 @@ import { View, Text } from 'react-native';
 import LottieView from 'lottie-react-native';
 import Animated, { FadeInUp } from 'react-native-reanimated';
 import { useResponsive } from '@/hooks/use-responsive';
+import { useTranslation } from '@/hooks/use-translation';
 import welcomeAnimation from '../../assets/lottie/welcome.json';
 
 type AuthLayoutProps = {
@@ -11,11 +12,12 @@ type AuthLayoutProps = {
 
 export function AuthLayout({ children }: AuthLayoutProps) {
   const { isTablet, isLandscape } = useResponsive();
+  const { t } = useTranslation();
 
   if (isTablet && isLandscape) {
     return (
-      <View className="flex-1 flex-row bg-gradient-to-r from-white to-gray-50">
-        <View className="flex-1 justify-center items-center p-12 border-r border-gray-200">
+      <View className="flex-1 flex-row bg-neutral-50 dark:bg-neutral-900">
+        <View className="flex-1 justify-center items-center p-12 border-r border-neutral-200 dark:border-neutral-700">
           <Animated.View entering={FadeInUp.duration(600).delay(100)}>
             <LottieView
               source={welcomeAnimation}
@@ -28,10 +30,10 @@ export function AuthLayout({ children }: AuthLayoutProps) {
             entering={FadeInUp.duration(600).delay(300)}
             className="items-center"
           >
-            <Text className="text-5xl font-bold text-gray-900 mb-3">
-              Fridge Companion
+            <Text className="text-5xl font-bold text-neutral-900 dark:text-neutral-100 mb-3">
+              {t("settings.fridgeCompanion")}
             </Text>
-            <Text className="text-lg text-gray-600 text-center">
+            <Text className="text-lg text-neutral-600 dark:text-neutral-400 text-center">
               Manage your fridge smarter
             </Text>
           </Animated.View>

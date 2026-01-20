@@ -11,7 +11,7 @@ export interface SnackbarRef {
   show: (message: string, duration?: number) => void;
 }
 
-const Snackbar = forwardRef<SnackbarRef>((props, ref) => {
+const Snackbar = forwardRef<SnackbarRef>(function Snackbar(props, ref) {
   const [visible, setVisible] = useState(false);
   const [message, setMessage] = useState("");
   const translateY = useSharedValue(100);
@@ -47,22 +47,11 @@ const Snackbar = forwardRef<SnackbarRef>((props, ref) => {
 
   return (
     <Animated.View
-      style={[
-        {
-          position: "absolute",
-          bottom: 20,
-          left: 20,
-          right: 20,
-          backgroundColor: "#323232",
-          padding: 16,
-          borderRadius: 8,
-          zIndex: 1000,
-        },
-        animatedStyle,
-      ]}
+      className="absolute bottom-5 left-5 right-5 bg-neutral-800 dark:bg-neutral-200 p-4 rounded-lg z-50"
+      style={animatedStyle}
       pointerEvents="none"
     >
-      <Text style={{ color: "white" }}>{message}</Text>
+      <Text className="text-white dark:text-neutral-900">{message}</Text>
     </Animated.View>
   );
 });

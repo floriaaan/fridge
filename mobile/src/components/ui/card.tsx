@@ -1,5 +1,5 @@
-import React from 'react';
-import { View, StyleSheet, type ViewProps } from 'react-native';
+import React from "react";
+import { View, type ViewProps } from "react-native";
 
 type CardProps = ViewProps & {
   children: React.ReactNode;
@@ -7,26 +7,12 @@ type CardProps = ViewProps & {
 
 export function Card({ children, style, ...props }: CardProps) {
   return (
-    <View style={[styles.card, style]} {...props}>
+    <View
+      className="bg-white dark:bg-neutral-800 rounded-lg p-4 shadow-md my-2 mx-4"
+      style={style}
+      {...props}
+    >
       {children}
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  card: {
-    backgroundColor: 'white',
-    borderRadius: 8,
-    padding: 16,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.23,
-    shadowRadius: 2.62,
-    elevation: 4,
-    marginVertical: 8,
-    marginHorizontal: 16,
-  },
-});

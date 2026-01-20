@@ -15,13 +15,13 @@ export const Chip = ({
   return (
     <Pressable
       onPress={onPress}
-      className="relative rounded-full px-4 py-2 bg-gray-200 overflow-hidden"
+      className="relative rounded-full px-4 py-2 bg-neutral-200 dark:bg-neutral-800 overflow-hidden"
     >
       {isActive && (
         <Animated.View
           entering={FadeInLeft.springify().damping(100).stiffness(900)}
           exiting={FadeOutLeft.springify().damping(100).stiffness(600)}
-          className="absolute inset-0 bg-black rounded-full"
+          className="absolute inset-0 bg-neutral-900 dark:bg-neutral-100 rounded-full"
         />
       )}
       <View
@@ -35,7 +35,9 @@ export const Chip = ({
           </View>
         )}
         {isActive && (
-          <Text className="text-sm font-semibold text-white">{label}</Text>
+          <Text className="text-sm font-semibold text-white dark:text-neutral-900">
+            {label}
+          </Text>
         )}
       </View>
     </Pressable>

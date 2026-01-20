@@ -6,12 +6,14 @@ import LottieView from 'lottie-react-native';
 import Animated, { FadeInUp } from 'react-native-reanimated';
 import { Ionicons } from '@expo/vector-icons';
 import welcomeAnimation from "@/../assets/lottie/welcome.json";
+import { useTranslation } from '@/hooks/use-translation';
 
 
 export default function AuthIndexScreen() {
+  const { t } = useTranslation();
 
   return (
-    <SafeAreaView className="flex-1 bg-gradient-to-b from-white to-gray-50">
+    <SafeAreaView className="flex-1 bg-neutral-50 dark:bg-neutral-900">
       <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
         <View className="flex-1 justify-center items-center px-6 md:max-w-2xl md:mx-auto w-full">
           {/* Animation */}
@@ -32,10 +34,10 @@ export default function AuthIndexScreen() {
             entering={FadeInUp.duration(600).delay(300)}
             className="items-center mb-12"
           >
-            <Text className="text-5xl font-bold text-gray-900 mb-3 leading-relaxed text-center">
-              Fridge Companion
+            <Text className="text-5xl font-bold text-neutral-900 dark:text-neutral-100 mb-3 leading-relaxed text-center">
+              {t("settings.fridgeCompanion")}
             </Text>
-            <Text className="text-lg text-gray-600 text-center">
+            <Text className="text-lg text-neutral-600 dark:text-neutral-400 text-center">
               Manage your fridge smarter
             </Text>
           </Animated.View>
@@ -63,13 +65,13 @@ export default function AuthIndexScreen() {
             entering={FadeInUp.duration(600).delay(600)}
             className="flex-row justify-center items-center"
           >
-            <Text className="text-gray-600 text-base">
+            <Text className="text-neutral-600 dark:text-neutral-400 text-base">
               {"Already have an account? "}
             </Text>
             <Link href="/(auth)/sign-in" asChild>
               <TouchableOpacity>
                 <Text className="text-blue-600 font-semibold text-base">
-                  Sign In
+                  {t("auth.signIn")}
                 </Text>
               </TouchableOpacity>
             </Link>
@@ -78,7 +80,7 @@ export default function AuthIndexScreen() {
           entering={FadeInUp.duration(600).delay(700)}
           className="mt-8"
         >
-          <Text className="text-gray-500 text-sm text-center">
+          <Text className="text-neutral-500 dark:text-neutral-500 text-sm text-center">
             Track expiration dates • Reduce food waste • Save money
           </Text>
         </Animated.View>

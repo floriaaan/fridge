@@ -1,5 +1,5 @@
 import React from "react";
-import { Text, View, StyleSheet, Pressable } from "react-native";
+import { Text, View, StyleSheet, Pressable, useColorScheme } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import MaskedView from "@react-native-masked-view/masked-view";
 
@@ -14,6 +14,10 @@ export const GradientChip: React.FC<GradientChipProps> = ({
   onPress,
   icon,
 }) => {
+  const colorScheme = useColorScheme();
+  const isDark = colorScheme === "dark";
+  const bgColor = isDark ? "#262626" : "#ffffff";
+
   return (
     <Pressable onPress={onPress}>
       <LinearGradient
@@ -22,7 +26,10 @@ export const GradientChip: React.FC<GradientChipProps> = ({
         end={{ x: 1, y: 1 }}
         style={styles.gradient}
       >
-        <View className="bg-white p-[4px] px-3 rounded-full gap-1 flex flex-row items-center">
+        <View
+          className="p-[4px] px-3 rounded-full gap-1 flex flex-row items-center"
+          style={{ backgroundColor: bgColor }}
+        >
           {icon && (
             <MaskedView
               style={{ width: 16, height: 16 }}

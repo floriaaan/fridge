@@ -21,14 +21,14 @@ export const SelectModal: React.FC<SelectModalProps> = ({
 }) => {
   return (
     <AnimatedModal visible={visible} onClose={onClose}>
-      <Text className="text-lg font-bold text-gray-900 mb-4">{title}</Text>
+      <Text className="text-lg font-bold text-neutral-900 dark:text-neutral-100 mb-4">{title}</Text>
       <FlatList
         data={options}
         keyExtractor={(item) => item}
         scrollEnabled={false}
         renderItem={({ item }) => (
           <TouchableOpacity
-            className="py-3 border-b border-gray-200"
+            className="py-3 border-b border-neutral-200 dark:border-neutral-700"
             onPress={() => {
               onSelect(item);
               onClose();
@@ -37,8 +37,8 @@ export const SelectModal: React.FC<SelectModalProps> = ({
             <Text
               className={`text-base ${
                 selectedValue === item
-                  ? "font-bold text-gray-900"
-                  : "text-gray-600"
+                  ? "font-bold text-neutral-900 dark:text-neutral-100"
+                  : "text-neutral-600 dark:text-neutral-400"
               }`}
             >
               {item}

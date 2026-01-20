@@ -7,6 +7,7 @@ import Animated, {
   FadeOutUp,
   LinearTransition,
 } from "react-native-reanimated";
+import { useTranslation } from "@/hooks/use-translation";
 
 type RecipeCardProps = {
   recipe: Recipe;
@@ -43,16 +44,17 @@ const getSourceIcon = (
   return icons[source] || "food-outline";
 };
 
-const getSourceLabel = (source: string): string => {
+const getSourceLabel = (source: string, t: (key: string) => string): string => {
   const labels: Record<string, string> = {
-    ai: "AI Generated",
-    user: "My Recipe",
-    community: "Community",
+    ai: t("recipe.aiGenerated"),
+    user: t("recipe.myRecipes"),
+    community: t("recipe.community"),
   };
   return labels[source] || source;
 };
 
 export function RecipeCard({ recipe, onPress, index }: RecipeCardProps) {
+  const { t } = useTranslation();
   const ingredientCount = recipe.ingredients?.length ?? 0;
   const prepTime = recipe.preparationTime;
   const bgColor = getSourceColor(recipe.source);
@@ -136,7 +138,7 @@ export function RecipeCard({ recipe, onPress, index }: RecipeCardProps) {
                   className="text-xs font-medium"
                   style={{ color: bgColor }}
                 >
-                  {getSourceLabel(recipe.source)}
+                  {getSourceLabel(recipe.source, t)}
                 </Text>
               </View>
             </View>

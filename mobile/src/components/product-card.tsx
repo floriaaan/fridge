@@ -9,6 +9,7 @@ import Animated, {
 import ReanimatedSwipeable from "react-native-gesture-handler/ReanimatedSwipeable";
 import { useRef, useState } from "react";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
+import { useTranslation } from "@/hooks/use-translation";
 
 const getCategoryColor = (category: string): string => {
   const colors: Record<string, string> = {
@@ -58,8 +59,8 @@ const getCategoryIcon = (category: string): keyof typeof MaterialCommunityIcons.
   return icons[category.toLowerCase()] || "cube";
 };
 
-const formatDate = (dateString: string | null): string => {
-  if (!dateString) return "No expiry date";
+const formatDate = (dateString: string | null, noExpiryText: string): string => {
+  if (!dateString) return noExpiryText;
   const date = new Date(dateString);
   return date.toLocaleDateString("en-US", {
     month: "long",
@@ -99,6 +100,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
 }) => {
   const swipeRef = useRef<any>(null);
   const [isProcessing, setIsProcessing] = useState(false);
+  const { t } = useTranslation();
   const bgColor = getCategoryColor(product.category);
   const textColor = getCategoryTextColor(product.category);
   const expiring = isExpiringSoon(product.expiresAt);
@@ -132,7 +134,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
         activeOpacity={0.8}
       >
         <Ionicons name="cube-outline" size={24} color="white" />
-        <Text className="text-white font-semibold text-xs mt-1">Opened</Text>
+        <Text className="text-white font-semibold text-xs mt-1">{t("product.opened")}</Text>
       </TouchableOpacity>
       <TouchableOpacity
         onPress={handleDelete}
@@ -141,7 +143,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
         activeOpacity={0.8}
       >
         <Ionicons name="checkmark-circle-outline" size={24} color="white" />
-        <Text className="text-white font-semibold text-xs mt-1">Consumed</Text>
+        <Text className="text-white font-semibold text-xs mt-1">{t("product.consumed")}</Text>
       </TouchableOpacity>
     </View>
   );
@@ -203,7 +205,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
                 className="text-sm font-medium"
                 style={{ color: textColor }}
               >
-                {formatDate(product.expiresAt)}
+                {formatDate(product.expiresAt, t("common.noExpiryDate"))}
               </Text>
             </View>
             <View className="flex-row gap-2 mt-1">
@@ -225,7 +227,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
                     color: "white",
                   }}
                 >
-                  Expired
+                  {t("fridge.expired")}
                 </Text>
               )}
             </View>

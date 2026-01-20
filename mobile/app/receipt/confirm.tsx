@@ -4,10 +4,9 @@ import {
   Text,
   ScrollView,
   TouchableOpacity,
-  TextInput,
   ActivityIndicator,
-  Image,
   Alert,
+  useColorScheme,
 } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -18,6 +17,7 @@ import {
   type ImportReceiptItem,
 } from "@/lib/api/receipt";
 import Snackbar, { SnackbarRef } from "@/components/ui/snackbar";
+import { useTranslation } from "@/hooks/use-translation";
 
 interface EditableProduct extends EnhancedProduct {
   id: string;
@@ -30,6 +30,9 @@ export default function ReceiptConfirmScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const snackBarRef = useRef<SnackbarRef>(null);
+  const { t } = useTranslation();
+  const colorScheme = useColorScheme();
+  const isDark = colorScheme === "dark";
 
   const [isScanning, setIsScanning] = useState(true);
   const [isImporting, setIsImporting] = useState(false);
@@ -136,13 +139,13 @@ export default function ReceiptConfirmScreen() {
 
   if (isScanning) {
     return (
-      <View className="flex-1 bg-gray-50 justify-center items-center p-6">
-        <ActivityIndicator size="large" color="#111827" />
-        <Text className="mt-4 text-lg text-gray-700 font-semibold">
-          Analyse en cours...
+      <View className="flex-1 bg-neutral-50 dark:bg-neutral-900 justify-center items-center p-6">
+        <ActivityIndicator size="large" color={isDark ? "#fafafa" : "#111827"} />
+        <Text className="mt-4 text-lg text-neutral-700 dark:text-neutral-300 font-semibold">
+          {t("receipt.analyzing")}
         </Text>
-        <Text className="mt-2 text-sm text-gray-500 text-center">
-          Recherche des informations produits
+        <Text className="mt-2 text-sm text-neutral-500 dark:text-neutral-400 text-center">
+          {t("receipt.analyzeDescription")}
         </Text>
       </View>
     );
@@ -151,19 +154,19 @@ export default function ReceiptConfirmScreen() {
   if (error) {
     return (
       <View
-        className="flex-1 bg-gray-50 justify-center items-center p-6"
+        className="flex-1 bg-neutral-50 dark:bg-neutral-900 justify-center items-center p-6"
         style={{ paddingTop: insets.top, paddingBottom: insets.bottom }}
       >
         <Text className="text-6xl mb-4">⚠️</Text>
-        <Text className="text-lg text-gray-900 font-semibold mb-2">
-          Erreur de scan
+        <Text className="text-lg text-neutral-900 dark:text-neutral-100 font-semibold mb-2">
+          {t("common.error")}
         </Text>
-        <Text className="text-sm text-gray-600 text-center mb-6">{error}</Text>
+        <Text className="text-sm text-neutral-600 dark:text-neutral-400 text-center mb-6">{error}</Text>
         <TouchableOpacity
-          className="bg-gray-900 py-3 px-6 rounded-xl"
+          className="bg-neutral-900 dark:bg-neutral-100 py-3 px-6 rounded-xl"
           onPress={() => router.back()}
         >
-          <Text className="text-white font-semibold">Réessayer</Text>
+          <Text className="text-white dark:text-neutral-900 font-semibold">{t("common.retry")}</Text>
         </TouchableOpacity>
       </View>
     );
@@ -171,16 +174,16 @@ export default function ReceiptConfirmScreen() {
 
   return (
     <View
-      className="flex-1 bg-gray-50"
+      className="flex-1 bg-neutral-50 dark:bg-neutral-900"
       style={{ paddingTop: insets.top, paddingBottom: insets.bottom }}
     >
-      <View className="bg-white p-4 border-b border-gray-200">
-        <Text className="text-xl font-bold text-gray-900">{storeName}</Text>
-        <Text className="text-sm text-gray-500 mt-1">
+      <View className="bg-white dark:bg-neutral-800 p-4 border-b border-neutral-200 dark:border-neutral-700">
+        <Text className="text-xl font-bold text-neutral-900 dark:text-neutral-100">{storeName}</Text>
+        <Text className="text-sm text-neutral-500 dark:text-neutral-400 mt-1">
           {new Date(date).toLocaleDateString("fr-FR")} • {products.length}{" "}
-          produits détectés
+          {t("receipt.selectProducts")}
         </Text>
-        <Text className="text-lg font-semibold text-gray-700 mt-2">
+        <Text className="text-lg font-semibold text-neutral-700 dark:text-neutral-300 mt-2">
           Total : {totalAmount.toFixed(2)}€
         </Text>
       </View>
@@ -189,48 +192,48 @@ export default function ReceiptConfirmScreen() {
         {products.map((product) => (
           <View
             key={product.id}
-            className={`mb-3 bg-white rounded-xl p-4 border ${product.included ? "border-green-500" : "border-gray-300"}`}
+            className={`mb-3 bg-white dark:bg-neutral-800 rounded-xl p-4 border ${product.included ? "border-green-500" : "border-neutral-300 dark:border-neutral-600"}`}
           >
             <View className="flex-row items-center justify-between mb-2">
               <View className="flex-1 flex-row items-center">
                 <TouchableOpacity
                   onPress={() => toggleProductInclusion(product.id)}
-                  className={`w-6 h-6 rounded border-2 mr-3 items-center justify-center ${product.included ? "bg-green-500 border-green-500" : "border-gray-400"}`}
+                  className={`w-6 h-6 rounded border-2 mr-3 items-center justify-center ${product.included ? "bg-green-500 border-green-500" : "border-neutral-400 dark:border-neutral-500"}`}
                 >
                   {product.included && (
                     <Text className="text-white font-bold">✓</Text>
                   )}
                 </TouchableOpacity>
                 <View className="flex-1">
-                  <Text className="text-base font-semibold text-gray-900">
+                  <Text className="text-base font-semibold text-neutral-900 dark:text-neutral-100">
                     {product.name}
                   </Text>
-                  <Text className="text-sm text-gray-500">
+                  <Text className="text-sm text-neutral-500 dark:text-neutral-400">
                     {product.quantity} {product.unit} • {product.price.toFixed(2)}€
                   </Text>
                 </View>
               </View>
               {product.confidence === "low" && (
-                <View className="bg-yellow-100 px-2 py-1 rounded">
-                  <Text className="text-xs text-yellow-800">⚠️ Incertain</Text>
+                <View className="bg-yellow-100 dark:bg-yellow-900 px-2 py-1 rounded">
+                  <Text className="text-xs text-yellow-800 dark:text-yellow-200">⚠️ Incertain</Text>
                 </View>
               )}
             </View>
 
             {product.included && (
-              <View className="mt-3 pt-3 border-t border-gray-200">
-                <Text className="text-xs text-gray-600 mb-2">
-                  Emplacement
+              <View className="mt-3 pt-3 border-t border-neutral-200 dark:border-neutral-700">
+                <Text className="text-xs text-neutral-600 dark:text-neutral-400 mb-2">
+                  {t("product.location")}
                 </Text>
                 <View className="flex-row gap-2">
                   {["frigo", "congélateur", "garde-manger"].map((loc) => (
                     <TouchableOpacity
                       key={loc}
                       onPress={() => updateProductLocation(product.id, loc)}
-                      className={`px-3 py-1.5 rounded-lg ${product.location === loc ? "bg-gray-900" : "bg-gray-200"}`}
+                      className={`px-3 py-1.5 rounded-lg ${product.location === loc ? "bg-neutral-900 dark:bg-neutral-100" : "bg-neutral-200 dark:bg-neutral-700"}`}
                     >
                       <Text
-                        className={`text-sm ${product.location === loc ? "text-white font-semibold" : "text-gray-700"}`}
+                        className={`text-sm ${product.location === loc ? "text-white dark:text-neutral-900 font-semibold" : "text-neutral-700 dark:text-neutral-300"}`}
                       >
                         {loc}
                       </Text>
@@ -238,7 +241,7 @@ export default function ReceiptConfirmScreen() {
                   ))}
                 </View>
                 {product.estimatedExpiryDays && (
-                  <Text className="text-xs text-gray-500 mt-2">
+                  <Text className="text-xs text-neutral-500 dark:text-neutral-400 mt-2">
                     Expire dans ~{product.estimatedExpiryDays} jours
                   </Text>
                 )}
@@ -248,23 +251,23 @@ export default function ReceiptConfirmScreen() {
         ))}
       </ScrollView>
 
-      <View className="bg-white p-4 border-t border-gray-200 flex-row gap-3">
+      <View className="bg-white dark:bg-neutral-800 p-4 border-t border-neutral-200 dark:border-neutral-700 flex-row gap-3">
         <TouchableOpacity
-          className="flex-1 border border-gray-300 py-4 rounded-xl items-center bg-white"
+          className="flex-1 border border-neutral-300 dark:border-neutral-600 py-4 rounded-xl items-center bg-white dark:bg-neutral-800"
           onPress={() => router.back()}
           disabled={isImporting}
         >
-          <Text className="text-gray-900 font-semibold">Annuler</Text>
+          <Text className="text-neutral-900 dark:text-neutral-100 font-semibold">{t("common.cancel")}</Text>
         </TouchableOpacity>
         <TouchableOpacity
-          className={`flex-1 py-4 rounded-xl items-center ${isImporting ? "bg-gray-400" : "bg-gray-900"}`}
+          className={`flex-1 py-4 rounded-xl items-center ${isImporting ? "bg-neutral-400 dark:bg-neutral-600" : "bg-neutral-900 dark:bg-neutral-100"}`}
           onPress={handleImport}
           disabled={isImporting}
         >
-          <Text className="text-white font-semibold">
+          <Text className={`font-semibold ${isImporting ? "text-white" : "text-white dark:text-neutral-900"}`}>
             {isImporting
-              ? "Import..."
-              : `Valider (${products.filter((p) => p.included).length})`}
+              ? t("common.loading")
+              : `${t("receipt.import")} (${products.filter((p) => p.included).length})`}
           </Text>
         </TouchableOpacity>
       </View>
