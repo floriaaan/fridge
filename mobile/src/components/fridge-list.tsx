@@ -6,14 +6,20 @@ import {
   TouchableOpacity,
   RefreshControl,
   TextInput,
+  useColorScheme,
 } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
-import { Ionicons, MaterialIcons, MaterialCommunityIcons } from "@expo/vector-icons";
+import {
+  Ionicons,
+  MaterialIcons,
+  MaterialCommunityIcons,
+} from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { type Product } from "@/lib/api/fetch-products";
 import { ProductCard } from "@/components/product-card";
 import { Chip } from "@/components/ui/chip";
 import { GradientChip } from "@/components/ui/gradient-chip";
+import { useTranslation } from "@/hooks/use-translation";
 
 type FridgeListProps = {
   products: Product[];
@@ -23,41 +29,46 @@ type FridgeListProps = {
 
 export function FridgeList({ products, refresh, isLoading }: FridgeListProps) {
   const router = useRouter();
+  const { t } = useTranslation();
+  const colorScheme = useColorScheme();
+  const isDark = colorScheme === "dark";
   const [activeFilter, setActiveFilter] = useState<
     "expiring" | "asc" | "category"
   >("expiring");
   const [searchQuery, setSearchQuery] = useState("");
 
+  const inactiveIconColor = isDark ? "#a3a3a3" : "#737373";
+
   const getCategoryColor = (category: string): string => {
     const colors: Record<string, string> = {
-      vegetables: "#E8F5E9",
-      dairy: "#E3F2FD",
-      meat: "#FBE9E7",
-      poultry: "#EFEBE9",
-      fruits: "#FFF3E0",
-      beverages: "#E1F5FE",
-      snacks: "#FFFDE7",
-      condiments: "#EFEBE9",
-      bread: "#FFEAA7",
-      pantry: "#F3E5F5",
+      vegetables: isDark ? "#064e3b" : "#E8F5E9",
+      dairy: isDark ? "#1e3a5f" : "#E3F2FD",
+      meat: isDark ? "#7c2d12" : "#FBE9E7",
+      poultry: isDark ? "#44403c" : "#EFEBE9",
+      fruits: isDark ? "#78350f" : "#FFF3E0",
+      beverages: isDark ? "#0c4a6e" : "#E1F5FE",
+      snacks: isDark ? "#713f12" : "#FFFDE7",
+      condiments: isDark ? "#44403c" : "#EFEBE9",
+      bread: isDark ? "#78350f" : "#FFEAA7",
+      pantry: isDark ? "#581c87" : "#F3E5F5",
     };
-    return colors[category.toLowerCase()] || "#F5F5F5";
+    return colors[category.toLowerCase()] || (isDark ? "#262626" : "#F5F5F5");
   };
 
   const getCategoryTextColor = (category: string): string => {
     const colors: Record<string, string> = {
-      vegetables: "#2E7D32",
-      dairy: "#1565C0",
-      meat: "#BF360C",
-      poultry: "#4E342E",
-      fruits: "#EF6C00",
-      beverages: "#0277BD",
-      snacks: "#F9A825",
-      condiments: "#4E342E",
-      bread: "#E65100",
-      pantry: "#6A1B9A",
+      vegetables: isDark ? "#6ee7b7" : "#2E7D32",
+      dairy: isDark ? "#93c5fd" : "#1565C0",
+      meat: isDark ? "#fdba74" : "#BF360C",
+      poultry: isDark ? "#d6d3d1" : "#4E342E",
+      fruits: isDark ? "#fbbf24" : "#EF6C00",
+      beverages: isDark ? "#7dd3fc" : "#0277BD",
+      snacks: isDark ? "#fcd34d" : "#F9A825",
+      condiments: isDark ? "#d6d3d1" : "#4E342E",
+      bread: isDark ? "#fbbf24" : "#E65100",
+      pantry: isDark ? "#d8b4fe" : "#6A1B9A",
     };
-    return colors[category.toLowerCase()] || "#424242";
+    return colors[category.toLowerCase()] || (isDark ? "#e5e5e5" : "#424242");
   };
 
   const getCategoryIcon = (
@@ -109,9 +120,7 @@ export function FridgeList({ products, refresh, isLoading }: FridgeListProps) {
       sortedProducts.filter(
         (product) =>
           product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          product.category
-            .toLowerCase()
-            .includes(searchQuery.toLowerCase())
+          product.category.toLowerCase().includes(searchQuery.toLowerCase())
       ),
     [sortedProducts, searchQuery]
   );
@@ -161,21 +170,12 @@ export function FridgeList({ products, refresh, isLoading }: FridgeListProps) {
   };
 
   function formatDate(date: string | null): string {
-    if (!date) return "No expiry date";
+    if (!date) return t("common.noExpiryDate");
     const d = new Date(date);
     return d.toLocaleDateString("en-US", {
       month: "short",
       day: "numeric",
     });
-  }
-
-  function isDateExpired(date: string | null): boolean {
-    if (!date) return false;
-    const d = new Date(date);
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    d.setHours(0, 0, 0, 0);
-    return d < today;
   }
 
   function getExpiryStatus(
@@ -211,44 +211,44 @@ export function FridgeList({ products, refresh, isLoading }: FridgeListProps) {
         showsHorizontalScrollIndicator={false}
       >
         <GradientChip
-          label="AI Recipe"
+          label={t("fridge.aiRecipe")}
           onPress={handleGenerateRecipe}
           icon={<Ionicons name="sparkles" size={16} />}
         />
-        <View className="w-px h-6 bg-gray-300 mx-1" />
+        <View className="w-px h-6 bg-neutral-300 dark:bg-neutral-700 mx-1" />
         <Chip
-          label="Expiring soon"
+          label={t("fridge.expiringSoon")}
           isActive={activeFilter === "expiring"}
           onPress={() => setActiveFilter("expiring")}
           icon={
             <Ionicons
               name="time"
               size={16}
-              color={activeFilter === "expiring" ? "white" : "#6B7280"}
+              color={activeFilter === "expiring" ? "white" : inactiveIconColor}
             />
           }
         />
         <Chip
-          label="Alphabetical"
+          label={t("fridge.alphabetical")}
           isActive={activeFilter === "asc"}
           onPress={() => setActiveFilter("asc")}
           icon={
             <Ionicons
               name="text"
               size={16}
-              color={activeFilter === "asc" ? "white" : "#6B7280"}
+              color={activeFilter === "asc" ? "white" : inactiveIconColor}
             />
           }
         />
         <Chip
-          label="Category"
+          label={t("fridge.category")}
           isActive={activeFilter === "category"}
           onPress={() => setActiveFilter("category")}
           icon={
             <Ionicons
               name="grid-outline"
               size={16}
-              color={activeFilter === "category" ? "white" : "#6B7280"}
+              color={activeFilter === "category" ? "white" : inactiveIconColor}
             />
           }
         />
@@ -261,29 +261,29 @@ export function FridgeList({ products, refresh, isLoading }: FridgeListProps) {
           <RefreshControl
             refreshing={isLoading}
             onRefresh={refresh}
-            tintColor="black"
+            tintColor={isDark ? "white" : "black"}
           />
         }
       >
         <View className="px-4 mb-4">
-          <View className="flex-row items-center bg-gray-200 rounded-xl px-4 py-3">
-            <MaterialIcons name="search" size={20} color="#6B7280" />
+          <View className="flex-row items-center bg-neutral-200 dark:bg-neutral-800 rounded-xl px-4 py-3">
+            <MaterialIcons name="search" size={20} color={inactiveIconColor} />
             <TextInput
-              className="flex-1 ml-3 text-gray-900"
+              className="flex-1 ml-3 text-neutral-900 dark:text-neutral-100"
               onChangeText={setSearchQuery}
               value={searchQuery}
-              placeholder="Search products..."
-              placeholderTextColor="#9CA3AF"
+              placeholder={t("fridge.searchPlaceholder")}
+              placeholderTextColor={isDark ? "#737373" : "#a3a3a3"}
             />
           </View>
         </View>
         <View className="flex flex-col flex-1 px-4 gap-4">
           {filteredProducts.length > 0 ? (
             groupedProducts ? (
-              Object.entries(groupedProducts).map(([groupKey, products]) => {
+              Object.entries(groupedProducts).map(([groupKey, groupProducts]) => {
                 const expiryStatus =
                   activeFilter === "expiring"
-                    ? getExpiryStatus(products[0]?.expiresAt ?? null)
+                    ? getExpiryStatus(groupProducts[0]?.expiresAt ?? null)
                     : { status: null, icon: "" };
 
                 const categoryColor =
@@ -295,17 +295,21 @@ export function FridgeList({ products, refresh, isLoading }: FridgeListProps) {
                     ? getCategoryTextColor(groupKey)
                     : null;
                 const categoryIcon =
-                  activeFilter === "category" ? getCategoryIcon(groupKey) : null;
+                  activeFilter === "category"
+                    ? getCategoryIcon(groupKey)
+                    : null;
 
                 return (
                   <View key={groupKey}>
                     <View className="flex-row items-center gap-3 mb-3">
-                      <View className="flex-1 h-px bg-gray-300" />
+                      <View className="flex-1 h-px bg-neutral-300 dark:bg-neutral-700" />
                       <View className="flex-row items-center gap-2">
                         {activeFilter === "category" && categoryIcon && (
                           <View
                             className="flex-row items-center gap-1 px-3 py-1.5 rounded-full"
-                            style={{ backgroundColor: categoryColor || "#F5F5F5" }}
+                            style={{
+                              backgroundColor: categoryColor || "#F5F5F5",
+                            }}
                           >
                             <MaterialCommunityIcons
                               name={categoryIcon}
@@ -323,7 +327,7 @@ export function FridgeList({ products, refresh, isLoading }: FridgeListProps) {
                           </View>
                         )}
                         {activeFilter !== "category" && (
-                          <Text className="text-gray-600 text-sm font-medium">
+                          <Text className="text-neutral-600 dark:text-neutral-400 text-sm font-medium">
                             {groupKey}
                           </Text>
                         )}
@@ -331,15 +335,13 @@ export function FridgeList({ products, refresh, isLoading }: FridgeListProps) {
                           <View
                             className={`flex-row items-center gap-1 px-2 py-1 rounded-full ${
                               expiryStatus.status === "expired"
-                                ? "bg-red-100"
-                                : "bg-orange-100"
+                                ? "bg-red-100 dark:bg-red-900/50"
+                                : "bg-orange-100 dark:bg-orange-900/50"
                             }`}
                           >
                             <Ionicons
                               name={
-                                expiryStatus.icon as
-                                  | "alert-circle"
-                                  | "time"
+                                expiryStatus.icon as "alert-circle" | "time"
                               }
                               size={12}
                               color={
@@ -351,21 +353,21 @@ export function FridgeList({ products, refresh, isLoading }: FridgeListProps) {
                             <Text
                               className={`text-xs font-semibold ${
                                 expiryStatus.status === "expired"
-                                  ? "text-red-700"
-                                  : "text-orange-700"
+                                  ? "text-red-700 dark:text-red-400"
+                                  : "text-orange-700 dark:text-orange-400"
                               }`}
                             >
                               {expiryStatus.status === "expired"
-                                ? "Expired"
-                                : "Expiring soon"}
+                                ? t("fridge.expired")
+                                : t("fridge.expiringSoon")}
                             </Text>
                           </View>
                         )}
                       </View>
-                      <View className="flex-1 h-px bg-gray-300" />
+                      <View className="flex-1 h-px bg-neutral-300 dark:bg-neutral-700" />
                     </View>
                     <View className="gap-4">
-                      {products.map((product, index) => (
+                      {groupProducts.map((product, index) => (
                         <ProductCard
                           key={product.id}
                           product={product}
@@ -389,7 +391,9 @@ export function FridgeList({ products, refresh, isLoading }: FridgeListProps) {
             )
           ) : (
             <View className="flex-1 items-center justify-center mt-20">
-              <Text className="text-gray-500 text-lg">No products found.</Text>
+              <Text className="text-neutral-500 dark:text-neutral-400 text-lg">
+                {t("fridge.noProductsFound")}
+              </Text>
             </View>
           )}
         </View>
@@ -409,24 +413,24 @@ export function FridgeList({ products, refresh, isLoading }: FridgeListProps) {
               className="mr-2"
             />
             <Text className="text-white font-semibold text-base">
-              Scan ticket
+              {t("fridge.scanTicket")}
             </Text>
           </TouchableOpacity>
 
           <TouchableOpacity
             onPress={handleAddProduct}
-            className="flex-1 bg-black py-4 rounded-xl shadow-xl flex flex-row items-center justify-center"
+            className="flex-1 bg-neutral-900 dark:bg-neutral-100 py-4 rounded-xl shadow-xl flex flex-row items-center justify-center"
             activeOpacity={0.8}
             testID="add-product-button"
           >
             <Ionicons
               name="add-circle-outline"
               size={24}
-              color="white"
+              color={isDark ? "black" : "white"}
               className="mr-2"
             />
-            <Text className="text-white font-semibold text-base">
-              Add product
+            <Text className="text-white dark:text-neutral-900 font-semibold text-base">
+              {t("fridge.addProduct")}
             </Text>
           </TouchableOpacity>
         </View>

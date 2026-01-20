@@ -6,6 +6,7 @@ import {
   RefreshControl,
   TextInput,
   ActivityIndicator,
+  useColorScheme,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
@@ -16,6 +17,7 @@ import { ShoppingItemCard } from "@/components/shopping-item-card";
 import { ShoppingItemAddCard } from "@/components/shopping-item-add-card";
 import { Chip } from "@/components/ui/chip";
 import Header from "@/components/ui/header";
+import { useTranslation } from "@/hooks/use-translation";
 
 export default function ShoppingListScreen() {
   const {
@@ -26,6 +28,9 @@ export default function ShoppingListScreen() {
     refetch,
   } = useShoppingItems();
   const { mutate: updateShoppingItems } = useUpdateShoppingItems();
+  const { t } = useTranslation();
+  const colorScheme = useColorScheme();
+  const isDark = colorScheme === "dark";
 
   const [statusFilter, setStatusFilter] = React.useState<
     "all" | "pending" | "done"
@@ -67,11 +72,16 @@ export default function ShoppingListScreen() {
       });
   }, [items, statusFilter, sourceFilter, searchQuery]);
 
+  const inactiveIconColor = isDark ? "#a3a3a3" : "#737373";
+
   if (isError) {
     return (
       <GestureHandlerRootView style={{ flex: 1 }}>
-        <SafeAreaView edges={["top", "left", "right"]} className="flex-1 bg-gray-50">
-          <Header title="Shopping List" />
+        <SafeAreaView
+          edges={["top", "left", "right"]}
+          className="flex-1 bg-neutral-50 dark:bg-neutral-900"
+        >
+          <Header title={t("shoppingList.title")} />
           <View className="flex-1 items-center justify-center px-6">
             <Ionicons
               name="alert-circle-outline"
@@ -79,10 +89,12 @@ export default function ShoppingListScreen() {
               color="#ef4444"
               style={{ marginBottom: 12 }}
             />
-            <Text className="text-gray-900 font-semibold mb-1">
-              Error fetching data
+            <Text className="text-neutral-900 dark:text-neutral-100 font-semibold mb-1">
+              {t("common.error")}
             </Text>
-            <Text className="text-gray-500 text-center">{error?.message}</Text>
+            <Text className="text-neutral-500 dark:text-neutral-400 text-center">
+              {error?.message}
+            </Text>
           </View>
         </SafeAreaView>
       </GestureHandlerRootView>
@@ -91,175 +103,185 @@ export default function ShoppingListScreen() {
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
-      <SafeAreaView edges={["top", "left", "right"]} className="flex-1 bg-gray-50">
-        <Header title="Shopping List" />
-
-      {/* Combined filters */}
-      <ScrollView
-        horizontal
-        className="flex-grow-0"
-        contentContainerClassName="flex items-center gap-1 flex flex-row mb-4 px-4 h-12"
-        showsHorizontalScrollIndicator={false}
+      <SafeAreaView
+        edges={["top", "left", "right"]}
+        className="flex-1 bg-neutral-50 dark:bg-neutral-900"
       >
-        {/* Status filters */}
-        <Chip
-          label="All"
-          isActive={statusFilter === "all"}
-          onPress={() => setStatusFilter("all")}
-          icon={
-            <Ionicons
-              name="list"
-              size={16}
-              color={statusFilter === "all" ? "white" : "#6B7280"}
-            />
-          }
-        />
-        <Chip
-          label="To buy"
-          isActive={statusFilter === "pending"}
-          onPress={() => setStatusFilter("pending")}
-          icon={
-            <Ionicons
-              name="cart-outline"
-              size={16}
-              color={statusFilter === "pending" ? "white" : "#6B7280"}
-            />
-          }
-        />
-        <Chip
-          label="Completed"
-          isActive={statusFilter === "done"}
-          onPress={() => setStatusFilter("done")}
-          icon={
-            <Ionicons
-              name="checkmark-done"
-              size={16}
-              color={statusFilter === "done" ? "white" : "#6B7280"}
-            />
-          }
-        />
-        
-        {/* Vertical separator */}
-        <View className="w-px h-6 bg-gray-300 mx-1" />
-        
-        {/* Source filters */}
-        <Chip
-          label="All sources"
-          isActive={sourceFilter === "all"}
-          onPress={() => setSourceFilter("all")}
-          icon={
-            <Ionicons
-              name="grid-outline"
-              size={16}
-              color={sourceFilter === "all" ? "white" : "#6B7280"}
-            />
-          }
-        />
-        <Chip
-          label="Manual"
-          isActive={sourceFilter === "manual"}
-          onPress={() => setSourceFilter("manual")}
-          icon={
-            <Ionicons
-              name="create-outline"
-              size={16}
-              color={sourceFilter === "manual" ? "white" : "#6B7280"}
-            />
-          }
-        />
-        <Chip
-          label="Auto (expired)"
-          isActive={sourceFilter === "auto_expired"}
-          onPress={() => setSourceFilter("auto_expired")}
-          icon={
-            <MaterialIcons
-              name="history-toggle-off"
-              size={16}
-              color={sourceFilter === "auto_expired" ? "white" : "#6B7280"}
-            />
-          }
-        />
-        <Chip
-          label="From recipes"
-          isActive={sourceFilter === "recipe"}
-          onPress={() => setSourceFilter("recipe")}
-          icon={
-            <Ionicons
-              name="restaurant-outline"
-              size={16}
-              color={sourceFilter === "recipe" ? "white" : "#6B7280"}
-            />
-          }
-        />
-      </ScrollView>
+        <Header title={t("shoppingList.title")} />
 
-      <ScrollView
-        className="flex-1"
-        contentContainerStyle={{ paddingBottom: 120 }}
-        showsVerticalScrollIndicator={false}
-        refreshControl={
-          <RefreshControl
-            refreshing={isLoading}
-            onRefresh={refetch}
-            tintColor="black"
+        {/* Combined filters */}
+        <ScrollView
+          horizontal
+          className="flex-grow-0"
+          contentContainerClassName="flex items-center gap-1 flex flex-row mb-4 px-4 h-12"
+          showsHorizontalScrollIndicator={false}
+        >
+          {/* Status filters */}
+          <Chip
+            label={t("common.all")}
+            isActive={statusFilter === "all"}
+            onPress={() => setStatusFilter("all")}
+            icon={
+              <Ionicons
+                name="list"
+                size={16}
+                color={statusFilter === "all" ? "white" : inactiveIconColor}
+              />
+            }
           />
-        }
-      >
-        <View className="px-4 mb-4">
-          <View className="flex-row items-center bg-gray-200 rounded-xl px-4 py-3">
-            <MaterialIcons name="search" size={20} color="#6B7280" />
-            <TextInput
-              className="flex-1 ml-3 text-gray-900"
-              onChangeText={setSearchQuery}
-              value={searchQuery}
-              placeholder="Search items..."
-              placeholderTextColor="#9CA3AF"
-            />
-          </View>
-        </View>
+          <Chip
+            label={t("shoppingList.toBuy")}
+            isActive={statusFilter === "pending"}
+            onPress={() => setStatusFilter("pending")}
+            icon={
+              <Ionicons
+                name="cart-outline"
+                size={16}
+                color={statusFilter === "pending" ? "white" : inactiveIconColor}
+              />
+            }
+          />
+          <Chip
+            label={t("shoppingList.completed")}
+            isActive={statusFilter === "done"}
+            onPress={() => setStatusFilter("done")}
+            icon={
+              <Ionicons
+                name="checkmark-done"
+                size={16}
+                color={statusFilter === "done" ? "white" : inactiveIconColor}
+              />
+            }
+          />
 
-        {isLoading && items.length === 0 ? (
-          <View className="flex-1 items-center justify-center mt-10">
-            <ActivityIndicator size="large" color="#000" />
-            <Text className="text-gray-500 mt-3">Loading shopping items...</Text>
-          </View>
-        ) : (
-          <>
-            {filteredItems.length > 0 ? (
-              <View className="flex flex-col flex-1 px-4 gap-3">
-                {filteredItems.map((item, index) => (
-                  <ShoppingItemCard
-                    key={item.id}
-                    item={item}
-                    index={index}
-                    onToggleCheck={handleToggleCheck}
-                  />
-                ))}
-              </View>
-            ) : (
-              <View className="flex-1 items-center justify-center mt-16 px-6">
-                <Ionicons
-                  name="cart-outline"
-                  size={48}
-                  color="#d1d5db"
-                  style={{ marginBottom: 12 }}
-                />
-                <Text className="text-gray-500 text-lg font-medium mb-1">
-                  No items found
-                </Text>
-                <Text className="text-gray-400 text-sm text-center">
-                  {items.length === 0
-                    ? "Add products to your shopping list from the fridge tab"
-                    : "Try adjusting filters or search"}
-                </Text>
-              </View>
-            )}
-            <View className="px-4 py-6">
-              <ShoppingItemAddCard defaultUnit="pcs" defaultQuantity={1} />
+          {/* Vertical separator */}
+          <View className="w-px h-6 bg-neutral-300 dark:bg-neutral-700 mx-1" />
+
+          {/* Source filters */}
+          <Chip
+            label={t("shoppingList.allSources")}
+            isActive={sourceFilter === "all"}
+            onPress={() => setSourceFilter("all")}
+            icon={
+              <Ionicons
+                name="grid-outline"
+                size={16}
+                color={sourceFilter === "all" ? "white" : inactiveIconColor}
+              />
+            }
+          />
+          <Chip
+            label={t("shoppingList.manual")}
+            isActive={sourceFilter === "manual"}
+            onPress={() => setSourceFilter("manual")}
+            icon={
+              <Ionicons
+                name="create-outline"
+                size={16}
+                color={sourceFilter === "manual" ? "white" : inactiveIconColor}
+              />
+            }
+          />
+          <Chip
+            label={t("shoppingList.autoExpired")}
+            isActive={sourceFilter === "auto_expired"}
+            onPress={() => setSourceFilter("auto_expired")}
+            icon={
+              <MaterialIcons
+                name="history-toggle-off"
+                size={16}
+                color={
+                  sourceFilter === "auto_expired" ? "white" : inactiveIconColor
+                }
+              />
+            }
+          />
+          <Chip
+            label={t("shoppingList.fromRecipes")}
+            isActive={sourceFilter === "recipe"}
+            onPress={() => setSourceFilter("recipe")}
+            icon={
+              <Ionicons
+                name="restaurant-outline"
+                size={16}
+                color={sourceFilter === "recipe" ? "white" : inactiveIconColor}
+              />
+            }
+          />
+        </ScrollView>
+
+        <ScrollView
+          className="flex-1"
+          contentContainerStyle={{ paddingBottom: 120 }}
+          showsVerticalScrollIndicator={false}
+          refreshControl={
+            <RefreshControl
+              refreshing={isLoading}
+              onRefresh={refetch}
+              tintColor={isDark ? "white" : "black"}
+            />
+          }
+        >
+          <View className="px-4 mb-4">
+            <View className="flex-row items-center bg-neutral-200 dark:bg-neutral-800 rounded-xl px-4 py-3">
+              <MaterialIcons name="search" size={20} color={inactiveIconColor} />
+              <TextInput
+                className="flex-1 ml-3 text-neutral-900 dark:text-neutral-100"
+                onChangeText={setSearchQuery}
+                value={searchQuery}
+                placeholder={t("shoppingList.searchPlaceholder")}
+                placeholderTextColor={isDark ? "#737373" : "#a3a3a3"}
+              />
             </View>
-          </>
-        )}
-      </ScrollView>
+          </View>
+
+          {isLoading && items.length === 0 ? (
+            <View className="flex-1 items-center justify-center mt-10">
+              <ActivityIndicator
+                size="large"
+                color={isDark ? "white" : "black"}
+              />
+              <Text className="text-neutral-500 dark:text-neutral-400 mt-3">
+                {t("shoppingList.loadingItems")}
+              </Text>
+            </View>
+          ) : (
+            <>
+              {filteredItems.length > 0 ? (
+                <View className="flex flex-col flex-1 px-4 gap-3">
+                  {filteredItems.map((item, index) => (
+                    <ShoppingItemCard
+                      key={item.id}
+                      item={item}
+                      index={index}
+                      onToggleCheck={handleToggleCheck}
+                    />
+                  ))}
+                </View>
+              ) : (
+                <View className="flex-1 items-center justify-center mt-16 px-6">
+                  <Ionicons
+                    name="cart-outline"
+                    size={48}
+                    color={isDark ? "#525252" : "#d4d4d4"}
+                    style={{ marginBottom: 12 }}
+                  />
+                  <Text className="text-neutral-500 dark:text-neutral-400 text-lg font-medium mb-1">
+                    {t("shoppingList.noItems")}
+                  </Text>
+                  <Text className="text-neutral-400 dark:text-neutral-500 text-sm text-center">
+                    {items.length === 0
+                      ? t("shoppingList.addItemHint")
+                      : t("common.search")}
+                  </Text>
+                </View>
+              )}
+              <View className="px-4 py-6">
+                <ShoppingItemAddCard defaultUnit="pcs" defaultQuantity={1} />
+              </View>
+            </>
+          )}
+        </ScrollView>
       </SafeAreaView>
     </GestureHandlerRootView>
   );
