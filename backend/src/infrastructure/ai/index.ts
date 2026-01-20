@@ -16,7 +16,7 @@ const recipeIngredientSchema = z.object({
 const recipeSchema = z.object({
   title: z.string().describe("Recipe title"),
   description: z.string().optional().describe("Short recipe description"),
-  instructions: z.string().describe("Instructions in Markdown"),
+  instructions: z.string().describe("Instructions in valid Markdown format. MUST use numbered list (1. First step\n2. Second step). Use **bold** for important terms, *italic* for tips."),
   preparationTime: z.number().optional().describe("Preparation time in minutes"),
   tags: z.array(z.string()).describe("Relevant tags for the recipe"),
   ingredients: z.array(recipeIngredientSchema).describe("List of ingredients"),
