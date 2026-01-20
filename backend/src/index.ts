@@ -9,13 +9,20 @@ import { shoppingItemController } from "@/application/controller/shopping-item";
 import { receiptController } from "@/application/controller/receipt";
 import { statisticsController } from "@/application/controller/statistics";
 
-const api = new Elysia({ prefix: "/api" }).use(productController).use(shoppingItemController).use(recipeController).use(receiptController).use(statisticsController);
+const api = new Elysia({ prefix: "/api" })
+  .use(productController)
+  .use(shoppingItemController)
+  .use(recipeController)
+  .use(receiptController)
+  .use(statisticsController);
 
 const app = new Elysia({ adapter: node() })
-  .use(staticPlugin({
-    assets: "public",
-    prefix: "/",
-  }))
+  .use(
+    staticPlugin({
+      assets: "public",
+      prefix: "/",
+    }),
+  )
   .use(authMiddleware)
   .use(loggerMiddleware)
 

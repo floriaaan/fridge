@@ -24,19 +24,21 @@ SplashScreen.preventAutoHideAsync();
 function RootLayoutNav() {
   const { isPending, isRefetching, data: session } = authClient.useSession();
   const isLoading = isPending || isRefetching;
-  const isLoggedIn = !!session;
+  const isLoggedIn = session?.user != null;
   const router = useRouter();
   const segments = useSegments();
   const navigationState = useRootNavigationState();
 
   useEffect(() => {
-    const inAuthGroup = segments[0] === "(auth)"
+    if (!navigationState?.key || isLoading) return;
 
-    // if (isLoggedIn && inAuthGroup) {
-    //   router.replace("/(tabs)");
-    // } else if (!isLoggedIn && !inAuthGroup) {
-    //   router.replace("/(auth)");
-    // }
+    const inAuthGroup = segments[0] === "(auth)";
+
+    if (isLoggedIn && inAuthGroup) {
+      router.replace("/(tabs)");
+    } else if (!isLoggedIn && !inAuthGroup) {
+      router.replace("/(auth)");
+    }
     SplashScreen.hideAsync();
   }, [isLoggedIn, segments, isLoading, navigationState?.key, router]);
 
