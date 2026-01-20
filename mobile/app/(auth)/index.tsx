@@ -80,7 +80,7 @@ export default function AuthIndexScreen() {
           entering={FadeInUp.duration(600).delay(700)}
           className="mt-8"
         >
-          <Text className="text-neutral-500 dark:text-neutral-500 text-sm text-center">
+          <Text className="text-neutral-500 dark:text-neutral-400 text-sm text-center">
             Track expiration dates • Reduce food waste • Save money
           </Text>
         </Animated.View>

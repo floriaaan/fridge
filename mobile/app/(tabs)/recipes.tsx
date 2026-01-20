@@ -1,6 +1,6 @@
 import React from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { View, TouchableOpacity, Text } from "react-native";
+import { View, TouchableOpacity, Text, useColorScheme } from "react-native";
 import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { useRecipes } from "@/hooks/use-recipes";
@@ -12,6 +12,8 @@ export default function RecipesScreen() {
   const router = useRouter();
   const { data: recipes = [], isLoading, refetch } = useRecipes();
   const { t } = useTranslation();
+  const colorScheme = useColorScheme();
+  const isDark = colorScheme === "dark";
 
   return (
     <SafeAreaView
@@ -28,8 +30,7 @@ export default function RecipesScreen() {
           className="bg-neutral-900 dark:bg-neutral-100 py-4 rounded-xl shadow-xl flex-row items-center justify-center"
           activeOpacity={0.8}
         >
-          <Ionicons name="sparkles" size={24} color="white" className="dark:hidden" />
-          <Ionicons name="sparkles" size={24} color="black" className="hidden dark:flex" />
+          <Ionicons name="sparkles" size={24} color={isDark ? "#171717" : "white"} />
           <Text className="text-white dark:text-neutral-900 font-semibold text-base ml-2">
             {t("recipe.generate")}
           </Text>
