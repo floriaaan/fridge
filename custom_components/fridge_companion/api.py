@@ -40,6 +40,15 @@ class FridgeCompanionApiClient:
             data = await response.json()
             return data.get("data", [])
 
+    async def get_statistics_overview(self) -> dict:
+        """Get statistics overview."""
+        async with self._session.get(
+            f"{self._base_url}/api/statistics/overview", headers=self._headers
+        ) as response:
+            response.raise_for_status()
+            data = await response.json()
+            return data.get("data", {})
+
     async def async_create_item(self, name: str) -> None:
         """Create a new item."""
         product_data = {

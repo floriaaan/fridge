@@ -32,12 +32,14 @@ class FridgeCompanionDataUpdateCoordinator(DataUpdateCoordinator[dict[str, list[
             expired_products = await self.api_client.get_expired_products()
             expires_soon_products = await self.api_client.get_expires_soon_products()
             recipes = await self.api_client.get_recipes()
+            statistics = await self.api_client.get_statistics_overview()
             return {
                 "products": products,
                 "shopping_items": shopping_items,
                 "expired_products": expired_products,
                 "expires_soon_products": expires_soon_products,
                 "recipes": recipes,
+                "statistics": statistics,
             }
         except Exception as exception:
             raise UpdateFailed(f"Error communicating with API: {exception}") from exception

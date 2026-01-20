@@ -43,6 +43,13 @@
       "when": 1768826568842,
       "tag": "0005_little_shockwave",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1768867227037,
+      "tag": "0006_black_stark_industries",
+      "breakpoints": true
     }
   ]
 }
