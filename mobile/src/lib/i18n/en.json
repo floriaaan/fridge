@@ -13,7 +13,8 @@
     "add": "Add",
     "search": "Search",
     "all": "All",
-    "noExpiryDate": "No expiry date"
+    "noExpiryDate": "No expiry date",
+    "failedToLogout": "Failed to logout"
   },
   "tabs": {
     "shoppingList": "Shopping List",

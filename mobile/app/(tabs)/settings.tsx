@@ -113,7 +113,7 @@ export default function SettingsScreen() {
       router.replace("/(auth)");
     } catch (error: unknown) {
       const errorMessage =
-        error instanceof Error ? error.message : "Failed to logout";
+        error instanceof Error ? error.message : t("common.failedToLogout");
       snackbarRef.current?.show(errorMessage, 3000);
       setIsLoggingOut(false);
     }

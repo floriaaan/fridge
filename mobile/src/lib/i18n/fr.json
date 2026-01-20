@@ -13,7 +13,8 @@
     "add": "Ajouter",
     "search": "Rechercher",
     "all": "Tout",
-    "noExpiryDate": "Pas de date d'expiration"
+    "noExpiryDate": "Pas de date d'expiration",
+    "failedToLogout": "Échec de la déconnexion"
   },
   "tabs": {
     "shoppingList": "Liste de courses",
