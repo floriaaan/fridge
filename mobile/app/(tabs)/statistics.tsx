@@ -1,41 +1,44 @@
 import React, { useState } from "react";
-import { Text, View, ScrollView, Pressable, RefreshControl } from "react-native";
+import { Text, View, ScrollView, Pressable, RefreshControl, useColorScheme } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import Animated, { FadeInUp, FadeInDown } from "react-native-reanimated";
 import Header from "@/components/ui/header";
 import { useOverallStats, useStatsByPeriod, useWasteEvolution, useTopCategories } from "@/hooks/use-statistics";
+import { useTranslation } from "@/hooks/use-translation";
 
 type Period = "weekly" | "monthly" | "yearly" | "all";
 
-const PERIOD_LABELS: Record<Period, string> = {
-  weekly: "Cette semaine",
-  monthly: "Ce mois",
-  yearly: "Cette année",
-  all: "Tout temps",
+const PERIOD_LABELS: Record<Period, Record<string, string>> = {
+  weekly: { en: "This week", fr: "Cette semaine" },
+  monthly: { en: "This month", fr: "Ce mois" },
+  yearly: { en: "This year", fr: "Cette année" },
+  all: { en: "All time", fr: "Tout temps" },
 };
 
 interface StatCardProps {
   icon: string;
   iconColor: string;
   bgClass: string;
+  darkBgClass: string;
   textClass: string;
+  darkTextClass: string;
   value: string;
   label: string;
   index: number;
 }
 
-function StatCard({ icon, iconColor, bgClass, textClass, value, label, index }: StatCardProps) {
+function StatCard({ icon, iconColor, bgClass, darkBgClass, textClass, darkTextClass, value, label, index }: StatCardProps) {
   return (
     <Animated.View
       entering={FadeInUp.duration(400).delay(200 + index * 100).springify().damping(100).stiffness(600)}
-      className={`flex-1 rounded-2xl p-4 items-center justify-center min-h-[120px] ${bgClass}`}
+      className={`flex-1 rounded-2xl p-4 items-center justify-center min-h-[120px] ${bgClass} ${darkBgClass}`}
     >
       <View className="mb-2">
         <Ionicons name={icon as any} size={28} color={iconColor} />
       </View>
-      <Text className={`text-2xl font-bold ${textClass}`}>{value}</Text>
-      <Text className={`text-xs text-center mt-2 font-medium ${textClass} opacity-70`}>
+      <Text className={`text-2xl font-bold ${textClass} ${darkTextClass}`}>{value}</Text>
+      <Text className={`text-xs text-center mt-2 font-medium ${textClass} ${darkTextClass} opacity-70`}>
         {label}
       </Text>
     </Animated.View>
@@ -59,10 +62,10 @@ function CategoryBar({ category, percentage, count, index, maxPercentage }: Cate
       className="mb-3"
     >
       <View className="flex-row justify-between mb-1">
-        <Text className="text-gray-700 font-medium capitalize">{category}</Text>
-        <Text className="text-gray-500">{count} ({percentage}%)</Text>
+        <Text className="text-neutral-700 dark:text-neutral-300 font-medium capitalize">{category}</Text>
+        <Text className="text-neutral-500 dark:text-neutral-400">{count} ({percentage}%)</Text>
       </View>
-      <View className="h-3 bg-gray-200 rounded-full overflow-hidden">
+      <View className="h-3 bg-neutral-200 dark:bg-neutral-700 rounded-full overflow-hidden">
         <View 
           className="h-full bg-emerald-500 rounded-full"
           style={{ width: `${barWidth}%` }}
@@ -72,28 +75,30 @@ function CategoryBar({ category, percentage, count, index, maxPercentage }: Cate
   );
 }
 
-function PeriodTabs({ selected, onSelect }: { selected: Period; onSelect: (p: Period) => void }) {
+function PeriodTabs({ selected, onSelect, locale }: { selected: Period; onSelect: (p: Period) => void; locale: string }) {
   const periods: Period[] = ["weekly", "monthly", "yearly", "all"];
+  const colorScheme = useColorScheme();
+  const isDark = colorScheme === "dark";
   
   return (
     <Animated.View
       entering={FadeInUp.duration(400).delay(100)}
-      className="flex-row bg-gray-200 rounded-xl p-1 mx-4 mb-4"
+      className="flex-row bg-neutral-200 dark:bg-neutral-800 rounded-xl p-1 mx-4 mb-4"
     >
       {periods.map((period) => (
         <Pressable
           key={period}
           onPress={() => onSelect(period)}
           className={`flex-1 py-2 px-3 rounded-lg ${
-            selected === period ? "bg-white shadow-sm" : ""
+            selected === period ? (isDark ? "bg-neutral-700" : "bg-white") + " shadow-sm" : ""
           }`}
         >
           <Text
             className={`text-center text-xs font-medium ${
-              selected === period ? "text-emerald-600" : "text-gray-500"
+              selected === period ? "text-emerald-600 dark:text-emerald-400" : "text-neutral-500 dark:text-neutral-400"
             }`}
           >
-            {PERIOD_LABELS[period]}
+            {PERIOD_LABELS[period][locale.startsWith("fr") ? "fr" : "en"]}
           </Text>
         </Pressable>
       ))}
@@ -103,6 +108,9 @@ function PeriodTabs({ selected, onSelect }: { selected: Period; onSelect: (p: Pe
 
 export default function StatisticsScreen() {
   const [selectedPeriod, setSelectedPeriod] = useState<Period>("all");
+  const { t, i18n } = useTranslation();
+  const colorScheme = useColorScheme();
+  const isDark = colorScheme === "dark";
   
   // Use overall stats for "all" period, period-specific stats otherwise
   const { data: overallStats, isLoading: overallLoading, isError: overallError, error: overallErrorData, refetch: refetchOverall, isRefetching: isRefetchingOverall } = useOverallStats();
@@ -141,17 +149,17 @@ export default function StatisticsScreen() {
 
   if (isError) {
     return (
-      <SafeAreaView edges={["top", "left", "right"]} className="flex-1 bg-gray-100">
-        <Header title="Statistiques" />
+      <SafeAreaView edges={["top", "left", "right"]} className="flex-1 bg-neutral-100 dark:bg-neutral-900">
+        <Header title={t("tabs.statistics")} />
         <View className="flex-1 justify-center items-center p-4">
           <Ionicons name="alert-circle-outline" size={48} color="#DC2626" />
-          <Text className="text-gray-700 text-center mt-4">Erreur de chargement</Text>
-          <Text className="text-gray-500 text-center mt-2">{error?.message}</Text>
+          <Text className="text-neutral-700 dark:text-neutral-300 text-center mt-4">{t("common.error")}</Text>
+          <Text className="text-neutral-500 dark:text-neutral-400 text-center mt-2">{error?.message}</Text>
           <Pressable
             onPress={() => refetch()}
             className="mt-4 bg-emerald-500 px-6 py-3 rounded-xl"
           >
-            <Text className="text-white font-medium">Réessayer</Text>
+            <Text className="text-white font-medium">{t("common.retry")}</Text>
           </Pressable>
         </View>
       </SafeAreaView>
@@ -163,25 +171,25 @@ export default function StatisticsScreen() {
     : 0;
 
   return (
-    <SafeAreaView edges={["top", "left", "right"]} className="flex-1 bg-gray-100">
-      <Header title="Statistiques" />
+    <SafeAreaView edges={["top", "left", "right"]} className="flex-1 bg-neutral-100 dark:bg-neutral-900">
+      <Header title={t("tabs.statistics")} />
       
       <ScrollView
         className="flex-1"
         refreshControl={
-          <RefreshControl refreshing={isRefetching} onRefresh={refetch} />
+          <RefreshControl refreshing={isRefetching} onRefresh={refetch} tintColor={isDark ? "white" : "black"} />
         }
       >
         {/* Period Selector */}
-        <PeriodTabs selected={selectedPeriod} onSelect={setSelectedPeriod} />
+        <PeriodTabs selected={selectedPeriod} onSelect={setSelectedPeriod} locale={i18n.locale} />
 
         {/* Overview Cards */}
         <View className="px-4 mb-6">
           <Animated.Text
             entering={FadeInUp.duration(400)}
-            className="text-lg font-bold text-gray-900 mb-4"
+            className="text-lg font-bold text-neutral-900 dark:text-neutral-100 mb-4"
           >
-            Vue d&apos;ensemble
+            {t("statistics.overview")}
           </Animated.Text>
           
           <View className="flex-row gap-3 mb-3">
@@ -189,18 +197,22 @@ export default function StatisticsScreen() {
               icon="analytics-outline"
               iconColor="#DC2626"
               bgClass="bg-red-50"
+              darkBgClass="dark:bg-red-900/30"
               textClass="text-red-700"
+              darkTextClass="dark:text-red-300"
               value={isLoading ? "..." : formatPercentage(stats?.wasteRate ?? 0)}
-              label="Taux de gaspillage"
+              label={t("statistics.wasteRate")}
               index={0}
             />
             <StatCard
               icon="wallet-outline"
               iconColor="#059669"
               bgClass="bg-emerald-50"
+              darkBgClass="dark:bg-emerald-900/30"
               textClass="text-emerald-700"
+              darkTextClass="dark:text-emerald-300"
               value={isLoading ? "..." : formatCurrency(stats?.moneySaved ?? 0)}
-              label="Économisé"
+              label={t("statistics.saved")}
               index={1}
             />
           </View>
@@ -210,18 +222,22 @@ export default function StatisticsScreen() {
               icon="leaf-outline"
               iconColor="#0891B2"
               bgClass="bg-cyan-50"
+              darkBgClass="dark:bg-cyan-900/30"
               textClass="text-cyan-700"
+              darkTextClass="dark:text-cyan-300"
               value={isLoading ? "..." : formatCO2(stats?.co2Avoided ?? 0)}
-              label="CO2 évité"
+              label={t("statistics.co2Avoided")}
               index={2}
             />
             <StatCard
               icon="cube-outline"
               iconColor="#7C3AED"
               bgClass="bg-purple-50"
+              darkBgClass="dark:bg-purple-900/30"
               textClass="text-purple-700"
+              darkTextClass="dark:text-purple-300"
               value={isLoading ? "..." : String(stats?.totalProducts ?? 0)}
-              label="Produits gérés"
+              label={t("statistics.productsManaged")}
               index={3}
             />
           </View>
@@ -231,9 +247,9 @@ export default function StatisticsScreen() {
         {stats?.motivationMessage && (
           <Animated.View
             entering={FadeInUp.duration(400).delay(500)}
-            className="mx-4 mb-6 bg-emerald-100 rounded-2xl p-4"
+            className="mx-4 mb-6 bg-emerald-100 dark:bg-emerald-900/40 rounded-2xl p-4"
           >
-            <Text className="text-emerald-800 text-center font-medium">
+            <Text className="text-emerald-800 dark:text-emerald-200 text-center font-medium">
               {stats.motivationMessage}
             </Text>
           </Animated.View>
@@ -243,38 +259,38 @@ export default function StatisticsScreen() {
         <View className="px-4 mb-6">
           <Animated.Text
             entering={FadeInUp.duration(400).delay(300)}
-            className="text-lg font-bold text-gray-900 mb-4"
+            className="text-lg font-bold text-neutral-900 dark:text-neutral-100 mb-4"
           >
-            Répartition des produits
+            {t("statistics.productDistribution")}
           </Animated.Text>
           
           <Animated.View
             entering={FadeInUp.duration(400).delay(400)}
-            className="bg-white rounded-2xl p-4"
+            className="bg-neutral-50 dark:bg-neutral-800 rounded-2xl p-4"
           >
             <View className="flex-row justify-between mb-3">
               <View className="items-center flex-1">
-                <Text className="text-2xl font-bold text-emerald-600">
+                <Text className="text-2xl font-bold text-emerald-600 dark:text-emerald-400">
                   {stats?.consumedProducts ?? 0}
                 </Text>
-                <Text className="text-xs text-gray-500 mt-1">Consommés</Text>
+                <Text className="text-xs text-neutral-500 dark:text-neutral-400 mt-1">{t("statistics.consumed")}</Text>
               </View>
               <View className="items-center flex-1">
-                <Text className="text-2xl font-bold text-red-600">
+                <Text className="text-2xl font-bold text-red-600 dark:text-red-400">
                   {stats?.discardedProducts ?? 0}
                 </Text>
-                <Text className="text-xs text-gray-500 mt-1">Jetés</Text>
+                <Text className="text-xs text-neutral-500 dark:text-neutral-400 mt-1">{t("statistics.discarded")}</Text>
               </View>
               <View className="items-center flex-1">
-                <Text className="text-2xl font-bold text-blue-600">
+                <Text className="text-2xl font-bold text-blue-600 dark:text-blue-400">
                   {stats?.activeProducts ?? 0}
                 </Text>
-                <Text className="text-xs text-gray-500 mt-1">Actifs</Text>
+                <Text className="text-xs text-neutral-500 dark:text-neutral-400 mt-1">{t("statistics.active")}</Text>
               </View>
             </View>
             
             {stats && stats.consumedProducts + stats.discardedProducts > 0 && (
-              <View className="h-4 bg-gray-200 rounded-full overflow-hidden flex-row">
+              <View className="h-4 bg-neutral-200 dark:bg-neutral-700 rounded-full overflow-hidden flex-row">
                 <View
                   className="h-full bg-emerald-500"
                   style={{
@@ -305,29 +321,29 @@ export default function StatisticsScreen() {
           <View className="px-4 mb-6">
             <Animated.Text
               entering={FadeInDown.duration(400).delay(350)}
-              className="text-lg font-bold text-gray-900 mb-4"
+              className="text-lg font-bold text-neutral-900 dark:text-neutral-100 mb-4"
             >
-              Évolution
+              {t("statistics.evolution")}
             </Animated.Text>
             
             <Animated.View
               entering={FadeInDown.duration(400).delay(450)}
-              className="bg-white rounded-2xl p-4"
+              className="bg-neutral-50 dark:bg-neutral-800 rounded-2xl p-4"
             >
               <View className="flex-row items-center justify-between mb-4">
                 <View>
-                  <Text className="text-gray-500 text-sm">Moyenne sur 6 mois</Text>
-                  <Text className="text-2xl font-bold text-gray-900">
+                  <Text className="text-neutral-500 dark:text-neutral-400 text-sm">{t("statistics.sixMonthAverage")}</Text>
+                  <Text className="text-2xl font-bold text-neutral-900 dark:text-neutral-100">
                     {formatPercentage(evolution.averageWasteRate)}
                   </Text>
                 </View>
                 <View
                   className={`flex-row items-center px-3 py-2 rounded-full ${
                     evolution.trend === "down"
-                      ? "bg-emerald-100"
+                      ? "bg-emerald-100 dark:bg-emerald-900/50"
                       : evolution.trend === "up"
-                      ? "bg-red-100"
-                      : "bg-gray-100"
+                      ? "bg-red-100 dark:bg-red-900/50"
+                      : "bg-neutral-100 dark:bg-neutral-700"
                   }`}
                 >
                   <Ionicons
@@ -344,30 +360,30 @@ export default function StatisticsScreen() {
                         ? "#059669"
                         : evolution.trend === "up"
                         ? "#DC2626"
-                        : "#6B7280"
+                        : isDark ? "#a3a3a3" : "#6B7280"
                     }
                   />
                   <Text
                     className={`ml-1 font-medium ${
                       evolution.trend === "down"
-                        ? "text-emerald-600"
+                        ? "text-emerald-600 dark:text-emerald-400"
                         : evolution.trend === "up"
-                        ? "text-red-600"
-                        : "text-gray-600"
+                        ? "text-red-600 dark:text-red-400"
+                        : "text-neutral-600 dark:text-neutral-400"
                     }`}
                   >
                     {evolution.trend === "down"
-                      ? "En baisse"
+                      ? t("statistics.decreasing")
                       : evolution.trend === "up"
-                      ? "En hausse"
-                      : "Stable"}
+                      ? t("statistics.increasing")
+                      : t("statistics.stable")}
                   </Text>
                 </View>
               </View>
               
               {/* Simple bar chart for evolution */}
               <View className="flex-row items-end justify-between h-20">
-                {evolution.points.map((point, index) => {
+                {evolution.points.map((point) => {
                   const maxRate = Math.max(...evolution.points.map((p) => p.wasteRate), 1);
                   const height = (point.wasteRate / maxRate) * 100;
                   return (
@@ -376,7 +392,7 @@ export default function StatisticsScreen() {
                         className="w-full bg-emerald-400 rounded-t"
                         style={{ height: `${Math.max(height, 5)}%` }}
                       />
-                      <Text className="text-[9px] text-gray-400 mt-1">
+                      <Text className="text-[9px] text-neutral-400 mt-1">
                         {point.date.slice(5)}
                       </Text>
                     </View>
@@ -392,14 +408,14 @@ export default function StatisticsScreen() {
           <View className="px-4 mb-6">
             <Animated.Text
               entering={FadeInDown.duration(400).delay(350)}
-              className="text-lg font-bold text-gray-900 mb-4"
+              className="text-lg font-bold text-neutral-900 dark:text-neutral-100 mb-4"
             >
-              Top catégories
+              {t("statistics.topCategories")}
             </Animated.Text>
             
             <Animated.View
               entering={FadeInDown.duration(400).delay(400)}
-              className="bg-white rounded-2xl p-4"
+              className="bg-neutral-50 dark:bg-neutral-800 rounded-2xl p-4"
             >
               {categories.map((cat, index) => (
                 <CategoryBar
@@ -420,35 +436,35 @@ export default function StatisticsScreen() {
           <View className="px-4 mb-6">
             <Animated.Text
               entering={FadeInDown.duration(400).delay(500)}
-              className="text-lg font-bold text-gray-900 mb-4"
+              className="text-lg font-bold text-neutral-900 dark:text-neutral-100 mb-4"
             >
-              Impact financier
+              {t("statistics.financialImpact")}
             </Animated.Text>
             
             <Animated.View
               entering={FadeInDown.duration(400).delay(550)}
-              className="bg-white rounded-2xl p-4"
+              className="bg-neutral-50 dark:bg-neutral-800 rounded-2xl p-4"
             >
-              <View className="flex-row justify-between items-center mb-3 pb-3 border-b border-gray-100">
+              <View className="flex-row justify-between items-center mb-3 pb-3 border-b border-neutral-100 dark:border-neutral-700">
                 <View className="flex-row items-center">
-                  <View className="w-8 h-8 bg-emerald-100 rounded-full items-center justify-center mr-3">
+                  <View className="w-8 h-8 bg-emerald-100 dark:bg-emerald-900/50 rounded-full items-center justify-center mr-3">
                     <Ionicons name="checkmark-circle" size={18} color="#059669" />
                   </View>
-                  <Text className="text-gray-700">Économies réalisées</Text>
+                  <Text className="text-neutral-700 dark:text-neutral-300">{t("statistics.savingsRealized")}</Text>
                 </View>
-                <Text className="text-emerald-600 font-bold">
+                <Text className="text-emerald-600 dark:text-emerald-400 font-bold">
                   {formatCurrency(stats.moneySaved)}
                 </Text>
               </View>
               
               <View className="flex-row justify-between items-center">
                 <View className="flex-row items-center">
-                  <View className="w-8 h-8 bg-red-100 rounded-full items-center justify-center mr-3">
+                  <View className="w-8 h-8 bg-red-100 dark:bg-red-900/50 rounded-full items-center justify-center mr-3">
                     <Ionicons name="close-circle" size={18} color="#DC2626" />
                   </View>
-                  <Text className="text-gray-700">Pertes (produits jetés)</Text>
+                  <Text className="text-neutral-700 dark:text-neutral-300">{t("statistics.losses")}</Text>
                 </View>
-                <Text className="text-red-600 font-bold">
+                <Text className="text-red-600 dark:text-red-400 font-bold">
                   {formatCurrency(stats.moneyWasted)}
                 </Text>
               </View>

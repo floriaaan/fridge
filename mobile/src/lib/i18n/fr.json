@@ -21,7 +21,8 @@
     "products": "Produits",
     "recipes": "Recettes",
     "settings": "Paramètres",
-    "debug": "DEBUG"
+    "debug": "DEBUG",
+    "statistics": "Statistiques"
   },
   "fridge": {
     "title": "Frigo",
@@ -127,6 +128,26 @@
     "emailSupport": "Support par email",
     "faq": "FAQ",
     "faqDescription": "Visitez notre centre d'aide pour les questions fréquentes"
+  },
+  "statistics": {
+    "overview": "Vue d'ensemble",
+    "wasteRate": "Taux de gaspillage",
+    "saved": "Économisé",
+    "co2Avoided": "CO2 évité",
+    "productsManaged": "Produits gérés",
+    "productDistribution": "Répartition des produits",
+    "consumed": "Consommés",
+    "discarded": "Jetés",
+    "active": "Actifs",
+    "evolution": "Évolution",
+    "sixMonthAverage": "Moyenne sur 6 mois",
+    "decreasing": "En baisse",
+    "increasing": "En hausse",
+    "stable": "Stable",
+    "topCategories": "Top catégories",
+    "financialImpact": "Impact financier",
+    "savingsRealized": "Économies réalisées",
+    "losses": "Pertes (produits jetés)"
   },
   "auth": {
     "signIn": "Se connecter",

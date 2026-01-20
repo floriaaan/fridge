@@ -47,7 +47,7 @@ export function RecipeList({ recipes, refresh, isLoading }: RecipeListProps) {
     });
   };
 
-  const chipIconColor = (isActive: boolean) => isActive ? "white" : (isDark ? "#a3a3a3" : "#6b7280");
+  const chipIconColor = (isActive: boolean) => isActive ? (isDark ? "#171717" : "#ffffff") : (isDark ? "#a3a3a3" : "#6b7280");
 
   return (
     <>

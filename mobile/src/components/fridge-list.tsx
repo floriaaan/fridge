@@ -38,6 +38,7 @@ export function FridgeList({ products, refresh, isLoading }: FridgeListProps) {
   const [searchQuery, setSearchQuery] = useState("");
 
   const inactiveIconColor = isDark ? "#a3a3a3" : "#737373";
+  const activeIconColor = isDark ? "#171717" : "#ffffff";
 
   const getCategoryColor = (category: string): string => {
     const colors: Record<string, string> = {
@@ -224,7 +225,7 @@ export function FridgeList({ products, refresh, isLoading }: FridgeListProps) {
             <Ionicons
               name="time"
               size={16}
-              color={activeFilter === "expiring" ? "white" : inactiveIconColor}
+              color={activeFilter === "expiring" ? activeIconColor : inactiveIconColor}
             />
           }
         />
@@ -236,7 +237,7 @@ export function FridgeList({ products, refresh, isLoading }: FridgeListProps) {
             <Ionicons
               name="text"
               size={16}
-              color={activeFilter === "asc" ? "white" : inactiveIconColor}
+              color={activeFilter === "asc" ? activeIconColor : inactiveIconColor}
             />
           }
         />
@@ -248,7 +249,7 @@ export function FridgeList({ products, refresh, isLoading }: FridgeListProps) {
             <Ionicons
               name="grid-outline"
               size={16}
-              color={activeFilter === "category" ? "white" : inactiveIconColor}
+              color={activeFilter === "category" ? activeIconColor : inactiveIconColor}
             />
           }
         />

@@ -73,6 +73,7 @@ export default function ShoppingListScreen() {
   }, [items, statusFilter, sourceFilter, searchQuery]);
 
   const inactiveIconColor = isDark ? "#a3a3a3" : "#737373";
+  const activeIconColor = isDark ? "#171717" : "#ffffff";
 
   if (isError) {
     return (
@@ -125,7 +126,7 @@ export default function ShoppingListScreen() {
               <Ionicons
                 name="list"
                 size={16}
-                color={statusFilter === "all" ? "white" : inactiveIconColor}
+                color={statusFilter === "all" ? activeIconColor : inactiveIconColor}
               />
             }
           />
@@ -137,7 +138,7 @@ export default function ShoppingListScreen() {
               <Ionicons
                 name="cart-outline"
                 size={16}
-                color={statusFilter === "pending" ? "white" : inactiveIconColor}
+                color={statusFilter === "pending" ? activeIconColor : inactiveIconColor}
               />
             }
           />
@@ -149,7 +150,7 @@ export default function ShoppingListScreen() {
               <Ionicons
                 name="checkmark-done"
                 size={16}
-                color={statusFilter === "done" ? "white" : inactiveIconColor}
+                color={statusFilter === "done" ? activeIconColor : inactiveIconColor}
               />
             }
           />
@@ -166,7 +167,7 @@ export default function ShoppingListScreen() {
               <Ionicons
                 name="grid-outline"
                 size={16}
-                color={sourceFilter === "all" ? "white" : inactiveIconColor}
+                color={sourceFilter === "all" ? activeIconColor : inactiveIconColor}
               />
             }
           />
@@ -178,7 +179,7 @@ export default function ShoppingListScreen() {
               <Ionicons
                 name="create-outline"
                 size={16}
-                color={sourceFilter === "manual" ? "white" : inactiveIconColor}
+                color={sourceFilter === "manual" ? activeIconColor : inactiveIconColor}
               />
             }
           />
@@ -191,7 +192,7 @@ export default function ShoppingListScreen() {
                 name="history-toggle-off"
                 size={16}
                 color={
-                  sourceFilter === "auto_expired" ? "white" : inactiveIconColor
+                  sourceFilter === "auto_expired" ? activeIconColor : inactiveIconColor
                 }
               />
             }
@@ -204,7 +205,7 @@ export default function ShoppingListScreen() {
               <Ionicons
                 name="restaurant-outline"
                 size={16}
-                color={sourceFilter === "recipe" ? "white" : inactiveIconColor}
+                color={sourceFilter === "recipe" ? activeIconColor : inactiveIconColor}
               />
             }
           />

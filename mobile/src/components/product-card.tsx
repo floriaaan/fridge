@@ -1,5 +1,5 @@
 import { Product } from "@/lib/api/fetch-products";
-import { Text, TouchableOpacity, View } from "react-native";
+import { Text, TouchableOpacity, View, useColorScheme } from "react-native";
 import Animated, {
   FadeInDown,
   FadeOutUp,
@@ -11,8 +11,8 @@ import { useRef, useState } from "react";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { useTranslation } from "@/hooks/use-translation";
 
-const getCategoryColor = (category: string): string => {
-  const colors: Record<string, string> = {
+const getCategoryColor = (category: string, isDark: boolean): string => {
+  const lightColors: Record<string, string> = {
     vegetables: "#E8F5E9",
     dairy: "#E3F2FD",
     meat: "#FBE9E7",
@@ -24,11 +24,24 @@ const getCategoryColor = (category: string): string => {
     bread: "#FFEAA7",
     pantry: "#F3E5F5",
   };
-  return colors[category.toLowerCase()] || "#F5F5F5";
+  const darkColors: Record<string, string> = {
+    vegetables: "#14532d",
+    dairy: "#1e3a5f",
+    meat: "#7c2d12",
+    poultry: "#44403c",
+    fruits: "#78350f",
+    beverages: "#0c4a6e",
+    snacks: "#713f12",
+    condiments: "#44403c",
+    bread: "#78350f",
+    pantry: "#581c87",
+  };
+  const colors = isDark ? darkColors : lightColors;
+  return colors[category.toLowerCase()] || (isDark ? "#262626" : "#F5F5F5");
 };
 
-const getCategoryTextColor = (category: string): string => {
-  const colors: Record<string, string> = {
+const getCategoryTextColor = (category: string, isDark: boolean): string => {
+  const lightColors: Record<string, string> = {
     vegetables: "#2E7D32",
     dairy: "#1565C0",
     meat: "#BF360C",
@@ -40,7 +53,20 @@ const getCategoryTextColor = (category: string): string => {
     bread: "#E65100",
     pantry: "#6A1B9A",
   };
-  return colors[category.toLowerCase()] || "#424242";
+  const darkColors: Record<string, string> = {
+    vegetables: "#86efac",
+    dairy: "#93c5fd",
+    meat: "#fdba74",
+    poultry: "#d6d3d1",
+    fruits: "#fcd34d",
+    beverages: "#7dd3fc",
+    snacks: "#fcd34d",
+    condiments: "#d6d3d1",
+    bread: "#fbbf24",
+    pantry: "#d8b4fe",
+  };
+  const colors = isDark ? darkColors : lightColors;
+  return colors[category.toLowerCase()] || (isDark ? "#e5e5e5" : "#424242");
 };
 
 const getCategoryIcon = (category: string): keyof typeof MaterialCommunityIcons.glyphMap => {
@@ -101,8 +127,10 @@ export const ProductCard: React.FC<ProductCardProps> = ({
   const swipeRef = useRef<any>(null);
   const [isProcessing, setIsProcessing] = useState(false);
   const { t } = useTranslation();
-  const bgColor = getCategoryColor(product.category);
-  const textColor = getCategoryTextColor(product.category);
+  const colorScheme = useColorScheme();
+  const isDark = colorScheme === "dark";
+  const bgColor = getCategoryColor(product.category, isDark);
+  const textColor = getCategoryTextColor(product.category, isDark);
   const expiring = isExpiringSoon(product.expiresAt);
   const expired = isExpired(product.expiresAt);
 

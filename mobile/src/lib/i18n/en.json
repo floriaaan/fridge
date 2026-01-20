@@ -21,7 +21,8 @@
     "products": "Products",
     "recipes": "Recipes",
     "settings": "Settings",
-    "debug": "DEBUG"
+    "debug": "DEBUG",
+    "statistics": "Statistics"
   },
   "fridge": {
     "title": "Fridge",
@@ -127,6 +128,26 @@
     "emailSupport": "Email Support",
     "faq": "FAQ",
     "faqDescription": "Visit our help center for common questions"
+  },
+  "statistics": {
+    "overview": "Overview",
+    "wasteRate": "Waste rate",
+    "saved": "Saved",
+    "co2Avoided": "CO2 avoided",
+    "productsManaged": "Products managed",
+    "productDistribution": "Product distribution",
+    "consumed": "Consumed",
+    "discarded": "Discarded",
+    "active": "Active",
+    "evolution": "Evolution",
+    "sixMonthAverage": "6-month average",
+    "decreasing": "Decreasing",
+    "increasing": "Increasing",
+    "stable": "Stable",
+    "topCategories": "Top categories",
+    "financialImpact": "Financial impact",
+    "savingsRealized": "Savings realized",
+    "losses": "Losses (discarded products)"
   },
   "auth": {
     "signIn": "Sign In",

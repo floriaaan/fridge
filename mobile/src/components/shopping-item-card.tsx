@@ -1,5 +1,5 @@
 import React, { useRef, useState, useCallback } from 'react';
-import { Text, View, TouchableOpacity, TextInput } from 'react-native';
+import { Text, View, TouchableOpacity, TextInput, useColorScheme } from 'react-native';
 import { type ShoppingItem } from '@/lib/api/fetch-shopping-items';
 import { Ionicons } from '@expo/vector-icons';
 import Animated, {
@@ -20,22 +20,34 @@ type ShoppingItemCardProps = {
   index?: number;
 };
 
-const getSourceColor = (source: string): string => {
-  const colors: Record<string, string> = {
+const getSourceColor = (source: string, isDark: boolean): string => {
+  const lightColors: Record<string, string> = {
     manual: '#E8F5E9',
     auto_expired: '#FFF3E0',
     recipe: '#E3F2FD',
   };
-  return colors[source] || '#F5F5F5';
+  const darkColors: Record<string, string> = {
+    manual: '#14532d',
+    auto_expired: '#78350f',
+    recipe: '#1e3a5f',
+  };
+  const colors = isDark ? darkColors : lightColors;
+  return colors[source] || (isDark ? '#262626' : '#F5F5F5');
 };
 
-const getSourceTextColor = (source: string): string => {
-  const colors: Record<string, string> = {
+const getSourceTextColor = (source: string, isDark: boolean): string => {
+  const lightColors: Record<string, string> = {
     manual: '#2E7D32',
     auto_expired: '#EF6C00',
     recipe: '#1565C0',
   };
-  return colors[source] || '#424242';
+  const darkColors: Record<string, string> = {
+    manual: '#86efac',
+    auto_expired: '#fcd34d',
+    recipe: '#93c5fd',
+  };
+  const colors = isDark ? darkColors : lightColors;
+  return colors[source] || (isDark ? '#e5e5e5' : '#424242');
 };
 
 const getSourceIcon = (source: string): keyof typeof Ionicons.glyphMap => {
@@ -60,10 +72,12 @@ export function ShoppingItemCard({ item, onToggleCheck, onDelete, index }: Shopp
   const swipeRef = useRef<any>(null);
   const { mutate: updateShoppingItems } = useUpdateShoppingItems();
   const { t } = useTranslation();
+  const colorScheme = useColorScheme();
+  const isDark = colorScheme === 'dark';
   const [isEditing, setIsEditing] = useState(false);
   const [draftName, setDraftName] = useState(item.name);
-  const bgColor = getSourceColor(item.source);
-  const textColor = getSourceTextColor(item.source);
+  const bgColor = getSourceColor(item.source, isDark);
+  const textColor = getSourceTextColor(item.source, isDark);
   const sourceIcon = getSourceIcon(item.source);
   // Ensure checked is a proper boolean (backend may return 0/1)
   const isChecked = Boolean(item.checked);
