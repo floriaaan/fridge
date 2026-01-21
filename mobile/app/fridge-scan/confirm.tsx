@@ -209,16 +209,20 @@ export default function FridgeScanConfirmScreen() {
                   {t("product.location")}
                 </Text>
                 <View className="flex-row gap-2">
-                  {["frigo", "congélateur", "garde-manger"].map((loc) => (
+                  {[
+                    { key: "frigo", label: t("product.locationFridge") },
+                    { key: "congélateur", label: t("product.locationFreezer") },
+                    { key: "garde-manger", label: t("product.locationPantry") },
+                  ].map(({ key, label }) => (
                     <TouchableOpacity
-                      key={loc}
-                      onPress={() => updateProductLocation(product.id, loc)}
-                      className={`px-3 py-1.5 rounded-lg ${product.location === loc ? "bg-neutral-900 dark:bg-neutral-100" : "bg-neutral-200 dark:bg-neutral-700"}`}
+                      key={key}
+                      onPress={() => updateProductLocation(product.id, key)}
+                      className={`px-3 py-1.5 rounded-lg ${product.location === key ? "bg-neutral-900 dark:bg-neutral-100" : "bg-neutral-200 dark:bg-neutral-700"}`}
                     >
                       <Text
-                        className={`text-sm ${product.location === loc ? "text-white dark:text-neutral-900 font-semibold" : "text-neutral-700 dark:text-neutral-300"}`}
+                        className={`text-sm ${product.location === key ? "text-white dark:text-neutral-900 font-semibold" : "text-neutral-700 dark:text-neutral-300"}`}
                       >
-                        {loc}
+                        {label}
                       </Text>
                     </TouchableOpacity>
                   ))}

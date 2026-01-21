@@ -103,19 +103,6 @@ export default function SettingsScreen() {
     }
   };
 
-export default function SettingsScreen() {
-  const router = useRouter();
-  const snackbarRef = useRef<SnackbarRef>(null);
-  const [isLoggingOut, setIsLoggingOut] = useState(false);
-  const [activeModal, setActiveModal] = useState<ModalType>(null);
-  const [passkeyName, setPasskeyName] = useState("");
-  const [apiKeyName, setApiKeyName] = useState("");
-  const { t } = useTranslation();
-  const colorScheme = useColorScheme();
-  const isDark = colorScheme === "dark";
-
-  const { isPending: isLoadingSession } = authClient.useSession();
-
   // Credentials hooks
   const { data: passkeys, isLoading: isLoadingPasskeys } = usePasskeys();
   const { data: apiKeys, isLoading: isLoadingApiKeys } = useApiKeys();

@@ -8,8 +8,9 @@ export interface ServerConfig {
   isOfficialInstance: boolean;
 }
 
-// Default official instance URL - will be configured by the user
-const OFFICIAL_INSTANCE_URL = "https://fridge.example.com";
+// Default official instance URL - configured via environment variable
+// In production, this should be set to the actual hosted server URL
+const OFFICIAL_INSTANCE_URL = process.env.EXPO_PUBLIC_API_URL || "https://fridge-api.example.com";
 
 export async function getServerConfig(): Promise<ServerConfig | null> {
   try {

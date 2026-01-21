@@ -50,15 +50,20 @@ export default function OnboardingScreen() {
 
   const testServerConnection = async (url: string): Promise<boolean> => {
     try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 5000);
+
       const response = await fetch(`${url}/api/auth/ok`, {
         method: "GET",
         headers: { "Content-Type": "application/json" },
+        signal: controller.signal,
       });
+      clearTimeout(timeoutId);
       return response.ok;
     } catch (error) {
       console.log("Server connection test failed:", error);
-      // For now, accept the URL even if connection test fails (server might be down)
-      return true;
+      // Return false to indicate connection failed, user will see a warning
+      return false;
     }
   };
 
