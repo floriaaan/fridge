@@ -2,7 +2,7 @@ import { auth } from "@/lib/auth";
 import { Elysia } from "elysia";
 
 // user middleware (compute user and session and pass to routes)
-export const authMiddleware = new Elysia({ name: "better-auth" }).mount(auth.handler).macro({
+export const authMiddleware = new Elysia({ name: "better-auth" }).mount("/api/auth", auth.handler).macro({
   auth: {
     async resolve({ status, request: { headers } }) {
       try {

@@ -33,6 +33,13 @@ export const buildReceiptPrompt = (language: string): string => {
   return `Extract from receipt: store name, date (YYYY-MM-DD), items (name, quantity, price in €, unit), total. Return in ${language}.`;
 };
 
+export const buildFridgeScanPrompt = (language: string): string => {
+  return `Analyze this photo of fridge contents. Identify all visible food products.
+For each product, extract: name, estimated quantity (number), unit (pièce, g, kg, ml, L).
+Be specific with product names (e.g., "Yaourt nature Danone" not just "yaourt").
+Return in ${language}.`;
+};
+
 export const buildRecipeImagePrompt = (title: string, description: string): string => {
   const desc = description ? ` ${description.slice(0, 100)}` : "";
   return `Professional food photo: "${title}".${desc} Elegant plating, natural light, appetizing.`;

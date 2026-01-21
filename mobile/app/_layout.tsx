@@ -15,9 +15,11 @@ import { StatusBar } from "expo-status-bar";
 import "react-native-reanimated";
 import "../assets/global.css";
 import { authClient } from "@/lib/auth-client";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useColorScheme } from "react-native";
 import { useTranslation } from "@/hooks/use-translation";
+import { isOnboardingCompleted } from "@/lib/server-config";
+import { initializeApiConfig } from "@/lib/api-config";
 
 export const unstable_settings = {
   initialRouteName: "(tabs)",
@@ -35,22 +37,44 @@ function RootLayoutNav() {
   const segments = useSegments();
   const navigationState = useRootNavigationState();
   const { t } = useTranslation();
+  const [isCheckingOnboarding, setIsCheckingOnboarding] = useState(true);
+  const [needsOnboarding, setNeedsOnboarding] = useState(false);
 
   useEffect(() => {
-    // if (!navigationState?.key || isLoading) return;
+    const checkOnboarding = async () => {
+      try {
+        // Initialize API config from stored server config
+        await initializeApiConfig();
+        
+        const completed = await isOnboardingCompleted();
+        setNeedsOnboarding(!completed);
+      } catch (error) {
+        console.error("Error checking onboarding:", error);
+        setNeedsOnboarding(true);
+      } finally {
+        setIsCheckingOnboarding(false);
+      }
+    };
 
+    checkOnboarding();
+  }, []);
+
+  useEffect(() => {
+    if (isCheckingOnboarding) return;
+
+    const inOnboarding = segments[0] === "onboarding";
     const inAuthGroup = segments[0] === "(auth)";
 
-    // if (isLoggedIn && inAuthGroup) {
-    //   router.replace("/(tabs)");
-    // } else if (!isLoggedIn && !inAuthGroup) {
-    //   router.replace("/(auth)");
-    // }
+    if (needsOnboarding && !inOnboarding) {
+      router.replace("/onboarding");
+    }
+    
     SplashScreen.hideAsync();
-  }, [isLoggedIn, segments, isLoading, navigationState?.key, router]);
+  }, [isLoggedIn, segments, isLoading, navigationState?.key, router, isCheckingOnboarding, needsOnboarding]);
 
   return (
     <Stack>
+      <Stack.Screen name="onboarding" options={{ headerShown: false }} />
       <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
       <Stack.Screen name="(auth)" options={{ headerShown: false }} />
       <Stack.Screen
@@ -75,6 +99,18 @@ function RootLayoutNav() {
         options={{
           presentation: "modal",
           title: t("receipt.confirmProducts"),
+        }}
+      />
+
+      <Stack.Screen
+        name="fridge-scan/scan"
+        options={{ presentation: "modal", title: t("fridgeScan.title") }}
+      />
+      <Stack.Screen
+        name="fridge-scan/confirm"
+        options={{
+          presentation: "modal",
+          title: t("fridgeScan.selectProducts"),
         }}
       />
 

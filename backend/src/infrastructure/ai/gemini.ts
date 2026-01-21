@@ -1,9 +1,10 @@
 import { Recipe } from "@/domain/entity/recipe";
-import { AiProvider, recipesListSchema, receiptParseSchema } from "@/infrastructure/ai";
-import { buildRecipePrompt, buildReceiptPrompt, buildRecipeImagePrompt } from "@/infrastructure/ai/prompts";
+import { AiProvider, recipesListSchema, receiptParseSchema, fridgeScanSchema } from "@/infrastructure/ai";
+import { buildRecipePrompt, buildReceiptPrompt, buildRecipeImagePrompt, buildFridgeScanPrompt } from "@/infrastructure/ai/prompts";
 import { env } from "@/lib/env";
 import { createGoogleGenerativeAI } from "@ai-sdk/google";
 import { generateImage, generateText, Output } from "ai";
+import { z } from "zod";
 
 export class GeminiProvider implements AiProvider {
   private googleInstance: ReturnType<typeof createGoogleGenerativeAI>;
@@ -75,6 +76,31 @@ export class GeminiProvider implements AiProvider {
       return output;
     } catch (error) {
       console.error("Error parsing receipt with GeminiProvider:", error);
+      throw error;
+    }
+  }
+
+  async parseFridgeImage(imageBase64: string, language: string): Promise<z.infer<typeof fridgeScanSchema>> {
+    try {
+      const { output } = await generateText({
+        model: this.googleInstance(env.GEMINI_MODEL!),
+        messages: [
+          {
+            role: "user",
+            content: [
+              { type: "text", text: buildFridgeScanPrompt(language) },
+              { type: "image", image: imageBase64 },
+            ],
+          },
+        ],
+        output: Output.object({
+          schema: fridgeScanSchema,
+        }),
+      });
+
+      return output;
+    } catch (error) {
+      console.error("Error parsing fridge image with GeminiProvider:", error);
       throw error;
     }
   }

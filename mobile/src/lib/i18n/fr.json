@@ -30,6 +30,7 @@
     "noProductsFound": "Aucun produit trouvé.",
     "addProduct": "Ajouter un produit",
     "scanTicket": "Scanner un ticket",
+    "scanFridge": "Scanner le frigo",
     "aiRecipe": "Recette IA",
     "expiringSoon": "Expire bientôt",
     "alphabetical": "Alphabétique",
@@ -67,6 +68,14 @@
     "selectProducts": "Sélectionner les produits à importer",
     "import": "Importer",
     "cancel": "Annuler"
+  },
+  "fridgeScan": {
+    "title": "Scanner le contenu du frigo",
+    "analyzing": "Analyse de votre frigo...",
+    "analyzeDescription": "Nous identifions les produits dans votre frigo.",
+    "selectProducts": "Sélectionner les produits à ajouter",
+    "tip": "Prenez une photo du contenu de votre frigo",
+    "tipDescription": "Assurez-vous que les produits sont visibles et bien éclairés"
   },
   "recipe": {
     "title": "Recettes",
@@ -127,7 +136,33 @@
     "build": "Build",
     "emailSupport": "Support par email",
     "faq": "FAQ",
-    "faqDescription": "Visitez notre centre d'aide pour les questions fréquentes"
+    "faqDescription": "Visitez notre centre d'aide pour les questions fréquentes",
+    "server": "Serveur",
+    "serverConfiguration": "Configuration du serveur",
+    "currentServer": "Serveur actuel",
+    "officialInstance": "Instance officielle",
+    "selfHosted": "Auto-hébergé",
+    "changeServer": "Changer de serveur",
+    "serverUrl": "URL du serveur"
+  },
+  "onboarding": {
+    "welcome": "Bienvenue sur Fridge",
+    "chooseInstance": "Choisissez comment vous connecter",
+    "officialInstance": "Instance Officielle",
+    "officialDescription": "Utilisez notre serveur hébergé, aucune configuration requise",
+    "selfHosted": "Auto-hébergé",
+    "selfHostedDescription": "Connectez-vous à votre propre serveur",
+    "serverUrl": "URL du serveur",
+    "continue": "Continuer",
+    "enterUrl": "Veuillez entrer une URL de serveur",
+    "invalidUrl": "Veuillez entrer une URL valide",
+    "connectionFailed": "Impossible de se connecter au serveur",
+    "selectInstance": "Veuillez sélectionner un type d'instance",
+    "enterValidUrl": "Veuillez entrer une URL de serveur valide",
+    "configSaved": "Configuration enregistrée !",
+    "saveFailed": "Échec de l'enregistrement de la configuration",
+    "urlValid": "L'URL du serveur est valide",
+    "urlInvalid": "Impossible de valider l'URL du serveur"
   },
   "statistics": {
     "overview": "Vue d'ensemble",

@@ -30,6 +30,7 @@
     "noProductsFound": "No products found.",
     "addProduct": "Add product",
     "scanTicket": "Scan ticket",
+    "scanFridge": "Scan fridge",
     "aiRecipe": "AI Recipe",
     "expiringSoon": "Expiring soon",
     "alphabetical": "Alphabetical",
@@ -67,6 +68,14 @@
     "selectProducts": "Select products to import",
     "import": "Import",
     "cancel": "Cancel"
+  },
+  "fridgeScan": {
+    "title": "Scan fridge contents",
+    "analyzing": "Analyzing your fridge...",
+    "analyzeDescription": "We're identifying products in your fridge.",
+    "selectProducts": "Select products to add",
+    "tip": "Take a photo of your fridge contents",
+    "tipDescription": "Make sure products are visible and well-lit"
   },
   "recipe": {
     "title": "Recipes",
@@ -127,7 +136,33 @@
     "build": "Build",
     "emailSupport": "Email Support",
     "faq": "FAQ",
-    "faqDescription": "Visit our help center for common questions"
+    "faqDescription": "Visit our help center for common questions",
+    "server": "Server",
+    "serverConfiguration": "Server Configuration",
+    "currentServer": "Current server",
+    "officialInstance": "Official instance",
+    "selfHosted": "Self-hosted",
+    "changeServer": "Change Server",
+    "serverUrl": "Server URL"
+  },
+  "onboarding": {
+    "welcome": "Welcome to Fridge",
+    "chooseInstance": "Choose how you want to connect",
+    "officialInstance": "Official Instance",
+    "officialDescription": "Use our hosted server, no setup required",
+    "selfHosted": "Self-Hosted",
+    "selfHostedDescription": "Connect to your own server",
+    "serverUrl": "Server URL",
+    "continue": "Continue",
+    "enterUrl": "Please enter a server URL",
+    "invalidUrl": "Please enter a valid URL",
+    "connectionFailed": "Could not connect to server",
+    "selectInstance": "Please select an instance type",
+    "enterValidUrl": "Please enter a valid server URL",
+    "configSaved": "Configuration saved!",
+    "saveFailed": "Failed to save configuration",
+    "urlValid": "Server URL is valid",
+    "urlInvalid": "Could not validate server URL"
   },
   "statistics": {
     "overview": "Overview",
