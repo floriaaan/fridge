@@ -1,11 +1,15 @@
 import React from 'react';
-import { View, Text } from 'react-native';
+import { View, Text, useColorScheme } from 'react-native';
 import { useProducts } from '@/hooks/use-products';
 import { Ionicons } from '@expo/vector-icons';
 import Animated, { FadeInUp } from 'react-native-reanimated';
+import { useTranslation } from '@/hooks/use-translation';
 
 export function QuickStats() {
   const { data: products } = useProducts();
+  const { t } = useTranslation();
+  const colorScheme = useColorScheme();
+  const isDark = colorScheme === "dark";
 
   const expiringSoon = products?.filter(p => {
     if (!p.expiresAt) return false;
@@ -26,39 +30,39 @@ export function QuickStats() {
     {
       id: 'expired',
       value: expired,
-      label: 'Expired',
+      label: t("fridge.expired"),
       icon: 'alert-circle-outline',
-      bgClass: 'bg-red-50',
-      textClass: 'text-red-700',
-      iconColor: '#DC2626',
+      bgClass: 'bg-red-50 dark:bg-red-950',
+      textClass: 'text-red-700 dark:text-red-400',
+      iconColor: isDark ? '#F87171' : '#DC2626',
     },
     {
       id: 'expiring',
       value: expiringSoon,
-      label: 'Expiring Soon',
+      label: t("fridge.expiringSoon"),
       icon: 'time-outline',
-      bgClass: 'bg-amber-50',
-      textClass: 'text-amber-700',
-      iconColor: '#D97706',
+      bgClass: 'bg-amber-50 dark:bg-amber-950',
+      textClass: 'text-amber-700 dark:text-amber-400',
+      iconColor: isDark ? '#FBBF24' : '#D97706',
     },
     {
       id: 'opened',
       value: opened,
-      label: 'Opened',
+      label: t("product.opened"),
       icon: 'open-outline',
-      bgClass: 'bg-purple-50',
-      textClass: 'text-purple-700',
-      iconColor: '#9333EA',
+      bgClass: 'bg-purple-50 dark:bg-purple-950',
+      textClass: 'text-purple-700 dark:text-purple-400',
+      iconColor: isDark ? '#C084FC' : '#9333EA',
     },
   ];
 
   return (
     <Animated.View
       entering={FadeInUp.duration(600).delay(200).springify().damping(100).stiffness(600)}
-      className="p-4 bg-gray-100"
+      className="p-4 bg-neutral-100 dark:bg-neutral-800"
     >
       <View className="px-2 pb-4">
-        <Text className="text-xl font-bold text-gray-900">
+        <Text className="text-xl font-bold text-neutral-900 dark:text-neutral-100">
           Quick Stats
         </Text>
       </View>

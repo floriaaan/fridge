@@ -1,5 +1,5 @@
-import React from 'react';
-import { TouchableOpacity, Text, StyleSheet, type TouchableOpacityProps } from 'react-native';
+import React from "react";
+import { TouchableOpacity, Text, type TouchableOpacityProps } from "react-native";
 
 type ButtonProps = TouchableOpacityProps & {
   title: string;
@@ -7,24 +7,13 @@ type ButtonProps = TouchableOpacityProps & {
 
 export function Button({ title, onPress, style, ...props }: ButtonProps) {
   return (
-    <TouchableOpacity style={[styles.button, style]} onPress={onPress} {...props}>
-      <Text style={styles.text}>{title}</Text>
+    <TouchableOpacity
+      className="bg-blue-500 rounded-lg py-3 px-4 items-center justify-center my-1"
+      style={style}
+      onPress={onPress}
+      {...props}
+    >
+      <Text className="text-white text-base font-semibold">{title}</Text>
     </TouchableOpacity>
   );
 }
-
-const styles = StyleSheet.create({
-  button: {
-    backgroundColor: '#007AFF',
-    borderRadius: 8,
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  text: {
-    color: 'white',
-    fontSize: 16,
-    fontWeight: '600',
-  },
-});

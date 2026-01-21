@@ -7,24 +7,33 @@ import Header from "@/components/ui/header";
 import { useResponsive } from "@/hooks/use-responsive";
 import { QuickStats } from "@/components/quick-stats";
 import { RecentProductsFeed } from "@/components/recent-products-feed";
+import { useTranslation } from "@/hooks/use-translation";
 
 export default function ProductsScreen() {
   const { data: products, isLoading, isError, error, refetch } = useProducts();
   const { isTablet, isLandscape } = useResponsive();
   const isTabletLandscape = isTablet && isLandscape;
+  const { t } = useTranslation();
 
   if (isError) {
     return (
       <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-        <Text>Error fetching data</Text>
-        <Text>{error?.message}</Text>
+        <Text className="text-neutral-900 dark:text-neutral-100">
+          {t("common.error")}
+        </Text>
+        <Text className="text-neutral-500 dark:text-neutral-400">
+          {error?.message}
+        </Text>
       </View>
     );
   }
 
   return (
-    <SafeAreaView edges={["top", "left", "right"]} className="flex-1 bg-gray-100">
-      <Header title="Fridge" />
+    <SafeAreaView
+      edges={["top", "left", "right"]}
+      className="flex-1 bg-neutral-100 dark:bg-neutral-900"
+    >
+      <Header title={t("fridge.title")} />
       <View className="flex-1 flex-row">
         <View className="flex-1">
           <FridgeList

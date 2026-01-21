@@ -21,11 +21,13 @@ import { useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useIsFocused } from "@react-navigation/native";
 import { fetchOpenFoodFactProductByBarcode } from "@/lib/api/fetch-products";
+import { useTranslation } from "@/hooks/use-translation";
 
 export default function ScanScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const isFocused = useIsFocused();
+  const { t } = useTranslation();
   const [permission, requestPermission] = useCameraPermissions();
   const [requesting, setRequesting] = useState(false);
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
@@ -114,7 +116,7 @@ export default function ScanScreen() {
     return (
       <View style={styles.centered}>
         <ActivityIndicator />
-        <Text style={styles.infoText}>Checking camera permission...</Text>
+        <Text style={styles.infoText}>{t("camera.checkingPermission")}</Text>
       </View>
     );
   }
@@ -122,7 +124,7 @@ export default function ScanScreen() {
   if (!permission.granted) {
     return (
       <View style={styles.centered}>
-        <Text style={styles.title}>Camera access needed</Text>
+        <Text style={styles.title}>{t("camera.accessNeeded")}</Text>
         <Text style={styles.infoText}>
           We need your permission to scan barcodes.
         </Text>
@@ -134,14 +136,16 @@ export default function ScanScreen() {
           {requesting ? (
             <ActivityIndicator color="#fff" />
           ) : (
-            <Text style={styles.primaryButtonText}>Allow camera</Text>
+            <Text style={styles.primaryButtonText}>
+              {t("camera.allowCamera")}
+            </Text>
           )}
         </TouchableOpacity>
         <TouchableOpacity
           style={styles.secondaryButton}
           onPress={() => router.back()}
         >
-          <Text style={styles.secondaryButtonText}>Cancel</Text>
+          <Text style={styles.secondaryButtonText}>{t("common.cancel")}</Text>
         </TouchableOpacity>
       </View>
     );
@@ -162,8 +166,8 @@ export default function ScanScreen() {
       )}
 
       <View style={[styles.overlay, { paddingTop: insets.top + 24 }]}>
-        <Text style={styles.title}>Scan a barcode</Text>
-        <Text style={styles.infoText}>Center the barcode in the frame.</Text>
+        <Text style={styles.title}>{t("product.scanBarcode")}</Text>
+        <Text style={styles.infoText}>{t("camera.centerBarcode")}</Text>
       </View>
 
       <View style={styles.frame}>
@@ -184,7 +188,7 @@ export default function ScanScreen() {
           style={styles.secondaryButton}
           onPress={() => router.back()}
         >
-          <Text style={styles.secondaryButtonText}>Close</Text>
+          <Text style={styles.secondaryButtonText}>{t("common.close")}</Text>
         </TouchableOpacity>
       </View>
     </View>

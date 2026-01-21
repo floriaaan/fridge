@@ -42,7 +42,7 @@ export const AnimatedModal: React.FC<AnimatedModalProps> = ({
         <Animated.View
           entering={SlideInDown.springify()}
           exiting={SlideOutUp.springify()}
-          className="bg-white rounded-t-3xl p-4"
+          className="bg-white dark:bg-neutral-800 rounded-t-3xl p-4"
         >
           {children}
           <View style={{ height: keyboardHeight }} />

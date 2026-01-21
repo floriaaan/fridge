@@ -9,12 +9,14 @@ import {
   View,
   ActivityIndicator,
   ScrollView,
+  useColorScheme,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Animated, { FadeInDown, FadeInUp } from "react-native-reanimated";
 import { Ionicons } from "@expo/vector-icons";
 import { Product } from "@/lib/api/fetch-products";
 import { useUpdateProduct } from "@/hooks/use-update-product";
+import { useTranslation } from "@/hooks/use-translation";
 
 const getCategoryColor = (category: string): string => {
   const colors: Record<string, string> = {
@@ -44,8 +46,8 @@ const getCategoryBgColor = (category: string): string => {
   return colors[category.toLowerCase()] || "#faf5ff";
 };
 
-const getExpiryStatus = (expiresAt: string | null) => {
-  if (!expiresAt) return { text: "No expiry date", color: "#6b7280", bgColor: "#f3f4f6", urgency: "none" };
+const getExpiryStatus = (expiresAt: string | null, t: (key: string, options?: Record<string, unknown>) => string) => {
+  if (!expiresAt) return { text: t("common.noExpiryDate"), color: "#6b7280", bgColor: "#f3f4f6", urgency: "none" };
   
   const expiry = new Date(expiresAt);
   const today = new Date();
@@ -54,21 +56,24 @@ const getExpiryStatus = (expiresAt: string | null) => {
   );
 
   if (daysUntilExpiry < 0) {
-    return { text: "Expired", color: "#dc2626", bgColor: "#fee2e2", urgency: "expired" };
+    return { text: t("fridge.expired"), color: "#dc2626", bgColor: "#fee2e2", urgency: "expired" };
   } else if (daysUntilExpiry === 0) {
-    return { text: "Expires today", color: "#ea580c", bgColor: "#ffedd5", urgency: "critical" };
+    return { text: t("fridge.expirestoday"), color: "#ea580c", bgColor: "#ffedd5", urgency: "critical" };
   } else if (daysUntilExpiry <= 3) {
-    return { text: `${daysUntilExpiry} day${daysUntilExpiry > 1 ? "s" : ""} left`, color: "#dc2626", bgColor: "#fee2e2", urgency: "critical" };
+    return { text: daysUntilExpiry === 1 ? t("fridge.dayLeft") : t("fridge.daysLeft", { count: daysUntilExpiry }), color: "#dc2626", bgColor: "#fee2e2", urgency: "critical" };
   } else if (daysUntilExpiry <= 7) {
-    return { text: `${daysUntilExpiry} days left`, color: "#ea580c", bgColor: "#ffedd5", urgency: "warning" };
+    return { text: t("fridge.daysLeft", { count: daysUntilExpiry }), color: "#ea580c", bgColor: "#ffedd5", urgency: "warning" };
   }
-  return { text: `${daysUntilExpiry} days left`, color: "#10b981", bgColor: "#ecfdf5", urgency: "good" };
+  return { text: t("fridge.daysLeft", { count: daysUntilExpiry }), color: "#10b981", bgColor: "#ecfdf5", urgency: "good" };
 };
 
 export default function ProductDetail() {
   const router = useRouter();
   const params = useLocalSearchParams();
   const { product: productString } = params;
+  const { t } = useTranslation();
+  const colorScheme = useColorScheme();
+  const isDark = colorScheme === "dark";
   let product: Product | null = null;
   try {
     product = JSON.parse(productString as string);
@@ -85,8 +90,8 @@ export default function ProductDetail() {
 
   if (!product) {
     return (
-      <SafeAreaView className="flex-1 justify-center items-center bg-white">
-        <Text className="text-gray-500 text-lg">Produit non trouvé.</Text>
+      <SafeAreaView className="flex-1 justify-center items-center bg-white dark:bg-neutral-900">
+        <Text className="text-neutral-500 dark:text-neutral-400 text-lg">{t("product.notFound")}</Text>
       </SafeAreaView>
     );
   }
@@ -115,7 +120,7 @@ export default function ProductDetail() {
 
   const categoryColor = getCategoryColor(product.category);
   const categoryBgColor = getCategoryBgColor(product.category);
-  const expiryStatus = getExpiryStatus(product.expiresAt);
+  const expiryStatus = getExpiryStatus(product.expiresAt, t);
 
   const headerComponent = (
     <Animated.View
@@ -124,12 +129,12 @@ export default function ProductDetail() {
     >
       <TouchableOpacity
         onPress={() => router.back()}
-        className="p-2 rounded-lg active:bg-gray-100"
+        className="p-2 rounded-lg active:bg-neutral-100 dark:active:bg-neutral-800"
       >
-        <Ionicons name="chevron-back" size={24} color="#1f2937" />
+        <Ionicons name="chevron-back" size={24} color={isDark ? "#fafafa" : "#171717"} />
       </TouchableOpacity>
-      <Text className="text-xl font-bold text-gray-900 flex-1 ml-2">
-        Product Details
+      <Text className="text-xl font-bold text-neutral-900 dark:text-neutral-100 flex-1 ml-2">
+        {t("product.productDetails")}
       </Text>
     </Animated.View>
   );
@@ -156,8 +161,8 @@ export default function ProductDetail() {
             </View>
           </View>
         ) : (
-          <View className="w-full h-72 bg-gray-200 justify-center items-center">
-            <Ionicons name="image-outline" size={60} color="#d1d5db" />
+          <View className="w-full h-72 bg-neutral-200 dark:bg-neutral-700 justify-center items-center">
+            <Ionicons name="image-outline" size={60} color={isDark ? "#525252" : "#d1d5db"} />
           </View>
         )}
       </Animated.View>
@@ -169,7 +174,7 @@ export default function ProductDetail() {
       >
         {/* Name and Category */}
         <View className="mb-4">
-          <Text className="text-4xl font-bold text-gray-900 mb-3">
+          <Text className="text-4xl font-bold text-neutral-900 dark:text-neutral-100 mb-3">
             {product.name}
           </Text>
           <View
@@ -196,7 +201,7 @@ export default function ProductDetail() {
               style={{ backgroundColor: expiryStatus.color }}
             />
             <View>
-              <Text className="text-xs text-gray-600 font-medium">Expiration</Text>
+              <Text className="text-xs text-neutral-600 dark:text-neutral-400 font-medium">{t("fridge.expiration")}</Text>
               <Text
                 className="text-lg font-bold"
                 style={{ color: expiryStatus.color }}
@@ -205,7 +210,7 @@ export default function ProductDetail() {
               </Text>
             </View>
           </View>
-          <Text className="text-gray-700 font-medium">
+          <Text className="text-neutral-700 dark:text-neutral-300 font-medium">
             {new Date(product.expiresAt!).toLocaleDateString("fr-FR", {
               month: "short",
               day: "numeric",
@@ -216,20 +221,20 @@ export default function ProductDetail() {
         {/* Info Grid */}
         <View className="flex-row gap-3 mb-8">
           {/* Quantity */}
-          <View className="flex-1 bg-white rounded-2xl p-4">
-            <Text className="text-xs text-gray-600 font-medium mb-2">
-              QUANTITY
+          <View className="flex-1 bg-white dark:bg-neutral-800 rounded-2xl p-4">
+            <Text className="text-xs text-neutral-600 dark:text-neutral-400 font-medium mb-2">
+              {t("product.quantity").toUpperCase()}
             </Text>
-            <Text className="text-2xl font-bold text-gray-900">
+            <Text className="text-2xl font-bold text-neutral-900 dark:text-neutral-100">
               {product.quantity}
             </Text>
-            <Text className="text-sm text-gray-500 mt-1">{product.unit}</Text>
+            <Text className="text-sm text-neutral-500 dark:text-neutral-400 mt-1">{product.unit}</Text>
           </View>
 
           {/* Location */}
-          <View className="flex-1 bg-white rounded-2xl p-4">
-            <Text className="text-xs text-gray-600 font-medium mb-2">
-              LOCATION
+          <View className="flex-1 bg-white dark:bg-neutral-800 rounded-2xl p-4">
+            <Text className="text-xs text-neutral-600 dark:text-neutral-400 font-medium mb-2">
+              {t("product.location").toUpperCase()}
             </Text>
             <View className="flex-row items-center gap-2">
               <Ionicons
@@ -243,7 +248,7 @@ export default function ProductDetail() {
                 size={20}
                 color={categoryColor}
               />
-              <Text className="text-lg font-bold text-gray-900 capitalize">
+              <Text className="text-lg font-bold text-neutral-900 dark:text-neutral-100 capitalize">
                 {product.location}
               </Text>
             </View>
@@ -252,10 +257,10 @@ export default function ProductDetail() {
 
         {/* Quantity Editor */}
         <Animated.View entering={FadeInUp.delay(300).duration(400)}>
-          <View className="bg-white rounded-2xl p-5 mb-4">
+          <View className="bg-white dark:bg-neutral-800 rounded-2xl p-5 mb-4">
             <View className="flex-row items-center justify-between mb-4">
-              <Text className="text-lg font-bold text-gray-900">
-                Update Quantity
+              <Text className="text-lg font-bold text-neutral-900 dark:text-neutral-100">
+                {t("product.quantity")}
               </Text>
               {!isEditing && (
                 <TouchableOpacity
@@ -275,16 +280,16 @@ export default function ProductDetail() {
                       const q = parseInt(quantity, 10) || 0;
                       if (q > 0) setQuantity((q - 1).toString());
                     }}
-                    className="w-12 h-12 rounded-lg bg-gray-100 justify-center items-center active:bg-gray-200"
+                    className="w-12 h-12 rounded-lg bg-neutral-100 dark:bg-neutral-700 justify-center items-center active:bg-neutral-200 dark:active:bg-neutral-600"
                   >
-                    <Ionicons name="remove" size={24} color="#6b7280" />
+                    <Ionicons name="remove" size={24} color={isDark ? "#a3a3a3" : "#6b7280"} />
                   </TouchableOpacity>
 
                   <TextInput
                     value={quantity}
                     onChangeText={setQuantity}
                     keyboardType="numeric"
-                    className="flex-1 text-center text-2xl font-bold text-gray-900 bg-gray-50 rounded-lg py-3"
+                    className="flex-1 text-center text-2xl font-bold text-neutral-900 dark:text-neutral-100 bg-neutral-50 dark:bg-neutral-700 rounded-lg py-3"
                   />
 
                   <TouchableOpacity
@@ -292,9 +297,9 @@ export default function ProductDetail() {
                       const q = parseInt(quantity, 10) || 0;
                       setQuantity((q + 1).toString());
                     }}
-                    className="w-12 h-12 rounded-lg bg-gray-100 justify-center items-center active:bg-gray-200"
+                    className="w-12 h-12 rounded-lg bg-neutral-100 dark:bg-neutral-700 justify-center items-center active:bg-neutral-200 dark:active:bg-neutral-600"
                   >
-                    <Ionicons name="add" size={24} color="#6b7280" />
+                    <Ionicons name="add" size={24} color={isDark ? "#a3a3a3" : "#6b7280"} />
                   </TouchableOpacity>
                 </View>
 
@@ -304,10 +309,10 @@ export default function ProductDetail() {
                       setIsEditing(false);
                       setQuantity(product.quantity.toString());
                     }}
-                    className="flex-1 py-3 rounded-lg bg-gray-100 active:bg-gray-200"
+                    className="flex-1 py-3 rounded-lg bg-neutral-100 dark:bg-neutral-700 active:bg-neutral-200 dark:active:bg-neutral-600"
                   >
-                    <Text className="text-center font-semibold text-gray-700">
-                      Cancel
+                    <Text className="text-center font-semibold text-neutral-700 dark:text-neutral-300">
+                      {t("common.cancel")}
                     </Text>
                   </TouchableOpacity>
 
@@ -321,15 +326,15 @@ export default function ProductDetail() {
                       <ActivityIndicator color="white" />
                     ) : (
                       <Text className="text-center font-semibold text-white">
-                        Save
+                        {t("common.save")}
                       </Text>
                     )}
                   </TouchableOpacity>
                 </View>
               </>
             ) : (
-              <Text className="text-lg text-gray-600">
-                Current quantity: <Text className="font-bold text-gray-900">{quantity} {product.unit}</Text>
+              <Text className="text-lg text-neutral-600 dark:text-neutral-400">
+                Current quantity: <Text className="font-bold text-neutral-900 dark:text-neutral-100">{quantity} {product.unit}</Text>
               </Text>
             )}
           </View>
@@ -337,21 +342,21 @@ export default function ProductDetail() {
 
         {/* Additional Info */}
         {(product.openedAt || product.categories) && (
-          <Animated.View entering={FadeInUp.delay(400).duration(400)} className="bg-white rounded-2xl p-5 mb-6">
+          <Animated.View entering={FadeInUp.delay(400).duration(400)} className="bg-white dark:bg-neutral-800 rounded-2xl p-5 mb-6">
             {product.openedAt && (
-              <View className="mb-4 pb-4 border-b border-gray-100">
-                <Text className="text-xs text-gray-600 font-medium mb-2">
-                  OPENED
+              <View className="mb-4 pb-4 border-b border-neutral-100 dark:border-neutral-700">
+                <Text className="text-xs text-neutral-600 dark:text-neutral-400 font-medium mb-2">
+                  {t("product.opened").toUpperCase()}
                 </Text>
-                <Text className="text-gray-900 font-medium">
+                <Text className="text-neutral-900 dark:text-neutral-100 font-medium">
                   {new Date(product.openedAt).toLocaleDateString("fr-FR")}
                 </Text>
               </View>
             )}
             {product.categories && product.categories.length > 0 && (
               <View>
-                <Text className="text-xs text-gray-600 font-medium mb-2">
-                  TAGS
+                <Text className="text-xs text-neutral-600 dark:text-neutral-400 font-medium mb-2">
+                  {t("recipe.tags").toUpperCase()}
                 </Text>
                 <View className="flex-row flex-wrap gap-2">
                   {product.categories.slice(0, 3).map((cat, idx) => (
@@ -378,7 +383,7 @@ export default function ProductDetail() {
   );
 
   return (
-    <SafeAreaView className="flex-1 bg-gray-50">
+    <SafeAreaView className="flex-1 bg-neutral-50 dark:bg-neutral-900">
       {headerComponent}
       <ScrollView showsVerticalScrollIndicator={false}>
         {scrollContent}

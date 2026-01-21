@@ -1,16 +1,24 @@
-import React, { useRef, useState, useCallback } from 'react';
-import { Text, View, TouchableOpacity, TextInput } from 'react-native';
-import { type ShoppingItem } from '@/lib/api/fetch-shopping-items';
-import { Ionicons } from '@expo/vector-icons';
+import React, { useRef, useState, useCallback } from "react";
+import {
+  Text,
+  View,
+  TouchableOpacity,
+  TextInput,
+  useColorScheme,
+} from "react-native";
+import { type ShoppingItem } from "@/lib/api/fetch-shopping-items";
+import { Ionicons } from "@expo/vector-icons";
 import Animated, {
   FadeInDown,
   FadeOutUp,
   LinearTransition,
   useAnimatedStyle,
   withTiming,
-} from 'react-native-reanimated';
-import ReanimatedSwipeable from 'react-native-gesture-handler/ReanimatedSwipeable';
-import { useUpdateShoppingItems } from '@/hooks/use-update-shopping-items';
+} from "react-native-reanimated";
+import ReanimatedSwipeable from "react-native-gesture-handler/ReanimatedSwipeable";
+import { useUpdateShoppingItems } from "@/hooks/use-update-shopping-items";
+import { useTranslation } from "@/hooks/use-translation";
+import { cn } from "@/lib/utils";
 
 type ShoppingItemCardProps = {
   item: ShoppingItem;
@@ -19,49 +27,69 @@ type ShoppingItemCardProps = {
   index?: number;
 };
 
-const getSourceColor = (source: string): string => {
-  const colors: Record<string, string> = {
-    manual: '#E8F5E9',
-    auto_expired: '#FFF3E0',
-    recipe: '#E3F2FD',
+const getSourceColor = (source: string, isDark: boolean): string => {
+  const lightColors: Record<string, string> = {
+    manual: "#E8F5E9",
+    auto_expired: "#FFF3E0",
+    recipe: "#E3F2FD",
   };
-  return colors[source] || '#F5F5F5';
+  const darkColors: Record<string, string> = {
+    manual: "#14532d",
+    auto_expired: "#78350f",
+    recipe: "#1e3a5f",
+  };
+  const colors = isDark ? darkColors : lightColors;
+  return colors[source] || (isDark ? "#262626" : "#F5F5F5");
 };
 
-const getSourceTextColor = (source: string): string => {
-  const colors: Record<string, string> = {
-    manual: '#2E7D32',
-    auto_expired: '#EF6C00',
-    recipe: '#1565C0',
+const getSourceTextColor = (source: string, isDark: boolean): string => {
+  const lightColors: Record<string, string> = {
+    manual: "#2E7D32",
+    auto_expired: "#EF6C00",
+    recipe: "#1565C0",
   };
-  return colors[source] || '#424242';
+  const darkColors: Record<string, string> = {
+    manual: "#86efac",
+    auto_expired: "#fcd34d",
+    recipe: "#93c5fd",
+  };
+  const colors = isDark ? darkColors : lightColors;
+  return colors[source] || (isDark ? "#e5e5e5" : "#424242");
 };
 
 const getSourceIcon = (source: string): keyof typeof Ionicons.glyphMap => {
   const icons: Record<string, keyof typeof Ionicons.glyphMap> = {
-    manual: 'create-outline',
-    auto_expired: 'time-outline',
-    recipe: 'restaurant-outline',
+    manual: "create-outline",
+    auto_expired: "time-outline",
+    recipe: "restaurant-outline",
   };
-  return icons[source] || 'cube-outline';
+  return icons[source] || "cube-outline";
 };
 
-const getSourceLabel = (source: string): string => {
+const getSourceLabel = (source: string, t: (key: string) => string): string => {
   const labels: Record<string, string> = {
-    manual: 'Manual',
-    auto_expired: 'Auto',
-    recipe: 'Recipe',
+    manual: t("shoppingList.manual"),
+    auto_expired: t("shoppingList.autoExpired"),
+    recipe: t("shoppingList.fromRecipes"),
   };
   return labels[source] || source;
 };
 
-export function ShoppingItemCard({ item, onToggleCheck, onDelete, index }: ShoppingItemCardProps) {
+export function ShoppingItemCard({
+  item,
+  onToggleCheck,
+  onDelete,
+  index,
+}: ShoppingItemCardProps) {
   const swipeRef = useRef<any>(null);
   const { mutate: updateShoppingItems } = useUpdateShoppingItems();
+  const { t } = useTranslation();
+  const colorScheme = useColorScheme();
+  const isDark = colorScheme === "dark";
   const [isEditing, setIsEditing] = useState(false);
   const [draftName, setDraftName] = useState(item.name);
-  const bgColor = getSourceColor(item.source);
-  const textColor = getSourceTextColor(item.source);
+  const bgColor = getSourceColor(item.source, isDark);
+  const textColor = getSourceTextColor(item.source, isDark);
   const sourceIcon = getSourceIcon(item.source);
   // Ensure checked is a proper boolean (backend may return 0/1)
   const isChecked = Boolean(item.checked);
@@ -104,46 +132,48 @@ export function ShoppingItemCard({ item, onToggleCheck, onDelete, index }: Shopp
       <TouchableOpacity
         onPress={handleDelete}
         className="justify-center items-center px-5 rounded-2xl"
-        style={{ backgroundColor: '#EF4444' }}
+        style={{ backgroundColor: "#EF4444" }}
         activeOpacity={0.8}
       >
         <Ionicons name="trash-outline" size={24} color="white" />
-        <Text className="text-white font-semibold text-xs mt-1">Delete</Text>
+        <Text className="text-white font-semibold text-xs mt-1">
+          {t("common.delete")}
+        </Text>
       </TouchableOpacity>
     </View>
   );
 
   return (
-    <Animated.View
-      layout={LinearTransition.springify().damping(80).stiffness(600)}
+    <ReanimatedSwipeable
+      ref={swipeRef}
+      renderRightActions={renderRightActions}
+      overshootRight={false}
+      rightThreshold={40}
     >
-      <ReanimatedSwipeable
-        ref={swipeRef}
-        renderRightActions={renderRightActions}
-        overshootRight={false}
-        rightThreshold={40}
+      <TouchableOpacity
+        onPress={handleToggleCheck}
+        onLongPress={handleLongPress}
+        className="w-full"
+        activeOpacity={0.8}
       >
-        <TouchableOpacity
-          onPress={handleToggleCheck}
-          onLongPress={handleLongPress}
-          className="w-full"
-          activeOpacity={0.8}
+        <Animated.View
+          entering={FadeInDown.delay(index ? index * 50 : 0)
+            .springify()
+            .damping(100)
+            .stiffness(600)}
+          exiting={FadeOutUp.springify()}
+          className={cn(
+            "flex-row items-center justify-between p-4 rounded-2xl h-20",
+
+          )}
+          style={[{ backgroundColor: bgColor }, animatedOpacityStyle]}
         >
-          <Animated.View
-            entering={FadeInDown.delay(index ? index * 50 : 0)
-              .springify()
-              .damping(100)
-              .stiffness(600)}
-            exiting={FadeOutUp.springify()}
-            className="flex-row items-center justify-between p-4 rounded-2xl h-20"
-            style={[{ backgroundColor: bgColor }, animatedOpacityStyle]}
-          >
           <View className="flex-row items-center flex-1 gap-3">
             <View
               className="w-6 h-6 rounded-full border-2 items-center justify-center"
               style={{
                 borderColor: textColor,
-                backgroundColor: isChecked ? textColor : 'transparent',
+                backgroundColor: isChecked ? textColor : "transparent",
               }}
             >
               {isChecked && (
@@ -161,16 +191,16 @@ export function ShoppingItemCard({ item, onToggleCheck, onDelete, index }: Shopp
                   returnKeyType="done"
                   className=""
                   style={{ color: textColor }}
-                  placeholder="Item name"
+                  placeholder={t("shoppingList.itemName")}
                   placeholderTextColor={textColor}
                 />
               ) : (
                 <>
                   <Text
                     className="font-bold"
-                    style={{ 
+                    style={{
                       color: textColor,
-                      textDecorationLine: isChecked ? 'line-through' : 'none',
+                      textDecorationLine: isChecked ? "line-through" : "none",
                     }}
                     numberOfLines={1}
                   >
@@ -183,11 +213,11 @@ export function ShoppingItemCard({ item, onToggleCheck, onDelete, index }: Shopp
                       opacity: 0.6,
                     }}
                   >
-                    {new Date(item.createdAt).toLocaleDateString('fr-FR', {
-                      day: 'numeric',
-                      month: 'short',
-                      hour: '2-digit',
-                      minute: '2-digit',
+                    {new Date(item.createdAt).toLocaleDateString("fr-FR", {
+                      day: "numeric",
+                      month: "short",
+                      hour: "2-digit",
+                      minute: "2-digit",
                     })}
                   </Text>
                 </>
@@ -220,13 +250,12 @@ export function ShoppingItemCard({ item, onToggleCheck, onDelete, index }: Shopp
                   color={bgColor}
                   style={{ marginRight: 4 }}
                 />
-                {getSourceLabel(item.source)}
+                {getSourceLabel(item.source, t)}
               </Text>
             </View>
           </View>
-          </Animated.View>
-        </TouchableOpacity>
-      </ReanimatedSwipeable>
-    </Animated.View>
+        </Animated.View>
+      </TouchableOpacity>
+    </ReanimatedSwipeable>
   );
 }

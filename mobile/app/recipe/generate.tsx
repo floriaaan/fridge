@@ -1,12 +1,13 @@
 import React from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { ScrollView, Text, TouchableOpacity, View, ActivityIndicator, Alert } from "react-native";
+import { ScrollView, Text, TouchableOpacity, View, ActivityIndicator, Alert, useColorScheme } from "react-native";
 import Slider from "@react-native-community/slider";
 import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import Animated, { FadeInUp } from "react-native-reanimated";
 import { useGenerateRecipes } from "@/hooks/use-recipes";
 import { GenerateRecipesParams } from "@/lib/api/fetch-recipes";
+import { useTranslation } from "@/hooks/use-translation";
 
 const CUISINES = [
   "Italian",
@@ -39,6 +40,9 @@ const DIFFICULTIES = [
 export default function RecipeGenerate() {
   const router = useRouter();
   const generateMutation = useGenerateRecipes();
+  const { t } = useTranslation();
+  const colorScheme = useColorScheme();
+  const isDark = colorScheme === "dark";
   
   // Generation parameters state
   const [selectedCuisine, setSelectedCuisine] = React.useState<string | undefined>();
@@ -58,7 +62,7 @@ export default function RecipeGenerate() {
       
       // Show success message
       Alert.alert(
-        "Success",
+        t("common.success"),
         `${result.length} recipe${result.length > 1 ? 's' : ''} generated successfully!`,
         [
           {
@@ -69,22 +73,22 @@ export default function RecipeGenerate() {
       );
     } catch (error) {
       Alert.alert(
-        "Error",
+        t("common.error"),
         error instanceof Error ? error.message : "Failed to generate recipes"
       );
     }
   };
   return (
-    <SafeAreaView edges={["top", "left", "right"]} className="flex-1 bg-gray-50">
+    <SafeAreaView edges={["top", "left", "right"]} className="flex-1 bg-neutral-50 dark:bg-neutral-900">
       
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 24 }}>
         <Animated.View entering={FadeInUp.delay(100).duration(300)} className="px-4">
 
           {/* Cuisine Selector */}
-          <Animated.View entering={FadeInUp.delay(200).duration(300)} className="mb-4 border border-gray-200 rounded-xl p-4">
+          <Animated.View entering={FadeInUp.delay(200).duration(300)} className="mb-4 border border-neutral-200 dark:border-neutral-700 rounded-xl p-4">
             <View className="flex-row items-center mb-3">
-              <Ionicons name="restaurant-outline" size={18} color="#111827" />
-              <Text className="text-lg font-semibold text-gray-900 ml-2">
+              <Ionicons name="restaurant-outline" size={18} color={isDark ? "#fafafa" : "#111827"} />
+              <Text className="text-lg font-semibold text-neutral-900 dark:text-neutral-100 ml-2">
                 Cuisine (Optional)
               </Text>
             </View>
@@ -95,15 +99,15 @@ export default function RecipeGenerate() {
                   onPress={() => setSelectedCuisine(selectedCuisine === cuisine ? undefined : cuisine)}
                   className={`px-4 py-2 rounded-full ${
                     selectedCuisine === cuisine
-                      ? "bg-black"
-                      : "bg-gray-100"
+                      ? "bg-neutral-900 dark:bg-neutral-100"
+                      : "bg-neutral-100 dark:bg-neutral-800"
                   }`}
                 >
                   <Text
                     className={`font-medium ${
                       selectedCuisine === cuisine
-                        ? "text-white"
-                        : "text-gray-700"
+                        ? "text-white dark:text-neutral-900"
+                        : "text-neutral-700 dark:text-neutral-300"
                     }`}
                   >
                     {CUISINE_FLAGS[cuisine] ? `${CUISINE_FLAGS[cuisine]} ` : ""}
@@ -115,11 +119,11 @@ export default function RecipeGenerate() {
           </Animated.View>
 
           {/* Difficulty Selector */}
-          <Animated.View entering={FadeInUp.delay(250).duration(300)} className="mb-4 border border-gray-200 rounded-xl p-4">
+          <Animated.View entering={FadeInUp.delay(250).duration(300)} className="mb-4 border border-neutral-200 dark:border-neutral-700 rounded-xl p-4">
             <View className="flex-row items-center mb-3">
-              <Ionicons name="flash-outline" size={18} color="#111827" />
-              <Text className="text-lg font-semibold text-gray-900 ml-2">
-                Difficulty (Optional)
+              <Ionicons name="flash-outline" size={18} color={isDark ? "#fafafa" : "#111827"} />
+              <Text className="text-lg font-semibold text-neutral-900 dark:text-neutral-100 ml-2">
+                {t("recipe.selectDifficulty")} (Optional)
               </Text>
             </View>
             <View className="flex-row gap-3">
@@ -129,15 +133,15 @@ export default function RecipeGenerate() {
                   onPress={() => setDifficulty(difficulty === diff.value ? undefined : diff.value)}
                   className={`flex-1 px-4 py-3 rounded-xl ${
                     difficulty === diff.value
-                      ? "bg-black"
-                      : "bg-gray-100"
+                      ? "bg-neutral-900 dark:bg-neutral-100"
+                      : "bg-neutral-100 dark:bg-neutral-800"
                   }`}
                 >
                   <Text
                     className={`font-medium text-center ${
                       difficulty === diff.value
-                        ? "text-white"
-                        : "text-gray-700"
+                        ? "text-white dark:text-neutral-900"
+                        : "text-neutral-700 dark:text-neutral-300"
                     }`}
                   >
                     {diff.label}
@@ -148,48 +152,48 @@ export default function RecipeGenerate() {
           </Animated.View>
 
           {/* Max Time Slider */}
-          <Animated.View entering={FadeInUp.delay(300).duration(300)} className="mb-4 border border-gray-200 rounded-xl p-4">
+          <Animated.View entering={FadeInUp.delay(300).duration(300)} className="mb-4 border border-neutral-200 dark:border-neutral-700 rounded-xl p-4">
             <View className="flex-row items-center mb-3">
-              <Ionicons name="time-outline" size={18} color="#111827" />
-              <Text className="text-lg font-semibold text-gray-900 ml-2">
-                Max Preparation Time
+              <Ionicons name="time-outline" size={18} color={isDark ? "#fafafa" : "#111827"} />
+              <Text className="text-lg font-semibold text-neutral-900 dark:text-neutral-100 ml-2">
+                {t("recipe.maxTime")}
               </Text>
             </View>
             <View className="mb-2">
-              <Text className="text-2xl font-bold text-gray-900 text-center mb-2">{maxTime} min</Text>
+              <Text className="text-2xl font-bold text-neutral-900 dark:text-neutral-100 text-center mb-2">{maxTime} {t("recipe.minutes")}</Text>
               <Slider
                 value={maxTime}
                 onValueChange={(v: number) => setMaxTime(v)}
                 minimumValue={15}
                 maximumValue={180}
                 step={15}
-                minimumTrackTintColor="#111827"
-                maximumTrackTintColor="#D1D5DB"
-                thumbTintColor="#111827"
+                minimumTrackTintColor={isDark ? "#fafafa" : "#111827"}
+                maximumTrackTintColor={isDark ? "#525252" : "#D1D5DB"}
+                thumbTintColor={isDark ? "#fafafa" : "#111827"}
               />
             </View>
             
           </Animated.View>
 
           {/* Servings Selector */}
-          <Animated.View entering={FadeInUp.delay(350).duration(300)} className="mb-4 border border-gray-200 rounded-xl p-4">
+          <Animated.View entering={FadeInUp.delay(350).duration(300)} className="mb-4 border border-neutral-200 dark:border-neutral-700 rounded-xl p-4">
             <View className="flex-row items-center mb-3">
-              <Ionicons name="people-outline" size={18} color="#111827" />
-              <Text className="text-lg font-semibold text-gray-900 ml-2">
-                Number of Servings
+              <Ionicons name="people-outline" size={18} color={isDark ? "#fafafa" : "#111827"} />
+              <Text className="text-lg font-semibold text-neutral-900 dark:text-neutral-100 ml-2">
+                {t("recipe.numberOfPeople")}
               </Text>
             </View>
             <View>
-              <Text className="text-3xl font-bold text-gray-900 text-center mb-2">{servings}</Text>
+              <Text className="text-3xl font-bold text-neutral-900 dark:text-neutral-100 text-center mb-2">{servings}</Text>
               <Slider
                 value={servings}
                 onValueChange={(v: number) => setServings(Math.round(v))}
                 minimumValue={1}
                 maximumValue={12}
                 step={1}
-                minimumTrackTintColor="#111827"
-                maximumTrackTintColor="#D1D5DB"
-                thumbTintColor="#111827"
+                minimumTrackTintColor={isDark ? "#fafafa" : "#111827"}
+                maximumTrackTintColor={isDark ? "#525252" : "#D1D5DB"}
+                thumbTintColor={isDark ? "#fafafa" : "#111827"}
               />
             </View>
           </Animated.View>
@@ -199,15 +203,15 @@ export default function RecipeGenerate() {
             <TouchableOpacity
               onPress={handleGenerateRecipe}
               disabled={generateMutation.isPending}
-              className="bg-black py-4 rounded-xl items-center"
+              className="bg-neutral-900 dark:bg-neutral-100 py-4 rounded-xl items-center"
             >
               {generateMutation.isPending ? (
-                <ActivityIndicator color="white" />
+                <ActivityIndicator color={isDark ? "#171717" : "white"} />
               ) : (
                 <View className="flex-row items-center gap-2">
-                  <Ionicons name="sparkles" size={20} color="white" />
-                  <Text className="text-white font-semibold text-lg">
-                    Generate Recipes
+                  <Ionicons name="sparkles" size={20} color={isDark ? "#171717" : "white"} />
+                  <Text className="text-white dark:text-neutral-900 font-semibold text-lg">
+                    {t("recipe.generateWithAI")}
                   </Text>
                 </View>
               )}

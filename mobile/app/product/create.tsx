@@ -10,6 +10,7 @@ import {
   KeyboardAvoidingView,
   Platform,
   Image,
+  useColorScheme,
 } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -20,6 +21,7 @@ import { useCreateProduct } from "@/hooks/use-products";
 import { SelectModal } from "@/components/select-modal";
 import { DatePickerModal } from "@/components/date-picker-modal";
 import Snackbar, { SnackbarRef } from "@/components/ui/snackbar";
+import { useTranslation } from "@/hooks/use-translation";
 
 const UNITS = ["g", "kg", "ml", "L", "pièce", "portion"];
 const CATEGORIES = [
@@ -52,6 +54,9 @@ export default function ProductCreateScreen() {
   const insets = useSafeAreaInsets();
   const createProduct = useCreateProduct();
   const snackBarRef = useRef<SnackbarRef>(null);
+  const { t } = useTranslation();
+  const colorScheme = useColorScheme();
+  const isDark = colorScheme === "dark";
 
   const product = JSON.parse(params.product as string);
 
@@ -132,22 +137,22 @@ export default function ProductCreateScreen() {
     >
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
         <View
-          className="flex-1 bg-gray-50 px-5"
+          className="flex-1 bg-neutral-50 dark:bg-neutral-900 px-5"
           style={{ paddingTop: 16, paddingBottom: insets.bottom + 24 }}
         >
           {product?.code && (
-            <View className="bg-gray-100 p-3 rounded-lg mb-4">
-              <Text className="text-xs text-gray-500 mb-1">
-                Code-barres détecté
+            <View className="bg-neutral-100 dark:bg-neutral-800 p-3 rounded-lg mb-4">
+              <Text className="text-xs text-neutral-500 dark:text-neutral-400 mb-1">
+                {t("product.scannedBarcode")}
               </Text>
-              <Text className="text-sm font-semibold text-gray-900">
+              <Text className="text-sm font-semibold text-neutral-900 dark:text-neutral-100">
                 {product?.code}
               </Text>
             </View>
           )}
 
           {productImage && (
-            <View className="mb-4 bg-white p-2 rounded-xl overflow-hidden border border-gray-200">
+            <View className="mb-4 bg-white dark:bg-neutral-800 p-2 rounded-xl overflow-hidden border border-neutral-200 dark:border-neutral-700">
               <Image
                 source={{ uri: productImage }}
                 className="w-full h-16"
@@ -163,18 +168,19 @@ export default function ProductCreateScreen() {
             contentContainerStyle={{ paddingBottom: 80 }}
           >
             <View className="mb-4">
-              <Text className="text-sm font-semibold text-gray-700 mb-1.5">
-                Nom *
+              <Text className="text-sm font-semibold text-neutral-700 dark:text-neutral-300 mb-1.5">
+                {t("product.productName")} *
               </Text>
               <Controller
                 control={control}
                 render={({ field: { onChange, onBlur, value } }) => (
                   <TextInput
-                    className={`border rounded-xl p-3 bg-white ${errors.name ? "border-red-500" : "border-gray-300"}`}
+                    className={`border rounded-xl p-3 bg-white dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100 ${errors.name ? "border-red-500" : "border-neutral-300 dark:border-neutral-600"}`}
                     onBlur={onBlur}
                     onChangeText={onChange}
                     value={value}
-                    placeholder="Nom du produit"
+                    placeholder={t("product.productNamePlaceholder")}
+                    placeholderTextColor={isDark ? "#737373" : "#9ca3af"}
                   />
                 )}
                 name="name"
@@ -188,18 +194,19 @@ export default function ProductCreateScreen() {
 
             <View className="flex-row gap-3">
               <View className="flex-1 mb-4">
-                <Text className="text-sm font-semibold text-gray-700 mb-1.5">
-                  Quantité *
+                <Text className="text-sm font-semibold text-neutral-700 dark:text-neutral-300 mb-1.5">
+                  {t("product.quantity")} *
                 </Text>
                 <Controller
                   control={control}
                   render={({ field: { onChange, onBlur, value } }) => (
                     <TextInput
-                      className={`border rounded-xl p-3 bg-white ${errors.quantity ? "border-red-500" : "border-gray-300"}`}
+                      className={`border rounded-xl p-3 bg-white dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100 ${errors.quantity ? "border-red-500" : "border-neutral-300 dark:border-neutral-600"}`}
                       onBlur={onBlur}
                       onChangeText={onChange}
                       value={value}
                       placeholder="1"
+                      placeholderTextColor={isDark ? "#737373" : "#9ca3af"}
                       keyboardType="numeric"
                     />
                   )}
@@ -213,17 +220,17 @@ export default function ProductCreateScreen() {
               </View>
 
               <View className="flex-1 mb-4">
-                <Text className="text-sm font-semibold text-gray-700 mb-1.5">
-                  Unité *
+                <Text className="text-sm font-semibold text-neutral-700 dark:text-neutral-300 mb-1.5">
+                  {t("product.unit")} *
                 </Text>
                 <TouchableOpacity
-                  className={`border rounded-xl p-3 bg-white flex-row justify-between items-center ${errors.unit ? "border-red-500" : "border-gray-300"}`}
+                  className={`border rounded-xl p-3 bg-white dark:bg-neutral-800 flex-row justify-between items-center ${errors.unit ? "border-red-500" : "border-neutral-300 dark:border-neutral-600"}`}
                   onPress={() => setShowUnitModal(true)}
                 >
-                  <Text className="text-base text-gray-900">
+                  <Text className="text-base text-neutral-900 dark:text-neutral-100">
                     {selectedUnit}
                   </Text>
-                  <Text className="text-gray-400">▼</Text>
+                  <Text className="text-neutral-400">▼</Text>
                 </TouchableOpacity>
                 {errors.unit && (
                   <Text className="text-red-500 text-xs mt-1">
@@ -236,25 +243,26 @@ export default function ProductCreateScreen() {
             <SelectModal
               visible={showUnitModal}
               onClose={() => setShowUnitModal(false)}
-              title="Choisir une unité"
+              title={t("product.unit")}
               options={UNITS}
               selectedValue={selectedUnit}
               onSelect={(value) => setValue("unit", value)}
             />
 
             <View className="mb-4">
-              <Text className="text-sm font-semibold text-gray-700 mb-1.5">
-                Emplacement *
+              <Text className="text-sm font-semibold text-neutral-700 dark:text-neutral-300 mb-1.5">
+                {t("product.location")} *
               </Text>
               <Controller
                 control={control}
                 render={({ field: { onChange, onBlur, value } }) => (
                   <TextInput
-                    className={`border rounded-xl p-3 bg-white ${errors.location ? "border-red-500" : "border-gray-300"}`}
+                    className={`border rounded-xl p-3 bg-white dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100 ${errors.location ? "border-red-500" : "border-neutral-300 dark:border-neutral-600"}`}
                     onBlur={onBlur}
                     onChangeText={onChange}
                     value={value}
-                    placeholder="frigo"
+                    placeholder={t("product.locationPlaceholder")}
+                    placeholderTextColor={isDark ? "#737373" : "#9ca3af"}
                   />
                 )}
                 name="location"
@@ -267,17 +275,17 @@ export default function ProductCreateScreen() {
             </View>
 
             <View className="mb-4">
-              <Text className="text-sm font-semibold text-gray-700 mb-1.5">
-                Catégorie *
+              <Text className="text-sm font-semibold text-neutral-700 dark:text-neutral-300 mb-1.5">
+                {t("product.category")} *
               </Text>
               <TouchableOpacity
-                className={`border rounded-xl p-3 bg-white flex-row justify-between items-center ${errors.category ? "border-red-500" : "border-gray-300"}`}
+                className={`border rounded-xl p-3 bg-white dark:bg-neutral-800 flex-row justify-between items-center ${errors.category ? "border-red-500" : "border-neutral-300 dark:border-neutral-600"}`}
                 onPress={() => setShowCategoryModal(true)}
               >
-                <Text className="text-base text-gray-900">
+                <Text className="text-base text-neutral-900 dark:text-neutral-100">
                   {selectedCategory}
                 </Text>
-                <Text className="text-gray-400">▼</Text>
+                <Text className="text-neutral-400">▼</Text>
               </TouchableOpacity>
               {errors.category && (
                 <Text className="text-red-500 text-xs mt-1">
@@ -289,26 +297,26 @@ export default function ProductCreateScreen() {
             <SelectModal
               visible={showCategoryModal}
               onClose={() => setShowCategoryModal(false)}
-              title="Choisir une catégorie"
+              title={t("product.category")}
               options={CATEGORIES}
               selectedValue={selectedCategory}
               onSelect={(value) => setValue("category", value)}
             />
 
             <View className="mb-4">
-              <Text className="text-sm font-semibold text-gray-700 mb-1.5">
-                Date d&apos;expiration
+              <Text className="text-sm font-semibold text-neutral-700 dark:text-neutral-300 mb-1.5">
+                {t("product.expiryDate")}
               </Text>
               <TouchableOpacity
-                className="border border-gray-300 rounded-xl p-3 bg-white flex-row justify-between items-center"
+                className="border border-neutral-300 dark:border-neutral-600 rounded-xl p-3 bg-white dark:bg-neutral-800 flex-row justify-between items-center"
                 onPress={() => setShowDatePicker(true)}
               >
                 <Text
-                  className={`text-base ${selectedDate ? "text-gray-900" : "text-gray-400"}`}
+                  className={`text-base ${selectedDate ? "text-neutral-900 dark:text-neutral-100" : "text-neutral-400"}`}
                 >
-                  {selectedDate || "Sélectionner une date"}
+                  {selectedDate || t("datePicker.selectDate")}
                 </Text>
-                <Text className="text-gray-400">📅</Text>
+                <Text className="text-neutral-400">📅</Text>
               </TouchableOpacity>
             </View>
 
@@ -322,19 +330,19 @@ export default function ProductCreateScreen() {
 
           <View className="flex-row justify-between mt-4 gap-3">
             <TouchableOpacity
-              className="flex-1 border border-gray-300 py-4 rounded-xl items-center bg-white"
+              className="flex-1 border border-neutral-300 dark:border-neutral-600 py-4 rounded-xl items-center bg-white dark:bg-neutral-800"
               onPress={() => router.back()}
               disabled={createProduct.isPending}
             >
-              <Text className="text-gray-900 font-semibold">Annuler</Text>
+              <Text className="text-neutral-900 dark:text-neutral-100 font-semibold">{t("common.cancel")}</Text>
             </TouchableOpacity>
             <TouchableOpacity
-              className={`flex-1 py-4 rounded-xl items-center ${createProduct.isPending ? "bg-gray-400" : "bg-gray-900"}`}
+              className={`flex-1 py-4 rounded-xl items-center ${createProduct.isPending ? "bg-neutral-400 dark:bg-neutral-600" : "bg-neutral-900 dark:bg-neutral-100"}`}
               onPress={handleSubmit(onSubmit)}
               disabled={createProduct.isPending}
             >
-              <Text className="text-white font-semibold">
-                {createProduct.isPending ? "Création..." : "Créer"}
+              <Text className={`font-semibold ${createProduct.isPending ? "text-white" : "text-white dark:text-neutral-900"}`}>
+                {createProduct.isPending ? t("common.loading") : t("common.add")}
               </Text>
             </TouchableOpacity>
           </View>

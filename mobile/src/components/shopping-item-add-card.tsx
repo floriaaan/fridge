@@ -1,10 +1,11 @@
 import React, { useCallback, useMemo, useState } from 'react';
-import { Text, View, TouchableOpacity, TextInput, Keyboard } from 'react-native';
+import { Text, View, TouchableOpacity, TextInput, Keyboard, useColorScheme } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import Animated, { FadeInDown, LinearTransition } from 'react-native-reanimated';
 import { useCreateShoppingItem } from '@/hooks/use-create-shopping-item';
 import { SelectModal } from '@/components/select-modal';
 import type { ShoppingItem } from '@/lib/api/fetch-shopping-items';
+import { useTranslation } from '@/hooks/use-translation';
 
 type ShoppingItemAddCardProps = {
   defaultUnit?: string;
@@ -15,10 +16,6 @@ type ShoppingItemAddCardProps = {
 
 const UNITS = ["g", "kg", "ml", "L", "pièce", "portion", "pcs", "paquets"];
 
-const ADD_BG = '#F3F4F6';
-const ADD_TEXT = '#6B7280';
-const ADD_ACCENT = '#9CA3AF';
-
 export function ShoppingItemAddCard({
   defaultUnit = 'pcs',
   defaultQuantity = 1,
@@ -26,10 +23,17 @@ export function ShoppingItemAddCard({
   onCreated,
 }: ShoppingItemAddCardProps) {
   const { mutateAsync: createItem, isPending } = useCreateShoppingItem();
+  const { t } = useTranslation();
+  const colorScheme = useColorScheme();
+  const isDark = colorScheme === "dark";
   const [name, setName] = useState('');
   const [quantity, setQuantity] = useState<number>(defaultQuantity);
   const [unit, setUnit] = useState<string>(defaultUnit);
   const [showUnitModal, setShowUnitModal] = useState(false);
+
+  const ADD_BG = isDark ? '#262626' : '#F3F4F6';
+  const ADD_TEXT = isDark ? '#a3a3a3' : '#6B7280';
+  const ADD_ACCENT = isDark ? '#737373' : '#9CA3AF';
 
   const canSubmit = useMemo(() => name.trim().length > 0 && quantity > 0 && unit.trim().length > 0, [name, quantity, unit]);
 
@@ -55,7 +59,7 @@ export function ShoppingItemAddCard({
     <Animated.View
       entering={FadeInDown.delay(index ? index * 50 : 0).springify().damping(90).stiffness(600)}
       layout={LinearTransition.springify().damping(80).stiffness(600)}
-      className="rounded-2xl border border-gray-200 p-4"
+      className="rounded-2xl border border-neutral-200 dark:border-neutral-700 p-4"
       style={{ backgroundColor: ADD_BG }}
     >
       <View className="flex-row items-center gap-3 mb-3">
@@ -65,7 +69,7 @@ export function ShoppingItemAddCard({
             value={name}
             onChangeText={setName}
             onBlur={Keyboard.dismiss}
-            placeholder="Add an item..."
+            placeholder={t("shoppingList.addItem")}
             placeholderTextColor={ADD_ACCENT}
             style={{ color: ADD_TEXT, fontSize: 14 }}
             returnKeyType="done"
@@ -75,7 +79,7 @@ export function ShoppingItemAddCard({
         </View>
       </View>
       <View className="flex-row items-center gap-2 justify-end">
-        <View className="flex-row items-center bg-white px-2 py-2 rounded-lg border border-gray-200">
+        <View className="flex-row items-center bg-white dark:bg-neutral-700 px-2 py-2 rounded-lg border border-neutral-200 dark:border-neutral-600">
           <TouchableOpacity onPress={handleDecrement} disabled={isPending} activeOpacity={0.6}>
             <Ionicons name="remove" size={16} color={ADD_TEXT} />
           </TouchableOpacity>
@@ -95,7 +99,7 @@ export function ShoppingItemAddCard({
           </TouchableOpacity>
         </View>
         <TouchableOpacity
-          className="border border-gray-300 rounded-lg px-3 py-2 bg-white flex-row justify-between items-center"
+          className="border border-neutral-300 dark:border-neutral-600 rounded-lg px-3 py-2 bg-white dark:bg-neutral-700 flex-row justify-between items-center"
           onPress={() => setShowUnitModal(true)}
           disabled={isPending}
         >
@@ -106,7 +110,7 @@ export function ShoppingItemAddCard({
         <SelectModal
           visible={showUnitModal}
           onClose={() => setShowUnitModal(false)}
-          title="Choisir une unité"
+          title={t("product.unit")}
           options={UNITS}
           selectedValue={unit}
           onSelect={(value) => {

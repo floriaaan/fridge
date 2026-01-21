@@ -5,12 +5,14 @@ import {
   Text,
   RefreshControl,
   TextInput,
+  useColorScheme,
 } from "react-native";
 import { Ionicons, MaterialIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { type Recipe } from "@/lib/api/fetch-recipes";
 import { RecipeCard } from "@/components/recipe-card";
 import { Chip } from "@/components/ui/chip";
+import { useTranslation } from "@/hooks/use-translation";
 
 type RecipeListProps = {
   recipes: Recipe[];
@@ -20,6 +22,9 @@ type RecipeListProps = {
 
 export function RecipeList({ recipes, refresh, isLoading }: RecipeListProps) {
   const router = useRouter();
+  const { t } = useTranslation();
+  const colorScheme = useColorScheme();
+  const isDark = colorScheme === "dark";
   const [activeFilter, setActiveFilter] = useState<
     "all" | "ai" | "user" | "community"
   >("all");
@@ -42,6 +47,8 @@ export function RecipeList({ recipes, refresh, isLoading }: RecipeListProps) {
     });
   };
 
+  const chipIconColor = (isActive: boolean) => isActive ? (isDark ? "#171717" : "#ffffff") : (isDark ? "#a3a3a3" : "#6b7280");
+
   return (
     <>
       <ScrollView
@@ -51,50 +58,50 @@ export function RecipeList({ recipes, refresh, isLoading }: RecipeListProps) {
         showsHorizontalScrollIndicator={false}
       >
         <Chip
-          label="All"
+          label={t("common.all")}
           isActive={activeFilter === "all"}
           onPress={() => setActiveFilter("all")}
           icon={
             <Ionicons
               name="grid-outline"
               size={16}
-              color={activeFilter === "all" ? "white" : "#6b7280"}
+              color={chipIconColor(activeFilter === "all")}
             />
           }
         />
         <Chip
-          label="AI Generated"
+          label={t("recipe.aiGenerated")}
           isActive={activeFilter === "ai"}
           onPress={() => setActiveFilter("ai")}
           icon={
             <Ionicons
               name="sparkles"
               size={16}
-              color={activeFilter === "ai" ? "white" : "#6b7280"}
+              color={chipIconColor(activeFilter === "ai")}
             />
           }
         />
         <Chip
-          label="My Recipes"
+          label={t("recipe.myRecipes")}
           isActive={activeFilter === "user"}
           onPress={() => setActiveFilter("user")}
           icon={
             <Ionicons
               name="person"
               size={16}
-              color={activeFilter === "user" ? "white" : "#6b7280"}
+              color={chipIconColor(activeFilter === "user")}
             />
           }
         />
         <Chip
-          label="Community"
+          label={t("recipe.community")}
           isActive={activeFilter === "community"}
           onPress={() => setActiveFilter("community")}
           icon={
             <Ionicons
               name="people"
               size={16}
-              color={activeFilter === "community" ? "white" : "#6b7280"}
+              color={chipIconColor(activeFilter === "community")}
             />
           }
         />
@@ -108,19 +115,19 @@ export function RecipeList({ recipes, refresh, isLoading }: RecipeListProps) {
           <RefreshControl
             refreshing={isLoading}
             onRefresh={refresh}
-            tintColor="black"
+            tintColor={isDark ? "white" : "black"}
           />
         }
       >
         <View className="px-4 mb-4">
-          <View className="flex-row items-center bg-gray-200 rounded-xl px-4 py-3">
-            <MaterialIcons name="search" size={20} color="#6B7280" />
+          <View className="flex-row items-center bg-neutral-200 dark:bg-neutral-700 rounded-xl px-4 py-3">
+            <MaterialIcons name="search" size={20} color={isDark ? "#a3a3a3" : "#6B7280"} />
             <TextInput
-              className="flex-1 ml-3 text-gray-900"
+              className="flex-1 ml-3 text-neutral-900 dark:text-neutral-100"
               onChangeText={setSearchQuery}
               value={searchQuery}
-              placeholder="Search recipes..."
-              placeholderTextColor="#9CA3AF"
+              placeholder={t("fridge.searchPlaceholder")}
+              placeholderTextColor={isDark ? "#737373" : "#9CA3AF"}
             />
           </View>
         </View>
@@ -140,15 +147,15 @@ export function RecipeList({ recipes, refresh, isLoading }: RecipeListProps) {
               <Ionicons
                 name="book-outline"
                 size={48}
-                color="#d1d5db"
+                color={isDark ? "#525252" : "#d1d5db"}
                 style={{ marginBottom: 12 }}
               />
-              <Text className="text-gray-500 text-lg font-medium">
+              <Text className="text-neutral-500 dark:text-neutral-400 text-lg font-medium">
                 No recipes found
               </Text>
-              <Text className="text-gray-400 text-sm mt-2">
+              <Text className="text-neutral-400 dark:text-neutral-500 text-sm mt-2">
                 {recipes.length === 0
-                  ? "Generate recipes using your products"
+                  ? t("recipe.generate")
                   : "Try a different search"}
               </Text>
             </View>

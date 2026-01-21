@@ -1,5 +1,5 @@
 import React, { useRef, useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, ActivityIndicator, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, ActivityIndicator, KeyboardAvoidingView, Platform, ScrollView, useColorScheme } from 'react-native';
 import { Link, useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { AuthLayout } from '@/components/auth-layout';
@@ -11,6 +11,7 @@ import { authClient } from '@/lib/auth-client';
 import Animated, { FadeInDown, FadeInUp } from 'react-native-reanimated';
 import { Ionicons } from '@expo/vector-icons';
 import Snackbar, { SnackbarRef } from '@/components/ui/snackbar';
+import { useTranslation } from '@/hooks/use-translation';
 
 const signInSchema = z.object({
   email: z.string().email('Invalid email address'),
@@ -23,6 +24,9 @@ export default function SignInScreen() {
   const router = useRouter();
   const snackbarRef = useRef<SnackbarRef>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const { t } = useTranslation();
+  const colorScheme = useColorScheme();
+  const isDark = colorScheme === "dark";
   const { control, handleSubmit, formState: { errors } } = useForm<SignInFormValues>({
     resolver: zodResolver(signInSchema),
   });
@@ -41,7 +45,7 @@ export default function SignInScreen() {
 
   return (
     <AuthLayout>
-      <SafeAreaView className="flex-1 bg-gray-50">
+      <SafeAreaView className="flex-1 bg-neutral-50 dark:bg-neutral-900">
         <KeyboardAvoidingView
           behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
           className="flex-1"
@@ -57,12 +61,12 @@ export default function SignInScreen() {
             >
               <TouchableOpacity
                 onPress={() => router.back()}
-                className="p-2 rounded-lg active:bg-gray-100"
+                className="p-2 rounded-lg active:bg-neutral-100 dark:active:bg-neutral-800"
               >
-                <Ionicons name="chevron-back" size={24} color="#1f2937" />
+                <Ionicons name="chevron-back" size={24} color={isDark ? "#fafafa" : "#171717"} />
               </TouchableOpacity>
-              <Text className="text-xl font-bold text-gray-900 flex-1 ml-2">
-                Sign In
+              <Text className="text-xl font-bold text-neutral-900 dark:text-neutral-100 flex-1 ml-2">
+                {t("auth.signIn")}
               </Text>
             </Animated.View>
 
@@ -72,10 +76,10 @@ export default function SignInScreen() {
                 entering={FadeInUp.duration(600).delay(100)}
                 className="mb-8"
               >
-                <Text className="text-4xl font-bold text-gray-900 mb-2">
+                <Text className="text-4xl font-bold text-neutral-900 dark:text-neutral-100 mb-2">
                   Welcome back
                 </Text>
-                <Text className="text-lg text-gray-600">
+                <Text className="text-lg text-neutral-600 dark:text-neutral-400">
                   Sign in to continue managing your fridge
                 </Text>
               </Animated.View>
@@ -84,8 +88,8 @@ export default function SignInScreen() {
               <Animated.View entering={FadeInUp.duration(600).delay(200)}>
                 {/* Email Input */}
                 <View className="mb-4">
-                  <Text className="text-sm font-medium text-gray-700 mb-2">
-                    Email
+                  <Text className="text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2">
+                    {t("auth.email")}
                   </Text>
                   <Controller
                     control={control}
@@ -94,12 +98,13 @@ export default function SignInScreen() {
                       <View className="relative">
                         <TextInput
                           placeholder="your.email@example.com"
+                          placeholderTextColor={isDark ? "#a3a3a3" : "#9ca3af"}
                           onBlur={onBlur}
                           onChangeText={onChange}
                           value={value}
                           autoCapitalize="none"
                           keyboardType="email-address"
-                          className={`bg-white border-2 ${errors.email ? 'border-red-400' : 'border-gray-200'} rounded-xl px-4 py-3 text-gray-900`}
+                          className={`bg-white dark:bg-neutral-800 border-2 ${errors.email ? 'border-red-400' : 'border-neutral-200 dark:border-neutral-700'} rounded-xl px-4 py-3 text-neutral-900 dark:text-neutral-100`}
                         />
                         {errors.email && (
                           <View className="absolute right-3 top-3">
@@ -118,8 +123,8 @@ export default function SignInScreen() {
 
                 {/* Password Input */}
                 <View className="mb-6">
-                  <Text className="text-sm font-medium text-gray-700 mb-2">
-                    Password
+                  <Text className="text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2">
+                    {t("auth.password")}
                   </Text>
                   <Controller
                     control={control}
@@ -127,12 +132,13 @@ export default function SignInScreen() {
                     render={({ field: { onChange, onBlur, value } }) => (
                       <View className="relative">
                         <TextInput
-                          placeholder="Enter your password"
+                          placeholder={t("auth.passwordPlaceholder")}
+                          placeholderTextColor={isDark ? "#a3a3a3" : "#9ca3af"}
                           onBlur={onBlur}
                           onChangeText={onChange}
                           value={value}
                           secureTextEntry
-                          className={`bg-white border-2 ${errors.password ? 'border-red-400' : 'border-gray-200'} rounded-xl px-4 py-3 text-gray-900`}
+                          className={`bg-white dark:bg-neutral-800 border-2 ${errors.password ? 'border-red-400' : 'border-neutral-200 dark:border-neutral-700'} rounded-xl px-4 py-3 text-neutral-900 dark:text-neutral-100`}
                         />
                         {errors.password && (
                           <View className="absolute right-3 top-3">
@@ -161,7 +167,7 @@ export default function SignInScreen() {
                   ) : (
                     <>
                       <Text className="text-white text-lg font-semibold mr-2">
-                        Sign In
+                        {t("auth.signIn")}
                       </Text>
                       <Ionicons name="arrow-forward" size={20} color="white" />
                     </>
@@ -170,13 +176,13 @@ export default function SignInScreen() {
 
                 {/* Sign Up Link */}
                 <View className="flex-row justify-center items-center">
-                  <Text className="text-gray-600 text-base">
+                  <Text className="text-neutral-600 dark:text-neutral-400 text-base">
                     {"Don't have an account? "}
                   </Text>
                   <Link href="/(auth)/sign-up" asChild>
                     <TouchableOpacity>
                       <Text className="text-blue-600 font-semibold text-base">
-                        Sign Up
+                        {t("auth.signUp")}
                       </Text>
                     </TouchableOpacity>
                   </Link>

@@ -1,5 +1,5 @@
 import React from "react";
-import { View, Text, TouchableOpacity, Image } from "react-native";
+import { View, Text, TouchableOpacity, Image, useColorScheme } from "react-native";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { type Recipe } from "@/lib/api/fetch-recipes";
 import Animated, {
@@ -7,6 +7,7 @@ import Animated, {
   FadeOutUp,
   LinearTransition,
 } from "react-native-reanimated";
+import { useTranslation } from "@/hooks/use-translation";
 
 type RecipeCardProps = {
   recipe: Recipe;
@@ -14,22 +15,34 @@ type RecipeCardProps = {
   index: number;
 };
 
-const getSourceColor = (source: string): string => {
-  const colors: Record<string, string> = {
+const getSourceColor = (source: string, isDark: boolean): string => {
+  const lightColors: Record<string, string> = {
     ai: "#F3E8FF",
     user: "#E0F2FE",
     community: "#FEF3C7",
   };
-  return colors[source] || "#F5F5F5";
+  const darkColors: Record<string, string> = {
+    ai: "#581c87",
+    user: "#0c4a6e",
+    community: "#78350f",
+  };
+  const colors = isDark ? darkColors : lightColors;
+  return colors[source] || (isDark ? "#262626" : "#F5F5F5");
 };
 
-const getSourceTextColor = (source: string): string => {
-  const colors: Record<string, string> = {
+const getSourceTextColor = (source: string, isDark: boolean): string => {
+  const lightColors: Record<string, string> = {
     ai: "#7C3AED",
     user: "#0369A1",
     community: "#D97706",
   };
-  return colors[source] || "#424242";
+  const darkColors: Record<string, string> = {
+    ai: "#d8b4fe",
+    user: "#7dd3fc",
+    community: "#fcd34d",
+  };
+  const colors = isDark ? darkColors : lightColors;
+  return colors[source] || (isDark ? "#e5e5e5" : "#424242");
 };
 
 const getSourceIcon = (
@@ -43,20 +56,23 @@ const getSourceIcon = (
   return icons[source] || "food-outline";
 };
 
-const getSourceLabel = (source: string): string => {
+const getSourceLabel = (source: string, t: (key: string) => string): string => {
   const labels: Record<string, string> = {
-    ai: "AI Generated",
-    user: "My Recipe",
-    community: "Community",
+    ai: t("recipe.aiGenerated"),
+    user: t("recipe.myRecipes"),
+    community: t("recipe.community"),
   };
   return labels[source] || source;
 };
 
 export function RecipeCard({ recipe, onPress, index }: RecipeCardProps) {
+  const { t } = useTranslation();
+  const colorScheme = useColorScheme();
+  const isDark = colorScheme === "dark";
   const ingredientCount = recipe.ingredients?.length ?? 0;
   const prepTime = recipe.preparationTime;
-  const bgColor = getSourceColor(recipe.source);
-  const textColor = getSourceTextColor(recipe.source);
+  const bgColor = getSourceColor(recipe.source, isDark);
+  const textColor = getSourceTextColor(recipe.source, isDark);
 
   return (
     <TouchableOpacity
@@ -136,7 +152,7 @@ export function RecipeCard({ recipe, onPress, index }: RecipeCardProps) {
                   className="text-xs font-medium"
                   style={{ color: bgColor }}
                 >
-                  {getSourceLabel(recipe.source)}
+                  {getSourceLabel(recipe.source, t)}
                 </Text>
               </View>
             </View>

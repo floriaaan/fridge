@@ -113,22 +113,27 @@ const performGenerateRecipes = async (
 
           console.log(`Processing ${r.ingredients.length} ingredients for recipe: ${insertedRecipe.title}`);
           for (const ingredient of r.ingredients) {
-            // Try to find a matching product by name
-            const matchingProducts = await tx
-              .select({ id: product.id })
-              .from(product)
-              .where(eq(product.name, ingredient.label));
+            try {
+              // Try to find a matching product by name
+              const matchingProducts = await tx
+                .select({ id: product.id })
+                .from(product)
+                .where(eq(product.name, ingredient.label));
 
-            const productId = matchingProducts[0]?.id ?? null;
+              const productId = matchingProducts[0]?.id ?? null;
 
-            // Insert the ingredient with or without a productId
-            await tx.insert(recipeIngredient).values({
-              recipeId: insertedRecipe.id,
-              productId: productId,
-              label: ingredient.label,
-              quantity: ingredient.quantity || null,
-              unit: ingredient.unit || null,
-            });
+              // Insert the ingredient with or without a productId
+              await tx.insert(recipeIngredient).values({
+                recipeId: insertedRecipe.id,
+                productId: productId,
+                label: ingredient.label,
+                quantity: ingredient.quantity ? Math.round(ingredient.quantity) : null,
+                unit: ingredient.unit || null,
+              });
+            } catch (ingredientError) {
+              logger.error(`Error inserting ingredient "${ingredient.label}" for recipe "${insertedRecipe.title}":`, ingredientError);
+              throw ingredientError; // Re-throw to rollback transaction
+            }
           }
           console.log(`Saved ${r.ingredients.length} ingredients for recipe: ${insertedRecipe.title}`);
         }
@@ -175,6 +180,8 @@ const performGenerateRecipes = async (
       },
     };
   } catch (error) {
+    logger.error("Error in generateRecipes:", error);
+    console.error("Full error details:", JSON.stringify(error, Object.getOwnPropertyNames(error), 2));
     return {
       statusCode: 500,
       data: {

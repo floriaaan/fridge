@@ -8,15 +8,15 @@ import { Recipe } from "@/domain/entity/recipe";
 // Define the Zod schema for recipes
 const recipeIngredientSchema = z.object({
   label: z.string().describe("Ingredient name"),
-  quantity: z.number().optional().describe("Ingredient quantity"),
-  unit: z.string().optional().describe("Unit of measurement (g, ml, piece, etc.)"),
+  quantity: z.number().int().optional().describe("Ingredient quantity as integer (no decimals, use unit field for fractions like 0.5 -> 1 with unit 'half')"),
+  unit: z.string().optional().describe("Unit of measurement (g, ml, piece, half, quarter, etc.)"),
   productId: z.string().optional().describe("Product ID if available"),
 });
 
 const recipeSchema = z.object({
   title: z.string().describe("Recipe title"),
   description: z.string().optional().describe("Short recipe description"),
-  instructions: z.string().describe("Instructions in Markdown"),
+  instructions: z.string().describe("Instructions in valid Markdown format. MUST use numbered list (1. First step\n2. Second step). Use **bold** for important terms, *italic* for tips."),
   preparationTime: z.number().optional().describe("Preparation time in minutes"),
   tags: z.array(z.string()).describe("Relevant tags for the recipe"),
   ingredients: z.array(recipeIngredientSchema).describe("List of ingredients"),
