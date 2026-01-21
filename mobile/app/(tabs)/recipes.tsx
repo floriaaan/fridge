@@ -18,7 +18,7 @@ export default function RecipesScreen() {
   return (
     <SafeAreaView
       edges={["top", "left", "right"]}
-      className="flex-1 bg-neutral-50 dark:bg-neutral-900"
+      className="flex-1 bg-neutral-50 dark:bg-black"
     >
       <Header title={t("recipe.title")} />
 

@@ -37,7 +37,7 @@ function RootLayoutNav() {
   const { t } = useTranslation();
 
   useEffect(() => {
-    if (!navigationState?.key || isLoading) return;
+    // if (!navigationState?.key || isLoading) return;
 
     const inAuthGroup = segments[0] === "(auth)";
 
