@@ -173,7 +173,7 @@ export default function RecipeDetail() {
 
   if (!recipe) {
     return (
-      <SafeAreaView className="flex-1 justify-center items-center bg-white dark:bg-neutral-900">
+      <SafeAreaView className="flex-1 justify-center items-center bg-white dark:bg-black">
         <Text className="text-neutral-500 dark:text-neutral-400 text-lg">{t("recipe.notFound")}</Text>
       </SafeAreaView>
     );
@@ -382,7 +382,7 @@ export default function RecipeDetail() {
   );
 
   return (
-    <SafeAreaView className="flex-1 bg-neutral-50 dark:bg-neutral-900">
+    <SafeAreaView className="flex-1 bg-neutral-50 dark:bg-black">
       {headerComponent}
       <ScrollView showsVerticalScrollIndicator={false}>
         {scrollContent}

@@ -139,7 +139,7 @@ export default function ReceiptConfirmScreen() {
 
   if (isScanning) {
     return (
-      <View className="flex-1 bg-neutral-50 dark:bg-neutral-900 justify-center items-center p-6">
+      <View className="flex-1 bg-neutral-50 dark:bg-black justify-center items-center p-6">
         <ActivityIndicator size="large" color={isDark ? "#fafafa" : "#111827"} />
         <Text className="mt-4 text-lg text-neutral-700 dark:text-neutral-300 font-semibold">
           {t("receipt.analyzing")}
@@ -154,7 +154,7 @@ export default function ReceiptConfirmScreen() {
   if (error) {
     return (
       <View
-        className="flex-1 bg-neutral-50 dark:bg-neutral-900 justify-center items-center p-6"
+        className="flex-1 bg-neutral-50 dark:bg-black justify-center items-center p-6"
         style={{ paddingTop: insets.top, paddingBottom: insets.bottom }}
       >
         <Text className="text-6xl mb-4">⚠️</Text>
@@ -174,7 +174,7 @@ export default function ReceiptConfirmScreen() {
 
   return (
     <View
-      className="flex-1 bg-neutral-50 dark:bg-neutral-900"
+      className="flex-1 bg-neutral-50 dark:bg-black"
       style={{ paddingTop: insets.top, paddingBottom: insets.bottom }}
     >
       <View className="bg-white dark:bg-neutral-800 p-4 border-b border-neutral-200 dark:border-neutral-700">

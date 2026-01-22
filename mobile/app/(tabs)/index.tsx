@@ -31,7 +31,7 @@ export default function ProductsScreen() {
   return (
     <SafeAreaView
       edges={["top", "left", "right"]}
-      className="flex-1 bg-neutral-100 dark:bg-neutral-900"
+      className="flex-1 bg-neutral-100 dark:bg-black"
     >
       <Header title={t("fridge.title")} />
       <View className="flex-1 flex-row">

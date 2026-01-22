@@ -183,7 +183,7 @@ export default function SettingsScreen() {
 
   if (isLoadingSession) {
     return (
-      <SafeAreaView className="flex-1 bg-neutral-100 dark:bg-neutral-900">
+      <SafeAreaView className="flex-1 bg-neutral-100 dark:bg-black">
         <View className="flex-1 justify-center items-center">
           <ActivityIndicator
             size="large"
@@ -195,7 +195,7 @@ export default function SettingsScreen() {
   }
 
   return (
-    <SafeAreaView className="flex-1 bg-neutral-100 dark:bg-neutral-900">
+    <SafeAreaView className="flex-1 bg-neutral-100 dark:bg-black">
       <Header title={t("settings.title")} />
       <ScrollView
         className="flex-1"

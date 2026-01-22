@@ -90,7 +90,7 @@ export default function ProductDetail() {
 
   if (!product) {
     return (
-      <SafeAreaView className="flex-1 justify-center items-center bg-white dark:bg-neutral-900">
+      <SafeAreaView className="flex-1 justify-center items-center bg-white dark:bg-black">
         <Text className="text-neutral-500 dark:text-neutral-400 text-lg">{t("product.notFound")}</Text>
       </SafeAreaView>
     );
@@ -383,7 +383,7 @@ export default function ProductDetail() {
   );
 
   return (
-    <SafeAreaView className="flex-1 bg-neutral-50 dark:bg-neutral-900">
+    <SafeAreaView className="flex-1 bg-neutral-50 dark:bg-black">
       {headerComponent}
       <ScrollView showsVerticalScrollIndicator={false}>
         {scrollContent}

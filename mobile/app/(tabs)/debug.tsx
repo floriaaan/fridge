@@ -30,7 +30,7 @@ export default function DebugScreen() {
 
   return (
     <View
-      className="flex-1 bg-neutral-50 dark:bg-neutral-900"
+      className="flex-1 bg-neutral-50 dark:bg-black"
       style={{ padding: 20, marginTop: 50 }}
     >
       <TextInput

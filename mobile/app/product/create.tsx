@@ -137,7 +137,7 @@ export default function ProductCreateScreen() {
     >
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
         <View
-          className="flex-1 bg-neutral-50 dark:bg-neutral-900 px-5"
+          className="flex-1 bg-neutral-50 dark:bg-black px-5"
           style={{ paddingTop: 16, paddingBottom: insets.bottom + 24 }}
         >
           {product?.code && (

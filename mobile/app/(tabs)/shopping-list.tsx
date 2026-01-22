@@ -81,7 +81,7 @@ export default function ShoppingListScreen() {
       <GestureHandlerRootView style={{ flex: 1 }}>
         <SafeAreaView
           edges={["top", "left", "right"]}
-          className="flex-1 bg-neutral-50 dark:bg-neutral-900"
+          className="flex-1 bg-neutral-50 dark:bg-black"
         >
           <Header title={t("shoppingList.title")} />
           <View className="flex-1 items-center justify-center px-6">
@@ -107,7 +107,7 @@ export default function ShoppingListScreen() {
     <GestureHandlerRootView style={{ flex: 1 }}>
       <SafeAreaView
         edges={["top", "left", "right"]}
-        className="flex-1 bg-neutral-50 dark:bg-neutral-900"
+        className="flex-1 bg-neutral-50 dark:bg-black"
       >
         <Header title={t("shoppingList.title")} />
 

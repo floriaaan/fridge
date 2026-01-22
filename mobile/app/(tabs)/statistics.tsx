@@ -149,7 +149,7 @@ export default function StatisticsScreen() {
 
   if (isError) {
     return (
-      <SafeAreaView edges={["top", "left", "right"]} className="flex-1 bg-neutral-100 dark:bg-neutral-900">
+      <SafeAreaView edges={["top", "left", "right"]} className="flex-1 bg-neutral-100 dark:bg-black">
         <Header title={t("tabs.statistics")} />
         <View className="flex-1 justify-center items-center p-4">
           <Ionicons name="alert-circle-outline" size={48} color="#DC2626" />
@@ -171,7 +171,7 @@ export default function StatisticsScreen() {
     : 0;
 
   return (
-    <SafeAreaView edges={["top", "left", "right"]} className="flex-1 bg-neutral-100 dark:bg-neutral-900">
+    <SafeAreaView edges={["top", "left", "right"]} className="flex-1 bg-neutral-100 dark:bg-black">
       <Header title={t("tabs.statistics")} />
       
       <ScrollView

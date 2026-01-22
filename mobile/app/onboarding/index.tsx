@@ -131,7 +131,7 @@ export default function OnboardingScreen() {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-neutral-50 dark:bg-neutral-900">
+    <SafeAreaView className="flex-1 bg-neutral-50 dark:bg-black">
       <View className="flex-1 px-6 pt-8 pb-12">
         {/* Header Animation */}
         <Animated.View

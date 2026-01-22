@@ -56,7 +56,7 @@ export default function AuthIndexScreen() {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-neutral-50 dark:bg-neutral-900">
+    <SafeAreaView className="flex-1 bg-neutral-50 dark:bg-black">
         <View className="flex-1 justify-center items-center px-6 md:max-w-2xl md:mx-auto w-full">
           {/* Animation */}
           <Animated.View
