@@ -1,9 +1,10 @@
 import React, { useState } from "react";
-import { Text, View, ScrollView, Pressable, RefreshControl, useColorScheme } from "react-native";
+import { Text, View, ScrollView, RefreshControl, useColorScheme } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import Animated, { FadeInUp, FadeInDown } from "react-native-reanimated";
 import Header from "@/components/ui/header";
+import { AnimatedPressable } from "@/components/ui/animated-pressable";
 import { useOverallStats, useStatsByPeriod, useWasteEvolution, useTopCategories } from "@/hooks/use-statistics";
 import { useTranslation } from "@/hooks/use-translation";
 
@@ -86,7 +87,7 @@ function PeriodTabs({ selected, onSelect, locale }: { selected: Period; onSelect
       className="flex-row bg-neutral-200 dark:bg-neutral-800 rounded-xl p-1 mx-4 mb-4"
     >
       {periods.map((period) => (
-        <Pressable
+        <AnimatedPressable
           key={period}
           onPress={() => onSelect(period)}
           className={`flex-1 py-2 px-3 rounded-lg ${
@@ -100,7 +101,7 @@ function PeriodTabs({ selected, onSelect, locale }: { selected: Period; onSelect
           >
             {PERIOD_LABELS[period][locale.startsWith("fr") ? "fr" : "en"]}
           </Text>
-        </Pressable>
+        </AnimatedPressable>
       ))}
     </Animated.View>
   );

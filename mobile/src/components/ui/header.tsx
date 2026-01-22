@@ -1,10 +1,11 @@
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { View, Text, Pressable, Image, useColorScheme } from "react-native";
+import { View, Text, Image, useColorScheme } from "react-native";
 import { useRouter } from "expo-router";
 
 import { Ionicons } from "@expo/vector-icons";
 
 import { authClient } from "@/lib/auth-client";
+import { AnimatedPressable } from "./animated-pressable";
 
 interface HeaderProps {
   showBackButton?: boolean;
@@ -31,7 +32,7 @@ export default function Header({
       >
         <View className="flex-row items-center gap-2">
           {showBackButton && (
-            <Pressable
+            <AnimatedPressable
               onPress={() => router.back()}
               className="mr-3 p-1"
               hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
@@ -41,7 +42,7 @@ export default function Header({
                 color={isDark ? "#fafafa" : "#171717"}
                 size={24}
               />
-            </Pressable>
+            </AnimatedPressable>
           )}
           {session && (
             session.user?.image ? (
@@ -67,9 +68,9 @@ export default function Header({
         </View>
 
         <View className="flex-row items-center gap-3">
-          <Pressable
+          <AnimatedPressable
             onPress={() => router.push("/(tabs)/statistics")}
-            className="p-2 rounded-lg active:bg-neutral-200 dark:active:bg-neutral-800"
+            className="p-2 rounded-lg"
             hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
           >
             <Ionicons
@@ -77,11 +78,11 @@ export default function Header({
               color={isDark ? "#fafafa" : "#171717"}
               size={20}
             />
-          </Pressable>
+          </AnimatedPressable>
 
-          <Pressable
+          <AnimatedPressable
             onPress={() => router.push("/(tabs)/settings")}
-            className="p-2 rounded-lg active:bg-neutral-200 dark:active:bg-neutral-800"
+            className="p-2 rounded-lg"
             hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
           >
             <Ionicons
@@ -89,7 +90,7 @@ export default function Header({
               color={isDark ? "#fafafa" : "#171717"}
               size={20}
             />
-          </Pressable>
+          </AnimatedPressable>
         </View>
       </View>
     </>

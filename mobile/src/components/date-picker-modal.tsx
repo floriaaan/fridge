@@ -1,6 +1,7 @@
 import React, { useState } from "react";
-import { View, Text, TouchableOpacity, Platform } from "react-native";
+import { View, Text, Platform } from "react-native";
 import { AnimatedModal } from "./animated-modal";
+import { AnimatedTouchableOpacity } from "./ui/animated-touchable-opacity";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { useTranslation } from "@/hooks/use-translation";
 
@@ -35,12 +36,12 @@ export const DatePickerModal: React.FC<DatePickerModalProps> = ({
     <AnimatedModal visible={visible} onClose={onClose}>
       <View className="gap-3 min-h-96">
         <Text className="text-lg font-bold text-neutral-900 dark:text-neutral-100">{t("datePicker.selectDate")}</Text>
-        <DateTimePicker value={date} mode="date" display={Platform.OS === "ios" ? "spinner" : "default"} onChange={handleDateChange} />
-        {Platform.OS === "ios" && (
-          <TouchableOpacity className="bg-neutral-900 dark:bg-neutral-100 rounded-lg p-3" onPress={onClose}>
-            <Text className="text-white dark:text-neutral-900 text-center font-semibold">{t("common.confirm")}</Text>
-          </TouchableOpacity>
-        )}
+         <DateTimePicker value={date} mode="date" display={Platform.OS === "ios" ? "spinner" : "default"} onChange={handleDateChange} />
+         {Platform.OS === "ios" && (
+           <AnimatedTouchableOpacity className="bg-neutral-900 dark:bg-neutral-100 rounded-lg p-3" onPress={onClose}>
+             <Text className="text-white dark:text-neutral-900 text-center font-semibold">{t("common.confirm")}</Text>
+           </AnimatedTouchableOpacity>
+         )}
       </View>
     </AnimatedModal>
   );

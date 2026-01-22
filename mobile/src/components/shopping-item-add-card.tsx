@@ -1,11 +1,12 @@
 import React, { useCallback, useMemo, useState } from 'react';
-import { Text, View, TouchableOpacity, TextInput, Keyboard, useColorScheme } from 'react-native';
+import { Text, View, TextInput, Keyboard, useColorScheme } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import Animated, { FadeInDown, LinearTransition } from 'react-native-reanimated';
 import { useCreateShoppingItem } from '@/hooks/use-create-shopping-item';
 import { SelectModal } from '@/components/select-modal';
 import type { ShoppingItem } from '@/lib/api/fetch-shopping-items';
 import { useTranslation } from '@/hooks/use-translation';
+import { AnimatedTouchableOpacity } from '@/components/ui/animated-touchable-opacity';
 
 type ShoppingItemAddCardProps = {
   defaultUnit?: string;
@@ -80,9 +81,9 @@ export function ShoppingItemAddCard({
       </View>
       <View className="flex-row items-center gap-2 justify-end">
         <View className="flex-row items-center bg-white dark:bg-neutral-700 px-2 py-2 rounded-lg border border-neutral-200 dark:border-neutral-600">
-          <TouchableOpacity onPress={handleDecrement} disabled={isPending} activeOpacity={0.6}>
+          <AnimatedTouchableOpacity onPress={handleDecrement} disabled={isPending} activeOpacity={0.6}>
             <Ionicons name="remove" size={16} color={ADD_TEXT} />
-          </TouchableOpacity>
+          </AnimatedTouchableOpacity>
           <TextInput
             value={String(quantity)}
             onChangeText={(t) => {
@@ -94,11 +95,11 @@ export function ShoppingItemAddCard({
             style={{ color: ADD_TEXT, textAlign: 'center', fontSize: 12, fontWeight: '600', marginHorizontal: 4, minWidth: 20 }}
             editable={!isPending}
           />
-          <TouchableOpacity onPress={handleIncrement} disabled={isPending} activeOpacity={0.6}>
+          <AnimatedTouchableOpacity onPress={handleIncrement} disabled={isPending} activeOpacity={0.6}>
             <Ionicons name="add" size={16} color={ADD_TEXT} />
-          </TouchableOpacity>
+          </AnimatedTouchableOpacity>
         </View>
-        <TouchableOpacity
+        <AnimatedTouchableOpacity
           className="border border-neutral-300 dark:border-neutral-600 rounded-lg px-3 py-2 bg-white dark:bg-neutral-700 flex-row justify-between items-center"
           onPress={() => setShowUnitModal(true)}
           disabled={isPending}
@@ -106,7 +107,7 @@ export function ShoppingItemAddCard({
           <Text className="text-sm font-semibold" style={{ color: ADD_TEXT }}>
             {unit}
           </Text>
-        </TouchableOpacity>
+        </AnimatedTouchableOpacity>
         <SelectModal
           visible={showUnitModal}
           onClose={() => setShowUnitModal(false)}
@@ -118,7 +119,7 @@ export function ShoppingItemAddCard({
             setShowUnitModal(false);
           }}
         />
-        <TouchableOpacity
+        <AnimatedTouchableOpacity
           onPress={handleSubmit}
           disabled={!canSubmit || isPending}
           className="px-3 py-2 rounded-lg"
@@ -126,7 +127,7 @@ export function ShoppingItemAddCard({
           style={{ backgroundColor: ADD_TEXT, opacity: !canSubmit || isPending ? 0.4 : 1 }}
         >
           <Ionicons name="checkmark" size={16} color={ADD_BG} />
-        </TouchableOpacity>
+        </AnimatedTouchableOpacity>
       </View>
     </Animated.View>
   );

@@ -1,5 +1,5 @@
 import React from "react";
-import { View, Text, TouchableOpacity, Image, useColorScheme } from "react-native";
+import { View, Text, Image, useColorScheme } from "react-native";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { type Recipe } from "@/lib/api/fetch-recipes";
 import Animated, {
@@ -8,6 +8,7 @@ import Animated, {
   LinearTransition,
 } from "react-native-reanimated";
 import { useTranslation } from "@/hooks/use-translation";
+import { AnimatedTouchableOpacity } from "@/components/ui/animated-touchable-opacity";
 
 type RecipeCardProps = {
   recipe: Recipe;
@@ -75,10 +76,10 @@ export function RecipeCard({ recipe, onPress, index }: RecipeCardProps) {
   const textColor = getSourceTextColor(recipe.source, isDark);
 
   return (
-    <TouchableOpacity
+    <AnimatedTouchableOpacity
       onPress={onPress}
       className="w-full"
-      activeOpacity={0.8}
+      activeOpacity={1}
       testID={`recipe-card-${recipe.id}`}
     >
       <Animated.View
@@ -157,9 +158,9 @@ export function RecipeCard({ recipe, onPress, index }: RecipeCardProps) {
               </View>
             </View>
           </View>
-          <Ionicons name="chevron-forward" size={20} color={textColor} />
-        </View>
-      </Animated.View>
-    </TouchableOpacity>
-  );
+           <Ionicons name="chevron-forward" size={20} color={textColor} />
+         </View>
+       </Animated.View>
+     </AnimatedTouchableOpacity>
+   );
 }

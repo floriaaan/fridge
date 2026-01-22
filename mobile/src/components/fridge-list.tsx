@@ -3,7 +3,6 @@ import {
   View,
   ScrollView,
   Text,
-  TouchableOpacity,
   RefreshControl,
   TextInput,
   useColorScheme,
@@ -20,6 +19,7 @@ import { ProductCard } from "@/components/product-card";
 import { Chip } from "@/components/ui/chip";
 import { EmptyState } from "@/components/empty-state";
 import { GradientChip } from "@/components/ui/gradient-chip";
+import { AnimatedTouchableOpacity } from "@/components/ui/animated-touchable-opacity";
 import { useTranslation } from "@/hooks/use-translation";
 
 type FridgeListProps = {
@@ -411,10 +411,10 @@ export function FridgeList({ products, refresh, isLoading }: FridgeListProps) {
 
       <View className="absolute bottom-5 left-5 right-5">
          <View className="flex-row gap-3">
-           <TouchableOpacity
+           <AnimatedTouchableOpacity
              onPress={handleScanReceipt}
              className="flex-1 bg-green-600 py-4 px-4 rounded-xl shadow-xl flex flex-row items-center justify-center"
-             activeOpacity={0.8}
+             activeOpacity={1}
            >
              <Ionicons
                name="document-text-outline"
@@ -425,12 +425,12 @@ export function FridgeList({ products, refresh, isLoading }: FridgeListProps) {
              <Text className="text-white font-semibold text-base">
                {t("fridge.scanTicket")}
              </Text>
-           </TouchableOpacity>
+           </AnimatedTouchableOpacity>
 
-           <TouchableOpacity
+           <AnimatedTouchableOpacity
              onPress={handleAnalyzeFridge}
              className="bg-blue-600 px-4 py-4 rounded-xl shadow-xl flex items-center justify-center"
-             activeOpacity={0.8}
+             activeOpacity={1}
              testID="analyze-fridge-button"
            >
              <Ionicons
@@ -438,12 +438,12 @@ export function FridgeList({ products, refresh, isLoading }: FridgeListProps) {
                size={24}
                color="white"
              />
-           </TouchableOpacity>
+           </AnimatedTouchableOpacity>
 
-           <TouchableOpacity
+           <AnimatedTouchableOpacity
              onPress={handleAddProduct}
              className="bg-neutral-900 dark:bg-neutral-100 px-4 py-4 rounded-xl shadow-xl flex items-center justify-center"
-             activeOpacity={0.8}
+             activeOpacity={1}
              testID="add-product-button"
            >
              <Ionicons
@@ -451,7 +451,7 @@ export function FridgeList({ products, refresh, isLoading }: FridgeListProps) {
                size={24}
                color={isDark ? "black" : "white"}
              />
-           </TouchableOpacity>
+           </AnimatedTouchableOpacity>
          </View>
        </View>
     </GestureHandlerRootView>

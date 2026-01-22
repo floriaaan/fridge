@@ -1,11 +1,12 @@
 import React from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { View, TouchableOpacity, Text, useColorScheme } from "react-native";
+import { View, Text, useColorScheme } from "react-native";
 import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { useRecipes } from "@/hooks/use-recipes";
 import Header from "@/components/ui/header";
 import { RecipeList } from "@/components/recipe-list";
+import { AnimatedTouchableOpacity } from "@/components/ui/animated-touchable-opacity";
 import { useTranslation } from "@/hooks/use-translation";
 
 export default function RecipesScreen() {
@@ -24,18 +25,18 @@ export default function RecipesScreen() {
 
       <RecipeList recipes={recipes} refresh={refetch} isLoading={isLoading} />
 
-      <View className="absolute bottom-5 left-5 right-5">
-        <TouchableOpacity
-          onPress={() => router.push("/recipe/generate")}
-          className="bg-neutral-900 dark:bg-neutral-100 py-4 rounded-xl shadow-xl flex-row items-center justify-center"
-          activeOpacity={0.8}
-        >
-          <Ionicons name="sparkles" size={24} color={isDark ? "#171717" : "white"} />
-          <Text className="text-white dark:text-neutral-900 font-semibold text-base ml-2">
-            {t("recipe.generate")}
-          </Text>
-        </TouchableOpacity>
-      </View>
+       <View className="absolute bottom-5 left-5 right-5">
+         <AnimatedTouchableOpacity
+           onPress={() => router.push("/recipe/generate")}
+           className="bg-neutral-900 dark:bg-neutral-100 py-4 rounded-xl shadow-xl flex-row items-center justify-center"
+           activeOpacity={1}
+         >
+           <Ionicons name="sparkles" size={24} color={isDark ? "#171717" : "white"} />
+           <Text className="text-white dark:text-neutral-900 font-semibold text-base ml-2">
+             {t("recipe.generate")}
+           </Text>
+         </AnimatedTouchableOpacity>
+       </View>
     </SafeAreaView>
   );
 }
