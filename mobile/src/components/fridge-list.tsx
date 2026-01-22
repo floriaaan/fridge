@@ -171,6 +171,10 @@ export function FridgeList({ products, refresh, isLoading }: FridgeListProps) {
     router.push("/recipe/generate");
   };
 
+  const handleAnalyzeFridge = () => {
+    router.push("/fridge-scan/scan");
+  };
+
   function formatDate(date: string | null): string {
     if (!date) return t("common.noExpiryDate");
     const d = new Date(date);
@@ -406,41 +410,50 @@ export function FridgeList({ products, refresh, isLoading }: FridgeListProps) {
       </ScrollView>
 
       <View className="absolute bottom-5 left-5 right-5">
-        <View className="flex-row gap-3">
-          <TouchableOpacity
-            onPress={handleScanReceipt}
-            className="flex-1 bg-green-600 py-4 rounded-xl shadow-xl flex flex-row items-center justify-center"
-            activeOpacity={0.8}
-          >
-            <Ionicons
-              name="document-text-outline"
-              size={24}
-              color="white"
-              className="mr-2"
-            />
-            <Text className="text-white font-semibold text-base">
-              {t("fridge.scanTicket")}
-            </Text>
-          </TouchableOpacity>
+         <View className="flex-row gap-3">
+           <TouchableOpacity
+             onPress={handleScanReceipt}
+             className="flex-1 bg-green-600 py-4 px-4 rounded-xl shadow-xl flex flex-row items-center justify-center"
+             activeOpacity={0.8}
+           >
+             <Ionicons
+               name="document-text-outline"
+               size={24}
+               color="white"
+               className="mr-2"
+             />
+             <Text className="text-white font-semibold text-base">
+               {t("fridge.scanTicket")}
+             </Text>
+           </TouchableOpacity>
 
-          <TouchableOpacity
-            onPress={handleAddProduct}
-            className="flex-1 bg-neutral-900 dark:bg-neutral-100 py-4 rounded-xl shadow-xl flex flex-row items-center justify-center"
-            activeOpacity={0.8}
-            testID="add-product-button"
-          >
-            <Ionicons
-              name="add-circle-outline"
-              size={24}
-              color={isDark ? "black" : "white"}
-              className="mr-2"
-            />
-            <Text className="text-white dark:text-neutral-900 font-semibold text-base">
-              {t("fridge.addProduct")}
-            </Text>
-          </TouchableOpacity>
-        </View>
-      </View>
+           <TouchableOpacity
+             onPress={handleAnalyzeFridge}
+             className="bg-blue-600 px-4 py-4 rounded-xl shadow-xl flex items-center justify-center"
+             activeOpacity={0.8}
+             testID="analyze-fridge-button"
+           >
+             <Ionicons
+               name="eye-outline"
+               size={24}
+               color="white"
+             />
+           </TouchableOpacity>
+
+           <TouchableOpacity
+             onPress={handleAddProduct}
+             className="bg-neutral-900 dark:bg-neutral-100 px-4 py-4 rounded-xl shadow-xl flex items-center justify-center"
+             activeOpacity={0.8}
+             testID="add-product-button"
+           >
+             <Ionicons
+               name="barcode-outline"
+               size={24}
+               color={isDark ? "black" : "white"}
+             />
+           </TouchableOpacity>
+         </View>
+       </View>
     </GestureHandlerRootView>
   );
 }
