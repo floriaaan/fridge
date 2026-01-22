@@ -59,11 +59,25 @@ function RootLayoutNav() {
     checkOnboarding();
   }, []);
 
+  // Re-check onboarding status when navigating away from onboarding
+  useEffect(() => {
+    const recheckOnboarding = async () => {
+      const inOnboarding = segments[0] === "onboarding";
+      if (!inOnboarding && needsOnboarding) {
+        const completed = await isOnboardingCompleted();
+        if (completed) {
+          setNeedsOnboarding(false);
+        }
+      }
+    };
+
+    recheckOnboarding();
+  }, [segments, needsOnboarding]);
+
   useEffect(() => {
     if (isCheckingOnboarding) return;
 
     const inOnboarding = segments[0] === "onboarding";
-    const inAuthGroup = segments[0] === "(auth)";
 
     if (needsOnboarding && !inOnboarding) {
       router.replace("/onboarding");
@@ -74,7 +88,7 @@ function RootLayoutNav() {
 
   return (
     <Stack>
-      <Stack.Screen name="onboarding" options={{ headerShown: false }} />
+      <Stack.Screen name="onboarding/index" options={{ headerShown: false }} />
       <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
       <Stack.Screen name="(auth)" options={{ headerShown: false }} />
       <Stack.Screen

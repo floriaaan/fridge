@@ -108,7 +108,7 @@ export class GeminiProvider implements AiProvider {
   async generateRecipeImage(recipeTitle: string, recipeDescription: string): Promise<Buffer | null> {
     try {
       const { image } = await generateImage({
-        model: this.googleInstance.image("gemini-2.5-flash-image"),
+        model: this.googleInstance.image("imagen-4.0-fast-generate-001"),
         prompt: buildRecipeImagePrompt(recipeTitle, recipeDescription),
         aspectRatio: "1:1",
       });

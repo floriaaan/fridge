@@ -30,11 +30,6 @@ const getSourceIcon = (source: "ai" | "user" | "community") => {
   }
 };
 
-const formatDescription = (description: string): string[] => {
-  // Split by numbered points (1. 2. 3. etc.) - handles both "1. " and "1) " formats
-  const parts = description.split(/\s*(?=\d+[\.\)]\s)/);
-  return parts.map((part) => part.trim()).filter((part) => part.length > 0);
-};
 
 const formatInstructionsToMarkdown = (instructions: string): string => {
   // Check if instructions already contain markdown list syntax

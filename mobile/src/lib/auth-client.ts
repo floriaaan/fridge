@@ -7,17 +7,18 @@ import { getBaseUrl } from "./api-config";
 
 // Create auth client with current base URL
 function createClient() {
-  return createAuthClient({
+  const authClient = createAuthClient({
     baseURL: getBaseUrl(),
     plugins: [
       expoClient({
         scheme: "fridge",
         storagePrefix: "fridge",
         storage: SecureStore,
-        cookiePrefix: "better-auth", // Correspond au préfixe par défaut du serveur
+        disableCache: true,
       }),
     ],
   });
+  return authClient;
 }
 
 // Singleton instance - will be recreated when server config changes

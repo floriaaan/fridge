@@ -10,6 +10,9 @@ import { shoppingItemController } from "@/application/controller/shopping-item";
 import { receiptController } from "@/application/controller/receipt";
 import { statisticsController } from "@/application/controller/statistics";
 import { fridgeScanController } from "@/application/controller/fridge-scan";
+import { authController } from "@/application/controller/auth";
+
+
 
 const api = new Elysia({ prefix: "/api" })
   .use(productController)
@@ -28,17 +31,16 @@ const app = new Elysia({ adapter: node() })
       allowedHeaders: ["Content-Type", "Authorization", "Cookie"],
     }),
   )
+  .use(authController)
+  .use(loggerMiddleware)
+  .use(authMiddleware)
   .use(
     staticPlugin({
       assets: "public",
       prefix: "/",
     }),
   )
-  .use(authMiddleware)
-  .use(loggerMiddleware)
-
-  .get("/", () => "Hello Elysia")
-  .get("/user", ({ user }) => user, { auth: true })
+  .get("/health", () => ({ status: "ok" }))
   .use(api)
   .listen(3000, ({ hostname, port }) => {
     console.log(`🦊 Elysia is running at ${hostname}:${port} (${process.env.NODE_ENV})`);
