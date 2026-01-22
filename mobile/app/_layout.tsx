@@ -15,7 +15,7 @@ import { StatusBar } from "expo-status-bar";
 import "react-native-reanimated";
 import "../assets/global.css";
 import { authClient } from "@/lib/auth-client";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useColorScheme } from "react-native";
 import { useTranslation } from "@/hooks/use-translation";
 import { isOnboardingCompleted } from "@/lib/server-config";
@@ -39,6 +39,7 @@ function RootLayoutNav() {
   const { t } = useTranslation();
   const [isCheckingOnboarding, setIsCheckingOnboarding] = useState(true);
   const [needsOnboarding, setNeedsOnboarding] = useState(false);
+  const splashHiddenRef = useRef(false);
 
   useEffect(() => {
     const checkOnboarding = async () => {
@@ -75,7 +76,7 @@ function RootLayoutNav() {
   }, [segments, needsOnboarding]);
 
   useEffect(() => {
-    if (isCheckingOnboarding) return;
+    if (isCheckingOnboarding || !navigationState?.key || splashHiddenRef.current) return;
 
     const inOnboarding = segments[0] === "onboarding";
 
@@ -83,7 +84,12 @@ function RootLayoutNav() {
       router.replace("/onboarding");
     }
     
-    SplashScreen.hideAsync();
+    try {
+      SplashScreen.hideAsync();
+      splashHiddenRef.current = true;
+    } catch (error) {
+      console.warn("Failed to hide splash screen:", error);
+    }
   }, [isLoggedIn, segments, isLoading, navigationState?.key, router, isCheckingOnboarding, needsOnboarding]);
 
   return (
