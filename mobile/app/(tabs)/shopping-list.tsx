@@ -7,8 +7,10 @@ import {
   TextInput,
   ActivityIndicator,
   useColorScheme,
+  KeyboardAvoidingView,
+  Platform,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { Ionicons, MaterialIcons } from "@expo/vector-icons";
 import { useShoppingItems } from "@/hooks/use-shopping-items";
@@ -32,6 +34,7 @@ export default function ShoppingListScreen() {
   const { t } = useTranslation();
   const colorScheme = useColorScheme();
   const isDark = colorScheme === "dark";
+  const insets = useSafeAreaInsets();
 
   const [statusFilter, setStatusFilter] = React.useState<
     "all" | "pending" | "done"
@@ -48,7 +51,7 @@ export default function ShoppingListScreen() {
 
       updateShoppingItems([{ id: itemId, checked: !target.checked }]);
     },
-    [items, updateShoppingItems]
+    [items, updateShoppingItems],
   );
 
   const filteredItems = React.useMemo(() => {
@@ -64,7 +67,7 @@ export default function ShoppingListScreen() {
         return item.source === sourceFilter;
       })
       .filter((item) =>
-        item.name.toLowerCase().includes(searchQuery.toLowerCase())
+        item.name.toLowerCase().includes(searchQuery.toLowerCase()),
       )
       .sort((a, b) => {
         return (
@@ -214,7 +217,7 @@ export default function ShoppingListScreen() {
 
         <ScrollView
           className="flex-1"
-          contentContainerStyle={{ paddingBottom: 120 }}
+          contentContainerStyle={{ paddingBottom: 80 }}
           showsVerticalScrollIndicator={false}
           refreshControl={
             <RefreshControl
@@ -272,13 +275,22 @@ export default function ShoppingListScreen() {
                   marginTop="mt-16"
                 />
               )}
-              <View className="px-4 py-6">
-                <ShoppingItemAddCard defaultUnit="pcs" defaultQuantity={1} />
-              </View>
             </>
           )}
         </ScrollView>
       </SafeAreaView>
+
+      <KeyboardAvoidingView
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        keyboardVerticalOffset={Platform.OS === "ios" ? insets.bottom : 0}
+        style={{ position: "absolute", bottom: 0, left: 0, right: 0 }}
+      >
+        <View className="px-5 pb-5">
+          <ShoppingItemAddCard defaultUnit="pcs" defaultQuantity={1} onCreated={() => {
+            refetch();
+          }} />
+        </View>
+      </KeyboardAvoidingView>
     </GestureHandlerRootView>
   );
 }
