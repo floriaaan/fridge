@@ -16,7 +16,7 @@ export function AuthLayout({ children }: AuthLayoutProps) {
 
   if (isTablet && isLandscape) {
     return (
-      <View className="flex-1 flex-row bg-neutral-50 dark:bg-neutral-900">
+      <View className="flex-1 flex-row bg-neutral-50 dark:bg-black">
         <View className="flex-1 justify-center items-center p-12 border-r border-neutral-200 dark:border-neutral-700">
           <Animated.View entering={FadeInUp.duration(600).delay(100)}>
             <LottieView

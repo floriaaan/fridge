@@ -11,11 +11,11 @@ import {
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import {
-  scanReceipt,
-  importReceipt,
-  type EnhancedProduct,
-  type ImportReceiptItem,
-} from "@/lib/api/receipt";
+  scanFridgeContents,
+  importFridgeProducts,
+  type ImportFridgeItem,
+} from "@/lib/api/fridge-scan";
+import type { EnhancedProduct } from "@/lib/api/receipt";
 import Snackbar, { SnackbarRef } from "@/components/ui/snackbar";
 import { useTranslation } from "@/hooks/use-translation";
 
@@ -25,7 +25,7 @@ interface EditableProduct extends EnhancedProduct {
   location: string;
 }
 
-export default function ReceiptConfirmScreen() {
+export default function FridgeScanConfirmScreen() {
   const params = useLocalSearchParams();
   const router = useRouter();
   const insets = useSafeAreaInsets();
@@ -36,9 +36,6 @@ export default function ReceiptConfirmScreen() {
 
   const [isScanning, setIsScanning] = useState(true);
   const [isImporting, setIsImporting] = useState(false);
-  const [storeName, setStoreName] = useState("");
-  const [date, setDate] = useState("");
-  const [totalAmount, setTotalAmount] = useState(0);
   const [products, setProducts] = useState<EditableProduct[]>([]);
   const [error, setError] = useState<string | null>(null);
 
@@ -47,14 +44,11 @@ export default function ReceiptConfirmScreen() {
       try {
         const imageBase64 = params.imageBase64 as string;
         if (!imageBase64) {
-          throw new Error("Aucune image fournie");
+          throw new Error(t("common.error"));
         }
 
-        const result = await scanReceipt(imageBase64);
+        const result = await scanFridgeContents(imageBase64);
 
-        setStoreName(result.storeName);
-        setDate(result.date);
-        setTotalAmount(result.totalAmount);
         setProducts(
           result.items.map((item, index) => ({
             ...item,
@@ -68,7 +62,7 @@ export default function ReceiptConfirmScreen() {
         setError(
           err instanceof Error
             ? err.message
-            : "Impossible de lire le ticket, vérifiez l'éclairage"
+            : t("common.error")
         );
       } finally {
         setIsScanning(false);
@@ -76,7 +70,7 @@ export default function ReceiptConfirmScreen() {
     };
 
     performScan();
-  }, [params.imageBase64]);
+  }, [params.imageBase64, t]);
 
   const toggleProductInclusion = (id: string) => {
     setProducts((prev) =>
@@ -94,32 +88,26 @@ export default function ReceiptConfirmScreen() {
     const includedProducts = products.filter((p) => p.included);
 
     if (includedProducts.length === 0) {
-      Alert.alert("Aucun produit", "Veuillez sélectionner au moins un produit");
+      Alert.alert(t("common.error"), t("fridgeScan.selectProducts"));
       return;
     }
 
     setIsImporting(true);
     try {
-      const importItems: ImportReceiptItem[] = includedProducts.map((p) => ({
+      const importItems: ImportFridgeItem[] = includedProducts.map((p) => ({
         name: p.name,
         quantity: p.quantity,
         unit: p.unit,
-        price: p.price,
         category: p.category,
         location: p.location,
         openfoodfactId: p.openfoodfactId,
         estimatedExpiryDays: p.estimatedExpiryDays,
       }));
 
-      await importReceipt({
-        storeName,
-        totalAmount,
-        date,
-        items: importItems,
-      });
+      await importFridgeProducts({ items: importItems });
 
       snackBarRef.current?.show(
-        `${includedProducts.length} produits ajoutés au frigo !`,
+        `${includedProducts.length} ${t("common.success")}`,
         3000
       );
 
@@ -128,10 +116,7 @@ export default function ReceiptConfirmScreen() {
       }, 1000);
     } catch (err) {
       console.error("Import error:", err);
-      Alert.alert(
-        "Erreur",
-        "Impossible d'importer les produits. Veuillez réessayer."
-      );
+      Alert.alert(t("common.error"), t("common.error"));
     } finally {
       setIsImporting(false);
     }
@@ -142,10 +127,10 @@ export default function ReceiptConfirmScreen() {
       <View className="flex-1 bg-neutral-50 dark:bg-black justify-center items-center p-6">
         <ActivityIndicator size="large" color={isDark ? "#fafafa" : "#111827"} />
         <Text className="mt-4 text-lg text-neutral-700 dark:text-neutral-300 font-semibold">
-          {t("receipt.analyzing")}
+          {t("fridgeScan.analyzing")}
         </Text>
         <Text className="mt-2 text-sm text-neutral-500 dark:text-neutral-400 text-center">
-          {t("receipt.analyzeDescription")}
+          {t("fridgeScan.analyzeDescription")}
         </Text>
       </View>
     );
@@ -178,13 +163,11 @@ export default function ReceiptConfirmScreen() {
       style={{ paddingTop: insets.top, paddingBottom: insets.bottom }}
     >
       <View className="bg-white dark:bg-neutral-800 p-4 border-b border-neutral-200 dark:border-neutral-700">
-        <Text className="text-xl font-bold text-neutral-900 dark:text-neutral-100">{storeName}</Text>
-        <Text className="text-sm text-neutral-500 dark:text-neutral-400 mt-1">
-          {new Date(date).toLocaleDateString("fr-FR")} • {products.length}{" "}
-          {t("receipt.selectProducts")}
+        <Text className="text-xl font-bold text-neutral-900 dark:text-neutral-100">
+          {t("fridgeScan.title")}
         </Text>
-        <Text className="text-lg font-semibold text-neutral-700 dark:text-neutral-300 mt-2">
-          Total : {totalAmount.toFixed(2)}€
+        <Text className="text-sm text-neutral-500 dark:text-neutral-400 mt-1">
+          {products.length} {t("fridgeScan.selectProducts")}
         </Text>
       </View>
 
@@ -192,13 +175,13 @@ export default function ReceiptConfirmScreen() {
         {products.map((product) => (
           <View
             key={product.id}
-            className={`mb-3 bg-white dark:bg-neutral-800 rounded-xl p-4 border ${product.included ? "border-green-500" : "border-neutral-300 dark:border-neutral-600"}`}
+            className={`mb-3 bg-white dark:bg-neutral-800 rounded-xl p-4 border ${product.included ? "border-cyan-500" : "border-neutral-300 dark:border-neutral-600"}`}
           >
             <View className="flex-row items-center justify-between mb-2">
               <View className="flex-1 flex-row items-center">
                 <TouchableOpacity
                   onPress={() => toggleProductInclusion(product.id)}
-                  className={`w-6 h-6 rounded border-2 mr-3 items-center justify-center ${product.included ? "bg-green-500 border-green-500" : "border-neutral-400 dark:border-neutral-500"}`}
+                  className={`w-6 h-6 rounded border-2 mr-3 items-center justify-center ${product.included ? "bg-cyan-500 border-cyan-500" : "border-neutral-400 dark:border-neutral-500"}`}
                 >
                   {product.included && (
                     <Text className="text-white font-bold">✓</Text>
@@ -209,13 +192,13 @@ export default function ReceiptConfirmScreen() {
                     {product.name}
                   </Text>
                   <Text className="text-sm text-neutral-500 dark:text-neutral-400">
-                    {product.quantity} {product.unit} • {product.price.toFixed(2)}€
+                    {product.quantity} {product.unit}
                   </Text>
                 </View>
               </View>
               {product.confidence === "low" && (
                 <View className="bg-yellow-100 dark:bg-yellow-900 px-2 py-1 rounded">
-                  <Text className="text-xs text-yellow-800 dark:text-yellow-200">⚠️ Incertain</Text>
+                  <Text className="text-xs text-yellow-800 dark:text-yellow-200">⚠️</Text>
                 </View>
               )}
             </View>
@@ -264,11 +247,11 @@ export default function ReceiptConfirmScreen() {
           <Text className="text-neutral-900 dark:text-neutral-100 font-semibold">{t("common.cancel")}</Text>
         </TouchableOpacity>
         <TouchableOpacity
-          className={`flex-1 py-4 rounded-xl items-center ${isImporting ? "bg-neutral-400 dark:bg-neutral-600" : "bg-neutral-900 dark:bg-neutral-100"}`}
+          className={`flex-1 py-4 rounded-xl items-center ${isImporting ? "bg-neutral-400 dark:bg-neutral-600" : "bg-cyan-500"}`}
           onPress={handleImport}
           disabled={isImporting}
         >
-          <Text className={`font-semibold ${isImporting ? "text-white" : "text-white dark:text-neutral-900"}`}>
+          <Text className={`font-semibold ${isImporting ? "text-white" : "text-white"}`}>
             {isImporting
               ? t("common.loading")
               : `${t("receipt.import")} (${products.filter((p) => p.included).length})`}

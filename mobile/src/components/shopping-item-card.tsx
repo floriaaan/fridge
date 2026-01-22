@@ -2,7 +2,6 @@ import React, { useRef, useState, useCallback } from "react";
 import {
   Text,
   View,
-  TouchableOpacity,
   TextInput,
   useColorScheme,
 } from "react-native";
@@ -11,13 +10,13 @@ import { Ionicons } from "@expo/vector-icons";
 import Animated, {
   FadeInDown,
   FadeOutUp,
-  LinearTransition,
   useAnimatedStyle,
   withTiming,
 } from "react-native-reanimated";
 import ReanimatedSwipeable from "react-native-gesture-handler/ReanimatedSwipeable";
 import { useUpdateShoppingItems } from "@/hooks/use-update-shopping-items";
 import { useTranslation } from "@/hooks/use-translation";
+import { AnimatedTouchableOpacity } from "@/components/ui/animated-touchable-opacity";
 import { cn } from "@/lib/utils";
 
 type ShoppingItemCardProps = {
@@ -129,17 +128,17 @@ export function ShoppingItemCard({
 
   const renderRightActions = () => (
     <View className="flex-row gap-2 ml-2">
-      <TouchableOpacity
+      <AnimatedTouchableOpacity
         onPress={handleDelete}
         className="justify-center items-center px-5 rounded-2xl"
         style={{ backgroundColor: "#EF4444" }}
-        activeOpacity={0.8}
+        activeOpacity={1}
       >
         <Ionicons name="trash-outline" size={24} color="white" />
         <Text className="text-white font-semibold text-xs mt-1">
           {t("common.delete")}
         </Text>
-      </TouchableOpacity>
+      </AnimatedTouchableOpacity>
     </View>
   );
 
@@ -150,11 +149,11 @@ export function ShoppingItemCard({
       overshootRight={false}
       rightThreshold={40}
     >
-      <TouchableOpacity
+      <AnimatedTouchableOpacity
         onPress={handleToggleCheck}
         onLongPress={handleLongPress}
         className="w-full"
-        activeOpacity={0.8}
+        activeOpacity={1}
       >
         <Animated.View
           entering={FadeInDown.delay(index ? index * 50 : 0)
@@ -253,9 +252,9 @@ export function ShoppingItemCard({
                 {getSourceLabel(item.source, t)}
               </Text>
             </View>
-          </View>
-        </Animated.View>
-      </TouchableOpacity>
-    </ReanimatedSwipeable>
+           </View>
+         </Animated.View>
+       </AnimatedTouchableOpacity>
+     </ReanimatedSwipeable>
   );
 }

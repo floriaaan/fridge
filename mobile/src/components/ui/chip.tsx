@@ -1,5 +1,6 @@
-import { Pressable, Text, View } from "react-native";
+import { Text, View } from "react-native";
 import Animated, { FadeInLeft, FadeOutLeft } from "react-native-reanimated";
+import { AnimatedPressable } from "./animated-pressable";
 
 export const Chip = ({
   label,
@@ -13,7 +14,7 @@ export const Chip = ({
   icon?: React.ReactNode;
 }) => {
   return (
-    <Pressable
+    <AnimatedPressable
       onPress={onPress}
       className="relative rounded-full px-4 py-2 bg-neutral-200 dark:bg-neutral-800 overflow-hidden"
     >
@@ -40,6 +41,6 @@ export const Chip = ({
           </Text>
         )}
       </View>
-    </Pressable>
+    </AnimatedPressable>
   );
 };

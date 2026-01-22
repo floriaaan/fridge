@@ -48,7 +48,11 @@ export default function SignUpScreen() {
   const onSubmit = async (data: SignUpFormValues) => {
     setIsLoading(true);
     try {
-      await authClient.signUp.email(data);
+      const result = await authClient.signUp.email(data);
+      console.log(result);
+      if (result.error) throw new Error(result.error.message);
+      if (!result.data.user) throw new Error("Sign up failed");
+
       router.replace("/(tabs)");
     } catch (error: any) {
       snackbarRef.current?.show(error?.message || "Sign up failed", 3000);
@@ -59,7 +63,7 @@ export default function SignUpScreen() {
 
   return (
     <AuthLayout>
-      <SafeAreaView className="flex-1 bg-neutral-50 dark:bg-neutral-900">
+      <SafeAreaView className="flex-1 bg-neutral-50 dark:bg-black">
         <KeyboardAvoidingView
           behavior={Platform.OS === "ios" ? "padding" : "height"}
           className="flex-1"
@@ -77,7 +81,11 @@ export default function SignUpScreen() {
                 onPress={() => router.back()}
                 className="p-2 rounded-lg active:bg-neutral-100 dark:active:bg-neutral-800"
               >
-                <Ionicons name="chevron-back" size={24} color={isDark ? "#fafafa" : "#171717"} />
+                <Ionicons
+                  name="chevron-back"
+                  size={24}
+                  color={isDark ? "#fafafa" : "#171717"}
+                />
               </TouchableOpacity>
               <Text className="text-xl font-bold text-neutral-900 dark:text-neutral-100 flex-1 ml-2">
                 {t("auth.signUp")}

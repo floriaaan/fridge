@@ -30,11 +30,6 @@ const getSourceIcon = (source: "ai" | "user" | "community") => {
   }
 };
 
-const formatDescription = (description: string): string[] => {
-  // Split by numbered points (1. 2. 3. etc.) - handles both "1. " and "1) " formats
-  const parts = description.split(/\s*(?=\d+[\.\)]\s)/);
-  return parts.map((part) => part.trim()).filter((part) => part.length > 0);
-};
 
 const formatInstructionsToMarkdown = (instructions: string): string => {
   // Check if instructions already contain markdown list syntax
@@ -178,7 +173,7 @@ export default function RecipeDetail() {
 
   if (!recipe) {
     return (
-      <SafeAreaView className="flex-1 justify-center items-center bg-white dark:bg-neutral-900">
+      <SafeAreaView className="flex-1 justify-center items-center bg-white dark:bg-black">
         <Text className="text-neutral-500 dark:text-neutral-400 text-lg">{t("recipe.notFound")}</Text>
       </SafeAreaView>
     );
@@ -387,7 +382,7 @@ export default function RecipeDetail() {
   );
 
   return (
-    <SafeAreaView className="flex-1 bg-neutral-50 dark:bg-neutral-900">
+    <SafeAreaView className="flex-1 bg-neutral-50 dark:bg-black">
       {headerComponent}
       <ScrollView showsVerticalScrollIndicator={false}>
         {scrollContent}

@@ -54,14 +54,6 @@ export default function TabLayout() {
       />
 
       <Tabs.Screen
-        name="statistics"
-        options={{
-          title: t("tabs.statistics"),
-          tabBarIcon: ({ color, size }) => <Ionicons name="stats-chart" size={size} color={color} />,
-        }}
-      />
-
-      <Tabs.Screen
         name="debug"
         options={{
           title: t("tabs.debug"),
@@ -70,13 +62,18 @@ export default function TabLayout() {
           ),
         }}
       />
+
+      <Tabs.Screen
+        name="statistics"
+        options={{
+          href: null,
+        }}
+      />
+
       <Tabs.Screen
         name="settings"
         options={{
-          title: t("tabs.settings"),
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="settings" size={size} color={color} />
-          ),
+          href: null,
         }}
       />
     </Tabs>

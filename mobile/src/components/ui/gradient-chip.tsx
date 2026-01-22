@@ -1,7 +1,8 @@
 import React from "react";
-import { Text, View, StyleSheet, Pressable, useColorScheme } from "react-native";
+import { Text, View, StyleSheet, useColorScheme } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import MaskedView from "@react-native-masked-view/masked-view";
+import { AnimatedPressable } from "./animated-pressable";
 
 interface GradientChipProps {
   label: string;
@@ -19,7 +20,7 @@ export const GradientChip: React.FC<GradientChipProps> = ({
   const bgColor = isDark ? "#262626" : "#ffffff";
 
   return (
-    <Pressable onPress={onPress}>
+    <AnimatedPressable onPress={onPress}>
       <LinearGradient
         colors={["#7C3AED", "#EC4899", "#F59E0B"]}
         start={{ x: 0, y: 0 }}
@@ -74,7 +75,7 @@ export const GradientChip: React.FC<GradientChipProps> = ({
           </MaskedView>
         </View>
       </LinearGradient>
-    </Pressable>
+    </AnimatedPressable>
   );
 };
 

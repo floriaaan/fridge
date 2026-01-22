@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useRef, useState, useEffect } from "react";
 import {
   Text,
   View,
@@ -14,7 +14,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import Header from "@/components/ui/header";
 import { AnimatedModal } from "@/components/animated-modal";
 import Snackbar, { SnackbarRef } from "@/components/ui/snackbar";
-import { authClient } from "@/lib/auth-client";
+import { authClient, reinitializeAuthClient } from "@/lib/auth-client";
 import { Ionicons } from "@expo/vector-icons";
 import {
   usePasskeys,
@@ -25,8 +25,15 @@ import {
   useDeleteApiKey,
 } from "@/hooks/use-credentials";
 import { useTranslation } from "@/hooks/use-translation";
+import {
+  getServerConfig,
+  setServerConfig,
+  setOnboardingCompleted,
+  type ServerConfig,
+} from "@/lib/server-config";
+import { updateCachedConfig } from "@/lib/api-config";
 
-type ModalType = "passkeys" | "apikeys" | "about" | "help" | null;
+type ModalType = "passkeys" | "apikeys" | "about" | "help" | "server" | null;
 
 export default function SettingsScreen() {
   const router = useRouter();
@@ -39,7 +46,62 @@ export default function SettingsScreen() {
   const colorScheme = useColorScheme();
   const isDark = colorScheme === "dark";
 
+  // Server configuration state
+  const [serverConfig, setServerConfigState] = useState<ServerConfig | null>(null);
+  const [newServerUrl, setNewServerUrl] = useState("");
+  const [isSavingServer, setIsSavingServer] = useState(false);
+
   const { isPending: isLoadingSession } = authClient.useSession();
+
+  // Load server configuration on mount
+  useEffect(() => {
+    const loadServerConfig = async () => {
+      const config = await getServerConfig();
+      setServerConfigState(config);
+      if (config) {
+        setNewServerUrl(config.baseUrl);
+      }
+    };
+    loadServerConfig();
+  }, []);
+
+  const handleSaveServerConfig = async () => {
+    if (!newServerUrl.trim()) {
+      snackbarRef.current?.show(t("onboarding.enterUrl"), 3000);
+      return;
+    }
+
+    try {
+      new URL(newServerUrl);
+    } catch {
+      snackbarRef.current?.show(t("onboarding.invalidUrl"), 3000);
+      return;
+    }
+
+    setIsSavingServer(true);
+    try {
+      const config: ServerConfig = {
+        baseUrl: newServerUrl.trim(),
+        isOfficialInstance: false,
+      };
+
+      await setServerConfig(config);
+      await setOnboardingCompleted(true);
+      
+      // Update cached config and reinitialize auth client
+      updateCachedConfig(config);
+      reinitializeAuthClient();
+      
+      setServerConfigState(config);
+      snackbarRef.current?.show(t("onboarding.configSaved"), 2000);
+      setActiveModal(null);
+    } catch (error) {
+      console.error("Error saving server config:", error);
+      snackbarRef.current?.show(t("onboarding.saveFailed"), 3000);
+    } finally {
+      setIsSavingServer(false);
+    }
+  };
 
   // Credentials hooks
   const { data: passkeys, isLoading: isLoadingPasskeys } = usePasskeys();
@@ -121,7 +183,7 @@ export default function SettingsScreen() {
 
   if (isLoadingSession) {
     return (
-      <SafeAreaView className="flex-1 bg-neutral-100 dark:bg-neutral-900">
+      <SafeAreaView className="flex-1 bg-neutral-100 dark:bg-black">
         <View className="flex-1 justify-center items-center">
           <ActivityIndicator
             size="large"
@@ -133,7 +195,7 @@ export default function SettingsScreen() {
   }
 
   return (
-    <SafeAreaView className="flex-1 bg-neutral-100 dark:bg-neutral-900">
+    <SafeAreaView className="flex-1 bg-neutral-100 dark:bg-black">
       <Header title={t("settings.title")} />
       <ScrollView
         className="flex-1"
@@ -191,6 +253,38 @@ export default function SettingsScreen() {
                     {isLoadingApiKeys
                       ? t("common.loading")
                       : `${apiKeys?.length || 0} key${(apiKeys?.length || 0) !== 1 ? "s" : ""} created`}
+                  </Text>
+                </View>
+              </View>
+              <Ionicons name="chevron-forward" size={20} color={chevronColor} />
+            </TouchableOpacity>
+          </View>
+        </View>
+
+        {/* Server Section */}
+        <View className="mt-4">
+          <Text className="text-xs font-semibold text-neutral-500 dark:text-neutral-400 px-4 mb-3 uppercase">
+            {t("settings.server")}
+          </Text>
+
+          <View className="bg-white dark:bg-neutral-800 rounded-2xl overflow-hidden">
+            <TouchableOpacity
+              activeOpacity={0.7}
+              onPress={() => setActiveModal("server")}
+              className="flex-row items-center justify-between py-4 px-4"
+            >
+              <View className="flex-row items-center gap-3">
+                <View className="w-10 h-10 rounded-lg bg-cyan-100 dark:bg-cyan-900 items-center justify-center">
+                  <Ionicons name="server" size={20} color="#06B6D4" />
+                </View>
+                <View>
+                  <Text className="text-base font-semibold text-neutral-900 dark:text-neutral-100">
+                    {t("settings.serverConfiguration")}
+                  </Text>
+                  <Text className="text-sm text-neutral-600 dark:text-neutral-400 mt-1" numberOfLines={1}>
+                    {serverConfig?.isOfficialInstance
+                      ? t("settings.officialInstance")
+                      : serverConfig?.baseUrl || t("common.loading")}
                   </Text>
                 </View>
               </View>
@@ -519,6 +613,79 @@ export default function SettingsScreen() {
                 {t("settings.faqDescription")}
               </Text>
             </View>
+          </View>
+        </View>
+      </AnimatedModal>
+
+      {/* Server Configuration Modal */}
+      <AnimatedModal
+        visible={activeModal === "server"}
+        onClose={() => setActiveModal(null)}
+      >
+        <View className="gap-4 pb-12">
+          <View className="flex-row items-center justify-between">
+            <Text className="text-xl font-bold text-neutral-900 dark:text-neutral-100">
+              {t("settings.serverConfiguration")}
+            </Text>
+            <TouchableOpacity onPress={() => setActiveModal(null)}>
+              <Ionicons name="close" size={24} color={iconInactiveColor} />
+            </TouchableOpacity>
+          </View>
+
+          <View className="bg-cyan-50 dark:bg-cyan-900/30 p-4 rounded-xl gap-3">
+            <View className="flex-row items-center justify-between">
+              <Text className="text-neutral-700 dark:text-neutral-300 font-medium">
+                {t("settings.currentServer")}
+              </Text>
+              <View className="flex-row items-center gap-2">
+                <View
+                  className={`w-2 h-2 rounded-full ${
+                    serverConfig?.isOfficialInstance ? "bg-blue-500" : "bg-purple-500"
+                  }`}
+                />
+                <Text className="text-neutral-900 dark:text-neutral-100 font-semibold text-sm">
+                  {serverConfig?.isOfficialInstance
+                    ? t("settings.officialInstance")
+                    : t("settings.selfHosted")}
+                </Text>
+              </View>
+            </View>
+            <View className="h-px bg-cyan-200 dark:bg-cyan-800" />
+            <Text
+              className="text-neutral-600 dark:text-neutral-400 text-sm"
+              numberOfLines={2}
+            >
+              {serverConfig?.baseUrl || "-"}
+            </Text>
+          </View>
+
+          <View className="gap-3">
+            <Text className="text-sm font-semibold text-neutral-700 dark:text-neutral-300">
+              {t("settings.changeServer")}
+            </Text>
+            <TextInput
+              value={newServerUrl}
+              onChangeText={setNewServerUrl}
+              placeholder="https://your-server.com"
+              placeholderTextColor={isDark ? "#737373" : "#a3a3a3"}
+              autoCapitalize="none"
+              autoCorrect={false}
+              keyboardType="url"
+              className="bg-neutral-100 dark:bg-neutral-800 px-4 py-3 rounded-xl text-neutral-900 dark:text-neutral-100 border border-neutral-200 dark:border-neutral-700"
+            />
+            <TouchableOpacity
+              onPress={handleSaveServerConfig}
+              disabled={isSavingServer}
+              className="bg-cyan-500 py-3 rounded-2xl items-center"
+            >
+              {isSavingServer ? (
+                <ActivityIndicator color="white" />
+              ) : (
+                <Text className="text-white font-semibold">
+                  {t("common.save")}
+                </Text>
+              )}
+            </TouchableOpacity>
           </View>
         </View>
       </AnimatedModal>

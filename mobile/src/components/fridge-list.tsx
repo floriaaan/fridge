@@ -3,7 +3,6 @@ import {
   View,
   ScrollView,
   Text,
-  TouchableOpacity,
   RefreshControl,
   TextInput,
   useColorScheme,
@@ -18,7 +17,9 @@ import { useRouter } from "expo-router";
 import { type Product } from "@/lib/api/fetch-products";
 import { ProductCard } from "@/components/product-card";
 import { Chip } from "@/components/ui/chip";
+import { EmptyState } from "@/components/empty-state";
 import { GradientChip } from "@/components/ui/gradient-chip";
+import { AnimatedTouchableOpacity } from "@/components/ui/animated-touchable-opacity";
 import { useTranslation } from "@/hooks/use-translation";
 
 type FridgeListProps = {
@@ -168,6 +169,10 @@ export function FridgeList({ products, refresh, isLoading }: FridgeListProps) {
 
   const handleGenerateRecipe = () => {
     router.push("/recipe/generate");
+  };
+
+  const handleAnalyzeFridge = () => {
+    router.push("/fridge-scan/scan");
   };
 
   function formatDate(date: string | null): string {
@@ -391,51 +396,64 @@ export function FridgeList({ products, refresh, isLoading }: FridgeListProps) {
               ))
             )
           ) : (
-            <View className="flex-1 items-center justify-center mt-20">
-              <Text className="text-neutral-500 dark:text-neutral-400 text-lg">
-                {t("fridge.noProductsFound")}
-              </Text>
-            </View>
+            <EmptyState
+              icon="cube-outline"
+              title={t("fridge.noProductsFound")}
+              subtitle={
+                filteredProducts.length === 0 && products.length > 0
+                  ? t("fridge.tryDifferentSearch")
+                  : t("fridge.addFirstProduct")
+              }
+            />
           )}
         </View>
       </ScrollView>
 
       <View className="absolute bottom-5 left-5 right-5">
-        <View className="flex-row gap-3">
-          <TouchableOpacity
-            onPress={handleScanReceipt}
-            className="flex-1 bg-green-600 py-4 rounded-xl shadow-xl flex flex-row items-center justify-center"
-            activeOpacity={0.8}
-          >
-            <Ionicons
-              name="document-text-outline"
-              size={24}
-              color="white"
-              className="mr-2"
-            />
-            <Text className="text-white font-semibold text-base">
-              {t("fridge.scanTicket")}
-            </Text>
-          </TouchableOpacity>
+         <View className="flex-row gap-3">
+           <AnimatedTouchableOpacity
+             onPress={handleScanReceipt}
+             className="flex-1 bg-green-600 py-4 px-4 rounded-xl shadow-xl flex flex-row items-center justify-center"
+             activeOpacity={1}
+           >
+             <Ionicons
+               name="document-text-outline"
+               size={24}
+               color="white"
+               className="mr-2"
+             />
+             <Text className="text-white font-semibold text-base">
+               {t("fridge.scanTicket")}
+             </Text>
+           </AnimatedTouchableOpacity>
 
-          <TouchableOpacity
-            onPress={handleAddProduct}
-            className="flex-1 bg-neutral-900 dark:bg-neutral-100 py-4 rounded-xl shadow-xl flex flex-row items-center justify-center"
-            activeOpacity={0.8}
-            testID="add-product-button"
-          >
-            <Ionicons
-              name="add-circle-outline"
-              size={24}
-              color={isDark ? "black" : "white"}
-              className="mr-2"
-            />
-            <Text className="text-white dark:text-neutral-900 font-semibold text-base">
-              {t("fridge.addProduct")}
-            </Text>
-          </TouchableOpacity>
-        </View>
-      </View>
+           <AnimatedTouchableOpacity
+             onPress={handleAnalyzeFridge}
+             className="bg-blue-600 px-4 py-4 rounded-xl shadow-xl flex items-center justify-center"
+             activeOpacity={1}
+             testID="analyze-fridge-button"
+           >
+             <Ionicons
+               name="eye-outline"
+               size={24}
+               color="white"
+             />
+           </AnimatedTouchableOpacity>
+
+           <AnimatedTouchableOpacity
+             onPress={handleAddProduct}
+             className="bg-neutral-900 dark:bg-neutral-100 px-4 py-4 rounded-xl shadow-xl flex items-center justify-center"
+             activeOpacity={1}
+             testID="add-product-button"
+           >
+             <Ionicons
+               name="barcode-outline"
+               size={24}
+               color={isDark ? "black" : "white"}
+             />
+           </AnimatedTouchableOpacity>
+         </View>
+       </View>
     </GestureHandlerRootView>
   );
 }

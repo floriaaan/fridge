@@ -1,5 +1,5 @@
 import { Product } from "@/lib/api/fetch-products";
-import { Text, TouchableOpacity, View, useColorScheme } from "react-native";
+import { Text, View, useColorScheme } from "react-native";
 import Animated, {
   FadeInDown,
   FadeOutUp,
@@ -10,6 +10,7 @@ import ReanimatedSwipeable from "react-native-gesture-handler/ReanimatedSwipeabl
 import { useRef, useState } from "react";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { useTranslation } from "@/hooks/use-translation";
+import { AnimatedTouchableOpacity } from "@/components/ui/animated-touchable-opacity";
 
 const getCategoryColor = (category: string, isDark: boolean): string => {
   const lightColors: Record<string, string> = {
@@ -155,24 +156,24 @@ export const ProductCard: React.FC<ProductCardProps> = ({
 
   const renderRightActions = () => (
     <View className="flex-row gap-2 ml-2">
-      <TouchableOpacity
+      <AnimatedTouchableOpacity
         onPress={handleMarkOpened}
         className="justify-center items-center px-5 rounded-2xl"
         style={{ backgroundColor: "#3B82F6" }}
-        activeOpacity={0.8}
+        activeOpacity={1}
       >
         <Ionicons name="cube-outline" size={24} color="white" />
         <Text className="text-white font-semibold text-xs mt-1">{t("product.opened")}</Text>
-      </TouchableOpacity>
-      <TouchableOpacity
+      </AnimatedTouchableOpacity>
+      <AnimatedTouchableOpacity
         onPress={handleDelete}
         className="justify-center items-center px-5 rounded-2xl"
         style={{ backgroundColor: "#EF4444" }}
-        activeOpacity={0.8}
+        activeOpacity={1}
       >
         <Ionicons name="checkmark-circle-outline" size={24} color="white" />
         <Text className="text-white font-semibold text-xs mt-1">{t("product.consumed")}</Text>
-      </TouchableOpacity>
+      </AnimatedTouchableOpacity>
     </View>
   );
 
@@ -183,10 +184,10 @@ export const ProductCard: React.FC<ProductCardProps> = ({
       overshootRight={false}
       rightThreshold={40}
     >
-      <TouchableOpacity
+      <AnimatedTouchableOpacity
         onPress={handlePress}
         className="w-full"
-        activeOpacity={0.8}
+        activeOpacity={1}
         disabled={isProcessing}
         testID={`product-card-${product.id}`}
       >
@@ -260,8 +261,8 @@ export const ProductCard: React.FC<ProductCardProps> = ({
               )}
             </View>
           </View>
-        </Animated.View>
-      </TouchableOpacity>
-    </ReanimatedSwipeable>
+         </Animated.View>
+       </AnimatedTouchableOpacity>
+     </ReanimatedSwipeable>
   );
 };

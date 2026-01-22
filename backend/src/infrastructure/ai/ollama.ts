@@ -1,9 +1,10 @@
 import { Recipe } from "@/domain/entity/recipe";
-import { AiProvider, recipesListSchema, receiptParseSchema } from "@/infrastructure/ai";
-import { buildRecipePrompt, buildReceiptPrompt } from "@/infrastructure/ai/prompts";
+import { AiProvider, recipesListSchema, receiptParseSchema, fridgeScanSchema } from "@/infrastructure/ai";
+import { buildRecipePrompt, buildReceiptPrompt, buildFridgeScanPrompt } from "@/infrastructure/ai/prompts";
 import { env } from "@/lib/env";
 import { generateText, Output } from "ai";
 import { createOllama } from "ai-sdk-ollama";
+import { z } from "zod";
 
 export class OllamaProvider implements AiProvider {
   private ollamaInstance: ReturnType<typeof createOllama>;
@@ -75,6 +76,31 @@ export class OllamaProvider implements AiProvider {
       return output;
     } catch (error) {
       console.error("Error parsing receipt with OllamaProvider:", error);
+      throw error;
+    }
+  }
+
+  async parseFridgeImage(imageBase64: string, language: string): Promise<z.infer<typeof fridgeScanSchema>> {
+    try {
+      const { output } = await generateText({
+        model: this.ollamaInstance(env.OLLAMA_MODEL!),
+        messages: [
+          {
+            role: "user",
+            content: [
+              { type: "text", text: buildFridgeScanPrompt(language) },
+              { type: "image", image: imageBase64 },
+            ],
+          },
+        ],
+        output: Output.object({
+          schema: fridgeScanSchema,
+        }),
+      });
+
+      return output;
+    } catch (error) {
+      console.error("Error parsing fridge image with OllamaProvider:", error);
       throw error;
     }
   }

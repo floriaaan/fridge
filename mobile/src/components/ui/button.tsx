@@ -1,19 +1,25 @@
 import React from "react";
-import { TouchableOpacity, Text, type TouchableOpacityProps } from "react-native";
+import { GestureResponderEvent, Text } from "react-native";
+import { AnimatedTouchableOpacity } from "./animated-touchable-opacity";
 
-type ButtonProps = TouchableOpacityProps & {
+type ButtonProps = {
   title: string;
+  onPress?: (event: GestureResponderEvent) => void;
+  style?: any;
+  disabled?: boolean;
+  testID?: string;
 };
 
-export function Button({ title, onPress, style, ...props }: ButtonProps) {
+export function Button({ title, onPress, style, disabled, testID }: ButtonProps) {
   return (
-    <TouchableOpacity
+    <AnimatedTouchableOpacity
+      disabled={disabled}
       className="bg-blue-500 rounded-lg py-3 px-4 items-center justify-center my-1"
       style={style}
       onPress={onPress}
-      {...props}
+      testID={testID}
     >
       <Text className="text-white text-base font-semibold">{title}</Text>
-    </TouchableOpacity>
+    </AnimatedTouchableOpacity>
   );
 }

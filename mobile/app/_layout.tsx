@@ -15,9 +15,11 @@ import { StatusBar } from "expo-status-bar";
 import "react-native-reanimated";
 import "../assets/global.css";
 import { authClient } from "@/lib/auth-client";
-import { useEffect } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useColorScheme } from "react-native";
 import { useTranslation } from "@/hooks/use-translation";
+import { isOnboardingCompleted } from "@/lib/server-config";
+import { initializeApiConfig } from "@/lib/api-config";
 
 export const unstable_settings = {
   initialRouteName: "(tabs)",
@@ -35,22 +37,64 @@ function RootLayoutNav() {
   const segments = useSegments();
   const navigationState = useRootNavigationState();
   const { t } = useTranslation();
+  const [isCheckingOnboarding, setIsCheckingOnboarding] = useState(true);
+  const [needsOnboarding, setNeedsOnboarding] = useState(false);
+  const splashHiddenRef = useRef(false);
 
   useEffect(() => {
-    // if (!navigationState?.key || isLoading) return;
+    const checkOnboarding = async () => {
+      try {
+        // Initialize API config from stored server config
+        await initializeApiConfig();
+        
+        const completed = await isOnboardingCompleted();
+        setNeedsOnboarding(!completed);
+      } catch (error) {
+        console.error("Error checking onboarding:", error);
+        setNeedsOnboarding(true);
+      } finally {
+        setIsCheckingOnboarding(false);
+      }
+    };
 
-    const inAuthGroup = segments[0] === "(auth)";
+    checkOnboarding();
+  }, []);
 
-    // if (isLoggedIn && inAuthGroup) {
-    //   router.replace("/(tabs)");
-    // } else if (!isLoggedIn && !inAuthGroup) {
-    //   router.replace("/(auth)");
-    // }
-    SplashScreen.hideAsync();
-  }, [isLoggedIn, segments, isLoading, navigationState?.key, router]);
+  // Re-check onboarding status when navigating away from onboarding
+  useEffect(() => {
+    const recheckOnboarding = async () => {
+      const inOnboarding = segments[0] === "onboarding";
+      if (!inOnboarding && needsOnboarding) {
+        const completed = await isOnboardingCompleted();
+        if (completed) {
+          setNeedsOnboarding(false);
+        }
+      }
+    };
+
+    recheckOnboarding();
+  }, [segments, needsOnboarding]);
+
+  useEffect(() => {
+    if (isCheckingOnboarding || !navigationState?.key || splashHiddenRef.current) return;
+
+    const inOnboarding = segments[0] === "onboarding";
+
+    if (needsOnboarding && !inOnboarding) {
+      router.replace("/onboarding");
+    }
+    
+    try {
+      SplashScreen.hideAsync();
+      splashHiddenRef.current = true;
+    } catch (error) {
+      console.warn("Failed to hide splash screen:", error);
+    }
+  }, [isLoggedIn, segments, isLoading, navigationState?.key, router, isCheckingOnboarding, needsOnboarding]);
 
   return (
     <Stack>
+      <Stack.Screen name="onboarding/index" options={{ headerShown: false }} />
       <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
       <Stack.Screen name="(auth)" options={{ headerShown: false }} />
       <Stack.Screen
@@ -75,6 +119,18 @@ function RootLayoutNav() {
         options={{
           presentation: "modal",
           title: t("receipt.confirmProducts"),
+        }}
+      />
+
+      <Stack.Screen
+        name="fridge-scan/scan"
+        options={{ presentation: "modal", title: t("fridgeScan.title") }}
+      />
+      <Stack.Screen
+        name="fridge-scan/confirm"
+        options={{
+          presentation: "modal",
+          title: t("fridgeScan.selectProducts"),
         }}
       />
 

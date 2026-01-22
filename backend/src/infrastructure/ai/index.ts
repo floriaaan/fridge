@@ -41,9 +41,21 @@ export const receiptParseSchema = z.object({
   totalAmount: z.number().describe("Total amount on the receipt in euros"),
 });
 
+// Define schema for fridge scan parsing
+const fridgeItemSchema = z.object({
+  name: z.string().describe("Product name, be specific (e.g., 'Yaourt nature Danone' not just 'yaourt')"),
+  quantity: z.number().describe("Estimated quantity of the product (default to 1)"),
+  unit: z.string().describe("Unit of measurement (pièce, g, kg, ml, L)"),
+});
+
+export const fridgeScanSchema = z.object({
+  items: z.array(fridgeItemSchema).describe("List of products identified in the fridge photo"),
+});
+
 // Define a common interface for AI providers
 export interface AiProvider {
   parseReceiptImage(imageBase64: string, language: string): Promise<any>;
+  parseFridgeImage(imageBase64: string, language: string): Promise<z.infer<typeof fridgeScanSchema>>;
   generateRecipesFromProducts(
     productsList: string,
     language: string,

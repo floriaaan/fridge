@@ -79,7 +79,7 @@ export default function RecipeGenerate() {
     }
   };
   return (
-    <SafeAreaView edges={["top", "left", "right"]} className="flex-1 bg-neutral-50 dark:bg-neutral-900">
+    <SafeAreaView edges={["top", "left", "right"]} className="flex-1 bg-neutral-50 dark:bg-black">
       
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 24 }}>
         <Animated.View entering={FadeInUp.delay(100).duration(300)} className="px-4">

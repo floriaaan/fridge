@@ -1,0 +1,299 @@
+import React, { useState, useRef } from "react";
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  StyleSheet,
+  ActivityIndicator,
+} from "react-native";
+import { CameraView, useCameraPermissions } from "expo-camera";
+import { useRouter } from "expo-router";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { useTranslation } from "@/hooks/use-translation";
+
+export default function FridgeScanScreen() {
+  const router = useRouter();
+  const insets = useSafeAreaInsets();
+  const { t } = useTranslation();
+  const [permission, requestPermission] = useCameraPermissions();
+  const [requesting, setRequesting] = useState(false);
+  const cameraRef = useRef<CameraView>(null);
+  const [isCapturing, setIsCapturing] = useState(false);
+
+  const handleRequestPermission = async () => {
+    setRequesting(true);
+    await requestPermission();
+    setRequesting(false);
+  };
+
+  const handleTakePhoto = async () => {
+    if (!cameraRef.current || isCapturing) return;
+
+    setIsCapturing(true);
+    try {
+      const photo = await cameraRef.current.takePictureAsync({
+        base64: true,
+        quality: 0.8,
+      });
+
+      if (photo?.base64) {
+        router.push({
+          pathname: "/fridge-scan/confirm",
+          params: {
+            imageBase64: photo.base64,
+            imageUri: photo.uri,
+          },
+        });
+      }
+    } catch (error) {
+      console.error("Error taking photo:", error);
+      alert(t("common.error"));
+    } finally {
+      setIsCapturing(false);
+    }
+  };
+
+  if (!permission) {
+    return (
+      <View style={styles.centered}>
+        <ActivityIndicator />
+        <Text style={styles.infoText}>{t("camera.checkingPermission")}</Text>
+      </View>
+    );
+  }
+
+  if (!permission.granted) {
+    return (
+      <View style={styles.centered}>
+        <Text style={styles.title}>{t("camera.accessNeeded")}</Text>
+        <Text style={styles.infoText}>
+          {t("fridgeScan.tipDescription")}
+        </Text>
+        <TouchableOpacity
+          style={styles.primaryButton}
+          onPress={handleRequestPermission}
+          disabled={requesting}
+        >
+          {requesting ? (
+            <ActivityIndicator color="#fff" />
+          ) : (
+            <Text style={styles.primaryButtonText}>{t("camera.allowCamera")}</Text>
+          )}
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.secondaryButton}
+          onPress={() => router.back()}
+        >
+          <Text style={styles.secondaryButtonText}>{t("common.cancel")}</Text>
+        </TouchableOpacity>
+      </View>
+    );
+  }
+
+  return (
+    <View style={styles.container}>
+      <CameraView ref={cameraRef} style={StyleSheet.absoluteFill} facing="back" />
+
+      <View style={[styles.overlay, { paddingTop: insets.top + 24 }]}>
+        <Text style={styles.title}>{t("fridgeScan.title")}</Text>
+        <Text style={styles.infoText}>
+          {t("fridgeScan.tip")}
+        </Text>
+      </View>
+
+      <View style={styles.frame}>
+        <View style={styles.corner} />
+        <View style={[styles.corner, styles.cornerTopRight]} />
+        <View style={[styles.corner, styles.cornerBottomLeft]} />
+        <View style={[styles.corner, styles.cornerBottomRight]} />
+      </View>
+
+      <View style={[styles.footer, { paddingBottom: insets.bottom + 24 }]}>
+        <View style={styles.tipBox}>
+          <Text style={styles.tipText}>💡 {t("fridgeScan.tip")}</Text>
+          <Text style={styles.tipSubText}>
+            {t("fridgeScan.tipDescription")}
+          </Text>
+        </View>
+
+        <TouchableOpacity
+          style={[styles.captureButton, isCapturing && styles.captureButtonDisabled]}
+          onPress={handleTakePhoto}
+          disabled={isCapturing}
+        >
+          {isCapturing ? (
+            <ActivityIndicator color="#fff" size="large" />
+          ) : (
+            <View style={styles.captureButtonInner} />
+          )}
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={styles.closeButton}
+          onPress={() => router.back()}
+        >
+          <Text style={styles.closeButtonText}>{t("common.close")}</Text>
+        </TouchableOpacity>
+      </View>
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: "black",
+  },
+  centered: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 24,
+    gap: 16,
+    backgroundColor: "black",
+  },
+  title: {
+    color: "white",
+    fontSize: 22,
+    fontWeight: "700",
+  },
+  infoText: {
+    color: "#e5e7eb",
+    fontSize: 16,
+    textAlign: "center",
+  },
+  overlay: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    alignItems: "center",
+    gap: 6,
+    zIndex: 1,
+  },
+  frame: {
+    width: 300,
+    height: 350,
+    position: "absolute",
+    top: "28%",
+    alignSelf: "center",
+  },
+  corner: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    width: 30,
+    height: 30,
+    borderTopWidth: 4,
+    borderLeftWidth: 4,
+    borderColor: "#06B6D4",
+  },
+  cornerTopRight: {
+    left: undefined,
+    right: 0,
+    borderLeftWidth: 0,
+    borderRightWidth: 4,
+  },
+  cornerBottomLeft: {
+    top: undefined,
+    bottom: 0,
+    borderTopWidth: 0,
+    borderBottomWidth: 4,
+  },
+  cornerBottomRight: {
+    top: undefined,
+    left: undefined,
+    right: 0,
+    bottom: 0,
+    borderTopWidth: 0,
+    borderLeftWidth: 0,
+    borderBottomWidth: 4,
+    borderRightWidth: 4,
+  },
+  footer: {
+    position: "absolute",
+    left: 0,
+    right: 0,
+    bottom: 0,
+    alignItems: "center",
+    gap: 20,
+  },
+  tipBox: {
+    backgroundColor: "rgba(0,0,0,0.7)",
+    paddingHorizontal: 20,
+    paddingVertical: 12,
+    borderRadius: 12,
+    marginHorizontal: 24,
+  },
+  tipText: {
+    color: "#06B6D4",
+    fontSize: 14,
+    fontWeight: "600",
+    marginBottom: 4,
+  },
+  tipSubText: {
+    color: "#e5e7eb",
+    fontSize: 13,
+  },
+  captureButton: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    backgroundColor: "white",
+    justifyContent: "center",
+    alignItems: "center",
+    borderWidth: 4,
+    borderColor: "#06B6D4",
+  },
+  captureButtonDisabled: {
+    opacity: 0.5,
+  },
+  captureButtonInner: {
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    backgroundColor: "#06B6D4",
+  },
+  closeButton: {
+    paddingHorizontal: 24,
+    paddingVertical: 12,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: "#4b5563",
+    backgroundColor: "rgba(0,0,0,0.45)",
+  },
+  closeButtonText: {
+    color: "white",
+    fontSize: 16,
+    fontWeight: "600",
+  },
+  primaryButton: {
+    backgroundColor: "#111827",
+    paddingHorizontal: 18,
+    paddingVertical: 12,
+    borderRadius: 12,
+    width: "70%",
+    alignItems: "center",
+  },
+  primaryButtonText: {
+    color: "white",
+    fontSize: 16,
+    fontWeight: "600",
+  },
+  secondaryButton: {
+    marginTop: 12,
+    paddingHorizontal: 18,
+    paddingVertical: 12,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: "#4b5563",
+    width: "60%",
+    alignItems: "center",
+    backgroundColor: "rgba(0,0,0,0.45)",
+  },
+  secondaryButtonText: {
+    color: "white",
+    fontSize: 16,
+    fontWeight: "600",
+  },
+});

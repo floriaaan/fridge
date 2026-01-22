@@ -7,8 +7,10 @@ import {
   TextInput,
   ActivityIndicator,
   useColorScheme,
+  KeyboardAvoidingView,
+  Platform,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { Ionicons, MaterialIcons } from "@expo/vector-icons";
 import { useShoppingItems } from "@/hooks/use-shopping-items";
@@ -17,6 +19,7 @@ import { ShoppingItemCard } from "@/components/shopping-item-card";
 import { ShoppingItemAddCard } from "@/components/shopping-item-add-card";
 import { Chip } from "@/components/ui/chip";
 import Header from "@/components/ui/header";
+import { EmptyState } from "@/components/empty-state";
 import { useTranslation } from "@/hooks/use-translation";
 
 export default function ShoppingListScreen() {
@@ -31,6 +34,7 @@ export default function ShoppingListScreen() {
   const { t } = useTranslation();
   const colorScheme = useColorScheme();
   const isDark = colorScheme === "dark";
+  const insets = useSafeAreaInsets();
 
   const [statusFilter, setStatusFilter] = React.useState<
     "all" | "pending" | "done"
@@ -47,7 +51,7 @@ export default function ShoppingListScreen() {
 
       updateShoppingItems([{ id: itemId, checked: !target.checked }]);
     },
-    [items, updateShoppingItems]
+    [items, updateShoppingItems],
   );
 
   const filteredItems = React.useMemo(() => {
@@ -63,7 +67,7 @@ export default function ShoppingListScreen() {
         return item.source === sourceFilter;
       })
       .filter((item) =>
-        item.name.toLowerCase().includes(searchQuery.toLowerCase())
+        item.name.toLowerCase().includes(searchQuery.toLowerCase()),
       )
       .sort((a, b) => {
         return (
@@ -80,7 +84,7 @@ export default function ShoppingListScreen() {
       <GestureHandlerRootView style={{ flex: 1 }}>
         <SafeAreaView
           edges={["top", "left", "right"]}
-          className="flex-1 bg-neutral-50 dark:bg-neutral-900"
+          className="flex-1 bg-neutral-50 dark:bg-black"
         >
           <Header title={t("shoppingList.title")} />
           <View className="flex-1 items-center justify-center px-6">
@@ -106,7 +110,7 @@ export default function ShoppingListScreen() {
     <GestureHandlerRootView style={{ flex: 1 }}>
       <SafeAreaView
         edges={["top", "left", "right"]}
-        className="flex-1 bg-neutral-50 dark:bg-neutral-900"
+        className="flex-1 bg-neutral-50 dark:bg-black"
       >
         <Header title={t("shoppingList.title")} />
 
@@ -213,7 +217,7 @@ export default function ShoppingListScreen() {
 
         <ScrollView
           className="flex-1"
-          contentContainerStyle={{ paddingBottom: 120 }}
+          contentContainerStyle={{ paddingBottom: 80 }}
           showsVerticalScrollIndicator={false}
           refreshControl={
             <RefreshControl
@@ -260,30 +264,33 @@ export default function ShoppingListScreen() {
                   ))}
                 </View>
               ) : (
-                <View className="flex-1 items-center justify-center mt-16 px-6">
-                  <Ionicons
-                    name="cart-outline"
-                    size={48}
-                    color={isDark ? "#525252" : "#d4d4d4"}
-                    style={{ marginBottom: 12 }}
-                  />
-                  <Text className="text-neutral-500 dark:text-neutral-400 text-lg font-medium mb-1">
-                    {t("shoppingList.noItems")}
-                  </Text>
-                  <Text className="text-neutral-400 dark:text-neutral-500 text-sm text-center">
-                    {items.length === 0
+                <EmptyState
+                  icon="cart-outline"
+                  title={t("shoppingList.noItems")}
+                  subtitle={
+                    items.length === 0
                       ? t("shoppingList.addItemHint")
-                      : t("common.search")}
-                  </Text>
-                </View>
+                      : t("common.search")
+                  }
+                  marginTop="mt-16"
+                />
               )}
-              <View className="px-4 py-6">
-                <ShoppingItemAddCard defaultUnit="pcs" defaultQuantity={1} />
-              </View>
             </>
           )}
         </ScrollView>
       </SafeAreaView>
+
+      <KeyboardAvoidingView
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        keyboardVerticalOffset={Platform.OS === "ios" ? insets.bottom : 0}
+        style={{ position: "absolute", bottom: 0, left: 0, right: 0 }}
+      >
+        <View className="px-5 pb-5">
+          <ShoppingItemAddCard defaultUnit="pcs" defaultQuantity={1} onCreated={() => {
+            refetch();
+          }} />
+        </View>
+      </KeyboardAvoidingView>
     </GestureHandlerRootView>
   );
 }
