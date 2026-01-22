@@ -44,16 +44,52 @@ export default function Header({
             </Pressable>
           )}
           {session && (
-            <Image
-              source={{ uri: session.user?.image || undefined }}
-              className="w-12 h-12 rounded-full"
-            />
+            session.user?.image ? (
+              <Image
+                source={{ uri: session.user.image }}
+                className="w-10 h-10 rounded-full"
+              />
+            ) : (
+              <View className="w-10 h-10 rounded-full bg-neutral-300 dark:bg-neutral-700 items-center justify-center">
+                <Ionicons
+                  name="person"
+                  color={isDark ? "#fafafa" : "#171717"}
+                  size={20}
+                />
+              </View>
+            )
           )}
           {title && (
             <Text className="text-neutral-900 dark:text-neutral-100 text-4xl font-bold">
               {title}
             </Text>
           )}
+        </View>
+
+        <View className="flex-row items-center gap-3">
+          <Pressable
+            onPress={() => router.push("/(tabs)/statistics")}
+            className="p-2 rounded-lg active:bg-neutral-200 dark:active:bg-neutral-800"
+            hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+          >
+            <Ionicons
+              name="stats-chart-outline"
+              color={isDark ? "#fafafa" : "#171717"}
+              size={20}
+            />
+          </Pressable>
+
+          <Pressable
+            onPress={() => router.push("/(tabs)/settings")}
+            className="p-2 rounded-lg active:bg-neutral-200 dark:active:bg-neutral-800"
+            hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+          >
+            <Ionicons
+              name="settings-outline"
+              color={isDark ? "#fafafa" : "#171717"}
+              size={20}
+            />
+          </Pressable>
         </View>
       </View>
     </>
