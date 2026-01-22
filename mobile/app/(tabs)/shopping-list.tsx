@@ -17,6 +17,7 @@ import { ShoppingItemCard } from "@/components/shopping-item-card";
 import { ShoppingItemAddCard } from "@/components/shopping-item-add-card";
 import { Chip } from "@/components/ui/chip";
 import Header from "@/components/ui/header";
+import { EmptyState } from "@/components/empty-state";
 import { useTranslation } from "@/hooks/use-translation";
 
 export default function ShoppingListScreen() {
@@ -260,22 +261,16 @@ export default function ShoppingListScreen() {
                   ))}
                 </View>
               ) : (
-                <View className="flex-1 items-center justify-center mt-16 px-6">
-                  <Ionicons
-                    name="cart-outline"
-                    size={48}
-                    color={isDark ? "#525252" : "#d4d4d4"}
-                    style={{ marginBottom: 12 }}
-                  />
-                  <Text className="text-neutral-500 dark:text-neutral-400 text-lg font-medium mb-1">
-                    {t("shoppingList.noItems")}
-                  </Text>
-                  <Text className="text-neutral-400 dark:text-neutral-500 text-sm text-center">
-                    {items.length === 0
+                <EmptyState
+                  icon="cart-outline"
+                  title={t("shoppingList.noItems")}
+                  subtitle={
+                    items.length === 0
                       ? t("shoppingList.addItemHint")
-                      : t("common.search")}
-                  </Text>
-                </View>
+                      : t("common.search")
+                  }
+                  marginTop="mt-16"
+                />
               )}
               <View className="px-4 py-6">
                 <ShoppingItemAddCard defaultUnit="pcs" defaultQuantity={1} />

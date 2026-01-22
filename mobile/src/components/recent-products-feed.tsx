@@ -2,6 +2,8 @@ import React from 'react';
 import { View, Text } from 'react-native';
 import { useProducts } from '@/hooks/use-products';
 import Animated, { FadeInUp } from 'react-native-reanimated';
+import { Ionicons } from '@expo/vector-icons';
+import { useColorScheme } from 'react-native';
 import { useTranslation } from '@/hooks/use-translation';
 
 const formatTimeAgo = (dateString: string): string => {
@@ -21,6 +23,7 @@ const formatTimeAgo = (dateString: string): string => {
 export function RecentProductsFeed() {
   const { data: products } = useProducts();
   const { t } = useTranslation();
+  const isDark = useColorScheme() === "dark";
   
   const recentProducts = products
     ?.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
@@ -66,10 +69,18 @@ export function RecentProductsFeed() {
               </View>
             </Animated.View>
           ))
-        ) : (
-          <Text className="text-sm text-neutral-500 dark:text-neutral-400 text-center py-4">
-            {t("fridge.noProductsFound")}
-          </Text>
+         ) : (
+          <View className="flex items-center justify-center py-6 px-4">
+            <Ionicons
+              name="cube-outline"
+              size={32}
+              color={isDark ? "#525252" : "#d4d4d4"}
+              style={{ marginBottom: 8 }}
+            />
+            <Text className="text-xs text-neutral-500 dark:text-neutral-400 text-center">
+              {t("fridge.addFirstProduct")}
+            </Text>
+          </View>
         )}
       </View>
     </Animated.View>

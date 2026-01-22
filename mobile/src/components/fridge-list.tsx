@@ -18,6 +18,7 @@ import { useRouter } from "expo-router";
 import { type Product } from "@/lib/api/fetch-products";
 import { ProductCard } from "@/components/product-card";
 import { Chip } from "@/components/ui/chip";
+import { EmptyState } from "@/components/empty-state";
 import { GradientChip } from "@/components/ui/gradient-chip";
 import { useTranslation } from "@/hooks/use-translation";
 
@@ -391,11 +392,15 @@ export function FridgeList({ products, refresh, isLoading }: FridgeListProps) {
               ))
             )
           ) : (
-            <View className="flex-1 items-center justify-center mt-20">
-              <Text className="text-neutral-500 dark:text-neutral-400 text-lg">
-                {t("fridge.noProductsFound")}
-              </Text>
-            </View>
+            <EmptyState
+              icon="cube-outline"
+              title={t("fridge.noProductsFound")}
+              subtitle={
+                filteredProducts.length === 0 && products.length > 0
+                  ? t("fridge.tryDifferentSearch")
+                  : t("fridge.addFirstProduct")
+              }
+            />
           )}
         </View>
       </ScrollView>

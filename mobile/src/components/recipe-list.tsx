@@ -12,6 +12,7 @@ import { useRouter } from "expo-router";
 import { type Recipe } from "@/lib/api/fetch-recipes";
 import { RecipeCard } from "@/components/recipe-card";
 import { Chip } from "@/components/ui/chip";
+import { EmptyState } from "@/components/empty-state";
 import { useTranslation } from "@/hooks/use-translation";
 
 type RecipeListProps = {
@@ -142,23 +143,16 @@ export function RecipeList({ recipes, refresh, isLoading }: RecipeListProps) {
                 index={index}
               />
             ))
-          ) : (
-            <View className="flex-1 items-center justify-center mt-20">
-              <Ionicons
-                name="book-outline"
-                size={48}
-                color={isDark ? "#525252" : "#d1d5db"}
-                style={{ marginBottom: 12 }}
-              />
-              <Text className="text-neutral-500 dark:text-neutral-400 text-lg font-medium">
-                No recipes found
-              </Text>
-              <Text className="text-neutral-400 dark:text-neutral-500 text-sm mt-2">
-                {recipes.length === 0
+           ) : (
+            <EmptyState
+              icon="book-outline"
+              title={t("recipe.noRecipes")}
+              subtitle={
+                recipes.length === 0
                   ? t("recipe.generate")
-                  : "Try a different search"}
-              </Text>
-            </View>
+                  : t("recipe.tryDifferentSearch")
+              }
+            />
           )}
         </View>
       </ScrollView>
