@@ -5,10 +5,12 @@ import {
   TouchableOpacity,
   StyleSheet,
   ActivityIndicator,
+  Animated,
 } from "react-native";
 import { CameraView, useCameraPermissions } from "expo-camera";
 import { useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import * as ImagePicker from "expo-image-picker";
 
 export default function ReceiptScanScreen() {
   const router = useRouter();
@@ -17,6 +19,8 @@ export default function ReceiptScanScreen() {
   const [requesting, setRequesting] = useState(false);
   const cameraRef = useRef<CameraView>(null);
   const [isCapturing, setIsCapturing] = useState(false);
+  const [showFeedback, setShowFeedback] = useState(false);
+  const feedbackOpacity = useRef(new Animated.Value(0)).current;
 
   const handleRequestPermission = async () => {
     setRequesting(true);
@@ -24,11 +28,32 @@ export default function ReceiptScanScreen() {
     setRequesting(false);
   };
 
+  const showCaptureFeedback = () => {
+    setShowFeedback(true);
+    Animated.sequence([
+      Animated.timing(feedbackOpacity, {
+        toValue: 1,
+        duration: 100,
+        useNativeDriver: true,
+      }),
+      Animated.timing(feedbackOpacity, {
+        toValue: 0,
+        duration: 300,
+        delay: 200,
+        useNativeDriver: true,
+      }),
+    ]).start(() => {
+      setShowFeedback(false);
+    });
+  };
+
   const handleTakePhoto = async () => {
     if (!cameraRef.current || isCapturing) return;
 
     setIsCapturing(true);
     try {
+      showCaptureFeedback();
+      
       const photo = await cameraRef.current.takePictureAsync({
         base64: true,
         quality: 0.8,
@@ -48,6 +73,37 @@ export default function ReceiptScanScreen() {
       alert("Erreur lors de la capture de la photo");
     } finally {
       setIsCapturing(false);
+    }
+  };
+
+  const handlePickImage = async () => {
+    try {
+      const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      
+      if (!permissionResult.granted) {
+        alert("Permission d'accès à la galerie requise");
+        return;
+      }
+
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: false,
+        quality: 0.8,
+        base64: true,
+      });
+
+      if (!result.canceled && result.assets[0]?.base64) {
+        router.push({
+          pathname: "/receipt/confirm",
+          params: {
+            imageBase64: result.assets[0].base64,
+            imageUri: result.assets[0].uri,
+          },
+        });
+      }
+    } catch (error) {
+      console.error("Error picking image:", error);
+      alert("Erreur lors de la sélection de l'image");
     }
   };
 
@@ -93,6 +149,18 @@ export default function ReceiptScanScreen() {
     <View style={styles.container}>
       <CameraView ref={cameraRef} style={StyleSheet.absoluteFill} facing="back" />
 
+      {showFeedback && (
+        <Animated.View
+          style={[
+            StyleSheet.absoluteFill,
+            {
+              backgroundColor: "white",
+              opacity: feedbackOpacity,
+            },
+          ]}
+        />
+      )}
+
       <View style={[styles.overlay, { paddingTop: insets.top + 24 }]}>
         <Text style={styles.title}>Scanner un ticket</Text>
         <Text style={styles.infoText}>
@@ -116,17 +184,29 @@ export default function ReceiptScanScreen() {
           </Text>
         </View>
 
-        <TouchableOpacity
-          style={[styles.captureButton, isCapturing && styles.captureButtonDisabled]}
-          onPress={handleTakePhoto}
-          disabled={isCapturing}
-        >
-          {isCapturing ? (
-            <ActivityIndicator color="#fff" size="large" />
-          ) : (
-            <View style={styles.captureButtonInner} />
-          )}
-        </TouchableOpacity>
+        <View style={styles.buttonRow}>
+          <TouchableOpacity
+            style={styles.galleryButton}
+            onPress={handlePickImage}
+            disabled={isCapturing}
+          >
+            <Text style={styles.galleryButtonText}>📁</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={[styles.captureButton, isCapturing && styles.captureButtonDisabled]}
+            onPress={handleTakePhoto}
+            disabled={isCapturing}
+          >
+            {isCapturing ? (
+              <ActivityIndicator color="#fff" size="large" />
+            ) : (
+              <View style={styles.captureButtonInner} />
+            )}
+          </TouchableOpacity>
+
+          <View style={styles.placeholderButton} />
+        </View>
 
         <TouchableOpacity
           style={styles.closeButton}
@@ -234,6 +314,29 @@ const styles = StyleSheet.create({
   tipSubText: {
     color: "#e5e7eb",
     fontSize: 13,
+  },
+  buttonRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 20,
+  },
+  galleryButton: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    backgroundColor: "rgba(0,0,0,0.7)",
+    justifyContent: "center",
+    alignItems: "center",
+    borderWidth: 2,
+    borderColor: "#4b5563",
+  },
+  galleryButtonText: {
+    fontSize: 24,
+  },
+  placeholderButton: {
+    width: 50,
+    height: 50,
   },
   captureButton: {
     width: 80,

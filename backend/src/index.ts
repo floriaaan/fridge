@@ -10,6 +10,7 @@ import { shoppingItemController } from "@/application/controller/shopping-item";
 import { receiptController } from "@/application/controller/receipt";
 import { statisticsController } from "@/application/controller/statistics";
 import { fridgeScanController } from "@/application/controller/fridge-scan";
+import { openfoodfactsController } from "@/application/controller/openfoodfacts";
 import { authController } from "@/application/controller/auth";
 
 
@@ -20,7 +21,8 @@ const api = new Elysia({ prefix: "/api" })
   .use(recipeController)
   .use(receiptController)
   .use(statisticsController)
-  .use(fridgeScanController);
+  .use(fridgeScanController)
+  .use(openfoodfactsController);
 
 const app = new Elysia({ adapter: node() })
   .use(

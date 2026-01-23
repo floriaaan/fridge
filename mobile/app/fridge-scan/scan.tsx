@@ -5,6 +5,7 @@ import {
   TouchableOpacity,
   StyleSheet,
   ActivityIndicator,
+  Animated,
 } from "react-native";
 import { CameraView, useCameraPermissions } from "expo-camera";
 import { useRouter } from "expo-router";
@@ -19,6 +20,8 @@ export default function FridgeScanScreen() {
   const [requesting, setRequesting] = useState(false);
   const cameraRef = useRef<CameraView>(null);
   const [isCapturing, setIsCapturing] = useState(false);
+  const [showFeedback, setShowFeedback] = useState(false);
+  const feedbackOpacity = useRef(new Animated.Value(0)).current;
 
   const handleRequestPermission = async () => {
     setRequesting(true);
@@ -26,11 +29,32 @@ export default function FridgeScanScreen() {
     setRequesting(false);
   };
 
+  const showCaptureFeedback = () => {
+    setShowFeedback(true);
+    Animated.sequence([
+      Animated.timing(feedbackOpacity, {
+        toValue: 1,
+        duration: 100,
+        useNativeDriver: true,
+      }),
+      Animated.timing(feedbackOpacity, {
+        toValue: 0,
+        duration: 300,
+        delay: 200,
+        useNativeDriver: true,
+      }),
+    ]).start(() => {
+      setShowFeedback(false);
+    });
+  };
+
   const handleTakePhoto = async () => {
     if (!cameraRef.current || isCapturing) return;
 
     setIsCapturing(true);
     try {
+      showCaptureFeedback();
+      
       const photo = await cameraRef.current.takePictureAsync({
         base64: true,
         quality: 0.8,
@@ -93,6 +117,18 @@ export default function FridgeScanScreen() {
   return (
     <View style={styles.container}>
       <CameraView ref={cameraRef} style={StyleSheet.absoluteFill} facing="back" />
+
+      {showFeedback && (
+        <Animated.View
+          style={[
+            StyleSheet.absoluteFill,
+            {
+              backgroundColor: "white",
+              opacity: feedbackOpacity,
+            },
+          ]}
+        />
+      )}
 
       <View style={[styles.overlay, { paddingTop: insets.top + 24 }]}>
         <Text style={styles.title}>{t("fridgeScan.title")}</Text>

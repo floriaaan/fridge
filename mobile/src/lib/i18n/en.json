@@ -63,7 +63,15 @@
     "opened": "Opened",
     "consumed": "Consumed",
     "delete": "Delete",
-    "scannedBarcode": "Scanned barcode"
+    "scannedBarcode": "Scanned barcode",
+    "searchTitle": "Search Product",
+    "searchPlaceholder": "Search in OpenFoodFacts...",
+    "searching": "Searching...",
+    "noResults": "No results",
+    "noResultsDescription": "Try modifying your search",
+    "searchInstructions": "Search for a product",
+    "searchInstructionsDescription": "Enter a product name to search in OpenFoodFacts",
+    "resultsFound": "results found"
   },
   "receipt": {
     "scanTicket": "Scan a ticket",
