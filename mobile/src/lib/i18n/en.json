@@ -80,7 +80,11 @@
     "analyzeDescription": "We're identifying products and their categories.",
     "selectProducts": "Select products to import",
     "import": "Import",
-    "cancel": "Cancel"
+    "cancel": "Cancel",
+    "placeReceipt": "Place the receipt flat, well lit",
+    "tip": "Tip",
+    "tipAvoidReflections": "Avoid reflections and folds",
+    "tipEnsureReadable": "Make sure the text is readable"
   },
   "fridgeScan": {
     "title": "Scan fridge contents",
@@ -216,7 +220,10 @@
     "checkingPermission": "Checking camera permission...",
     "accessNeeded": "Camera access needed",
     "allowCamera": "Allow camera",
-    "centerBarcode": "Center the barcode in the frame."
+    "centerBarcode": "Center the barcode in the frame.",
+    "captureError": "Error taking photo",
+    "galleryPermissionRequired": "Gallery access permission required",
+    "imageSelectionError": "Error selecting image"
   },
   "datePicker": {
     "selectDate": "Select a date"

@@ -80,7 +80,11 @@
     "analyzeDescription": "Nous identifions les produits et leurs catégories.",
     "selectProducts": "Sélectionner les produits à importer",
     "import": "Importer",
-    "cancel": "Annuler"
+    "cancel": "Annuler",
+    "placeReceipt": "Placez le ticket à plat, bien éclairé",
+    "tip": "Conseil",
+    "tipAvoidReflections": "Évitez les reflets et les plis",
+    "tipEnsureReadable": "Assurez-vous que le texte est lisible"
   },
   "fridgeScan": {
     "title": "Scanner le contenu du frigo",
@@ -216,7 +220,10 @@
     "checkingPermission": "Vérification des permissions...",
     "accessNeeded": "Accès caméra requis",
     "allowCamera": "Autoriser la caméra",
-    "centerBarcode": "Centrez le code-barres dans le cadre."
+    "centerBarcode": "Centrez le code-barres dans le cadre.",
+    "captureError": "Erreur lors de la capture de la photo",
+    "galleryPermissionRequired": "Permission d'accès à la galerie requise",
+    "imageSelectionError": "Erreur lors de la sélection de l'image"
   },
   "datePicker": {
     "selectDate": "Sélectionner une date"

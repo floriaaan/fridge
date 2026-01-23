@@ -6,15 +6,18 @@ import {
   StyleSheet,
   ActivityIndicator,
   Animated,
+  Alert,
 } from "react-native";
 import { CameraView, useCameraPermissions } from "expo-camera";
 import { useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import * as ImagePicker from "expo-image-picker";
+import { useTranslation } from "@/hooks/use-translation";
 
 export default function ReceiptScanScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
+  const { t } = useTranslation();
   const [permission, requestPermission] = useCameraPermissions();
   const [requesting, setRequesting] = useState(false);
   const cameraRef = useRef<CameraView>(null);
@@ -70,7 +73,7 @@ export default function ReceiptScanScreen() {
       }
     } catch (error) {
       console.error("Error taking photo:", error);
-      alert("Erreur lors de la capture de la photo");
+      Alert.alert(t("common.error"), t("camera.captureError"));
     } finally {
       setIsCapturing(false);
     }
@@ -81,7 +84,7 @@ export default function ReceiptScanScreen() {
       const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
       
       if (!permissionResult.granted) {
-        alert("Permission d'accès à la galerie requise");
+        Alert.alert(t("common.error"), t("camera.galleryPermissionRequired"));
         return;
       }
 
@@ -103,7 +106,7 @@ export default function ReceiptScanScreen() {
       }
     } catch (error) {
       console.error("Error picking image:", error);
-      alert("Erreur lors de la sélection de l'image");
+      Alert.alert(t("common.error"), t("camera.imageSelectionError"));
     }
   };
 
@@ -111,7 +114,7 @@ export default function ReceiptScanScreen() {
     return (
       <View style={styles.centered}>
         <ActivityIndicator />
-        <Text style={styles.infoText}>Vérification des permissions...</Text>
+        <Text style={styles.infoText}>{t("camera.checkingPermission")}</Text>
       </View>
     );
   }
@@ -119,10 +122,9 @@ export default function ReceiptScanScreen() {
   if (!permission.granted) {
     return (
       <View style={styles.centered}>
-        <Text style={styles.title}>Accès caméra requis</Text>
+        <Text style={styles.title}>{t("camera.accessNeeded")}</Text>
         <Text style={styles.infoText}>
-          Nous avons besoin de votre permission pour scanner les tickets de
-          caisse.
+          {t("receipt.scanTicket")}
         </Text>
         <TouchableOpacity
           style={styles.primaryButton}
@@ -132,14 +134,14 @@ export default function ReceiptScanScreen() {
           {requesting ? (
             <ActivityIndicator color="#fff" />
           ) : (
-            <Text style={styles.primaryButtonText}>Autoriser la caméra</Text>
+            <Text style={styles.primaryButtonText}>{t("camera.allowCamera")}</Text>
           )}
         </TouchableOpacity>
         <TouchableOpacity
           style={styles.secondaryButton}
           onPress={() => router.back()}
         >
-          <Text style={styles.secondaryButtonText}>Annuler</Text>
+          <Text style={styles.secondaryButtonText}>{t("common.cancel")}</Text>
         </TouchableOpacity>
       </View>
     );
@@ -162,9 +164,9 @@ export default function ReceiptScanScreen() {
       )}
 
       <View style={[styles.overlay, { paddingTop: insets.top + 24 }]}>
-        <Text style={styles.title}>Scanner un ticket</Text>
+        <Text style={styles.title}>{t("receipt.scanTicket")}</Text>
         <Text style={styles.infoText}>
-          Placez le ticket à plat, bien éclairé
+          {t("receipt.placeReceipt")}
         </Text>
       </View>
 
@@ -177,10 +179,9 @@ export default function ReceiptScanScreen() {
 
       <View style={[styles.footer, { paddingBottom: insets.bottom + 24 }]}>
         <View style={styles.tipBox}>
-          <Text style={styles.tipText}>💡 Conseil</Text>
+          <Text style={styles.tipText}>💡 {t("receipt.tip")}</Text>
           <Text style={styles.tipSubText}>
-            • Évitez les reflets et les plis{"\n"}• Assurez-vous que le texte
-            est lisible
+            • {t("receipt.tipAvoidReflections")}{"\n"}• {t("receipt.tipEnsureReadable")}
           </Text>
         </View>
 
@@ -212,7 +213,7 @@ export default function ReceiptScanScreen() {
           style={styles.closeButton}
           onPress={() => router.back()}
         >
-          <Text style={styles.closeButtonText}>Fermer</Text>
+          <Text style={styles.closeButtonText}>{t("common.close")}</Text>
         </TouchableOpacity>
       </View>
     </View>

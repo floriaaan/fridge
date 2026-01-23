@@ -141,9 +141,9 @@ export function ProductSearchModal({
               <Text className="text-sm text-neutral-600 dark:text-neutral-400 mb-3">
                 {searchResults.length} {t("product.resultsFound")}
               </Text>
-              {searchResults.map((product, index) => (
+              {searchResults.map((product) => (
                 <TouchableOpacity
-                  key={`${product.code}-${index}`}
+                  key={product.code}
                   className="mb-3 bg-white dark:bg-neutral-800 rounded-xl p-4 border border-neutral-200 dark:border-neutral-700"
                   onPress={() => handleSelectProduct(product)}
                 >
