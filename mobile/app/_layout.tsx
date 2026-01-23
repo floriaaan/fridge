@@ -3,23 +3,20 @@ import {
   DarkTheme,
   ThemeProvider,
 } from "@react-navigation/native";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import {
-  SplashScreen,
-  Stack,
-  useRootNavigationState,
-  useRouter,
-  useSegments,
-} from "expo-router";
+  DefaultTheme,
+  DarkTheme,
+  ThemeProvider,
+} from "@react-navigation/native";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { SplashScreen, Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
+import { useColorScheme } from "react-native";
 import "react-native-reanimated";
 import "../assets/global.css";
-import { authClient } from "@/lib/auth-client";
-import { useEffect, useState, useRef } from "react";
-import { useColorScheme } from "react-native";
 import { useTranslation } from "@/hooks/use-translation";
-import { isOnboardingCompleted } from "@/lib/server-config";
-import { initializeApiConfig } from "@/lib/api-config";
+import { useAuthRedirect } from "@/hooks/use-auth-redirect";
+import { useOnboarding } from "@/hooks/use-onboarding";
 
 export const unstable_settings = {
   initialRouteName: "(tabs)",
@@ -29,74 +26,22 @@ const queryClient = new QueryClient();
 
 SplashScreen.preventAutoHideAsync();
 
+/**
+ * Composant principal qui gère la navigation en fonction de l'état d'authentification
+ * et d'onboarding de l'utilisateur
+ */
 function RootLayoutNav() {
-  const { isPending, isRefetching, data: session } = authClient.useSession();
-  const isLoading = isPending || isRefetching;
-  const isLoggedIn = session?.user != null;
-  const router = useRouter();
-  const segments = useSegments();
-  const navigationState = useRootNavigationState();
   const { t } = useTranslation();
-  const [isCheckingOnboarding, setIsCheckingOnboarding] = useState(true);
-  const [needsOnboarding, setNeedsOnboarding] = useState(false);
-  const splashHiddenRef = useRef(false);
-
-  useEffect(() => {
-    const checkOnboarding = async () => {
-      try {
-        // Initialize API config from stored server config
-        await initializeApiConfig();
-        
-        const completed = await isOnboardingCompleted();
-        setNeedsOnboarding(!completed);
-      } catch (error) {
-        console.error("Error checking onboarding:", error);
-        setNeedsOnboarding(true);
-      } finally {
-        setIsCheckingOnboarding(false);
-      }
-    };
-
-    checkOnboarding();
-  }, []);
-
-  // Re-check onboarding status when navigating away from onboarding
-  useEffect(() => {
-    const recheckOnboarding = async () => {
-      const inOnboarding = segments[0] === "onboarding";
-      if (!inOnboarding && needsOnboarding) {
-        const completed = await isOnboardingCompleted();
-        if (completed) {
-          setNeedsOnboarding(false);
-        }
-      }
-    };
-
-    recheckOnboarding();
-  }, [segments, needsOnboarding]);
-
-  useEffect(() => {
-    if (isCheckingOnboarding || !navigationState?.key || splashHiddenRef.current) return;
-
-    const inOnboarding = segments[0] === "onboarding";
-
-    if (needsOnboarding && !inOnboarding) {
-      router.replace("/onboarding");
-    }
-    
-    try {
-      SplashScreen.hideAsync();
-      splashHiddenRef.current = true;
-    } catch (error) {
-      console.warn("Failed to hide splash screen:", error);
-    }
-  }, [isLoggedIn, segments, isLoading, navigationState?.key, router, isCheckingOnboarding, needsOnboarding]);
+  useAuthRedirect();
+  useOnboarding();
 
   return (
     <Stack>
       <Stack.Screen name="onboarding/index" options={{ headerShown: false }} />
       <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
       <Stack.Screen name="(auth)" options={{ headerShown: false }} />
+
+      {/* Product Routes */}
       <Stack.Screen
         name="product/scan"
         options={{ presentation: "modal", title: t("product.scanBarcode") }}
@@ -110,6 +55,7 @@ function RootLayoutNav() {
         options={{ title: t("product.productDetails"), headerShown: false }}
       />
 
+      {/* Receipt Routes */}
       <Stack.Screen
         name="receipt/scan"
         options={{ presentation: "modal", title: t("receipt.scanTicket") }}
@@ -122,6 +68,7 @@ function RootLayoutNav() {
         }}
       />
 
+      {/* Fridge Scan Routes */}
       <Stack.Screen
         name="fridge-scan/scan"
         options={{ presentation: "modal", title: t("fridgeScan.title") }}
@@ -134,6 +81,7 @@ function RootLayoutNav() {
         }}
       />
 
+      {/* Recipe Routes */}
       <Stack.Screen
         name="recipe/generate"
         options={{ presentation: "modal", title: t("recipe.generate") }}
