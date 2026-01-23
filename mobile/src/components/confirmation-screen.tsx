@@ -5,7 +5,6 @@ import {
   ScrollView,
   TouchableOpacity,
   ActivityIndicator,
-  Alert,
   useColorScheme,
   TextInput,
 } from "react-native";
@@ -56,7 +55,6 @@ export function ConfirmationScreen({
   importButtonText,
   accentColor = "#22c55e",
 }: ConfirmationScreenProps) {
-  const router = useRouter();
   const insets = useSafeAreaInsets();
   const snackBarRef = useRef<SnackbarRef>(null);
   const { t } = useTranslation();

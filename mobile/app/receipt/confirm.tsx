@@ -7,7 +7,6 @@ import {
   type EnhancedProduct,
   type ImportReceiptItem,
 } from "@/lib/api/receipt";
-import Snackbar, { SnackbarRef } from "@/components/ui/snackbar";
 import { ConfirmationScreen } from "@/components/confirmation-screen";
 import { useTranslation } from "@/hooks/use-translation";
 
@@ -20,7 +19,6 @@ interface EditableProduct extends EnhancedProduct {
 export default function ReceiptConfirmScreen() {
   const params = useLocalSearchParams();
   const router = useRouter();
-  const snackBarRef = useRef<SnackbarRef>(null);
   const { t } = useTranslation();
 
   const [isScanning, setIsScanning] = useState(true);
@@ -112,11 +110,6 @@ export default function ReceiptConfirmScreen() {
         date,
         items: importItems,
       });
-
-      snackBarRef.current?.show(
-        `${includedProducts.length} produits ajoutés au frigo !`,
-        3000
-      );
 
       setTimeout(() => {
         router.dismissTo("/(tabs)");

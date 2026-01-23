@@ -7,7 +7,6 @@ import {
   type ImportFridgeItem,
 } from "@/lib/api/fridge-scan";
 import type { EnhancedProduct } from "@/lib/api/receipt";
-import Snackbar, { SnackbarRef } from "@/components/ui/snackbar";
 import { ConfirmationScreen } from "@/components/confirmation-screen";
 import { useTranslation } from "@/hooks/use-translation";
 
@@ -20,7 +19,6 @@ interface EditableProduct extends EnhancedProduct {
 export default function FridgeScanConfirmScreen() {
   const params = useLocalSearchParams();
   const router = useRouter();
-  const snackBarRef = useRef<SnackbarRef>(null);
   const { t } = useTranslation();
 
   const [isScanning, setIsScanning] = useState(true);
@@ -100,11 +98,6 @@ export default function FridgeScanConfirmScreen() {
       }));
 
       await importFridgeProducts({ items: importItems });
-
-      snackBarRef.current?.show(
-        `${includedProducts.length} ${t("common.success")}`,
-        3000
-      );
 
       setTimeout(() => {
         router.dismissTo("/(tabs)");
