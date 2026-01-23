@@ -1,8 +1,4 @@
-import {
-  DefaultTheme,
-  DarkTheme,
-  ThemeProvider,
-} from "@react-navigation/native";
+
 import {
   DefaultTheme,
   DarkTheme,

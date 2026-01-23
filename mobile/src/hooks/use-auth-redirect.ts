@@ -1,5 +1,10 @@
 import { useEffect, useRef } from "react";
-import { useRouter, useSegments, useRootNavigationState, SplashScreen } from "expo-router";
+import {
+  useRouter,
+  useSegments,
+  useRootNavigationState,
+  SplashScreen,
+} from "expo-router";
 import { authClient } from "@/lib/auth-client";
 
 /**
@@ -25,6 +30,10 @@ export function useAuthRedirect() {
     // Si l'utilisateur est authentifié ET est sur une page d'auth, redirige vers l'app
     if (isLoggedIn && inAuth) {
       router.replace("/(tabs)");
+      return;
+    } else if (!isLoggedIn && !inAuth) {
+      // Si l'utilisateur n'est pas authentifié ET n'est pas sur une page d'auth, redirige vers l'auth
+      router.replace("/(auth)");
       return;
     }
 
