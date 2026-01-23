@@ -76,6 +76,9 @@ export default function FridgeScanScreen() {
     } catch (error) {
       console.error("Error taking photo:", error);
       alert(t("common.error"));
+    } finally {
+      // Reset capturing state only if still on this screen
+      // If navigation happened, this component will unmount anyway
       setIsCapturing(false);
     }
   };

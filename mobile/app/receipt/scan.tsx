@@ -80,6 +80,9 @@ export default function ReceiptScanScreen() {
     } catch (error) {
       console.error("Error taking photo:", error);
       Alert.alert(t("common.error"), t("camera.captureError"));
+    } finally {
+      // Reset capturing state only if still on this screen
+      // If navigation happened, this component will unmount anyway
       setIsCapturing(false);
     }
   };
@@ -237,7 +240,7 @@ export default function ReceiptScanScreen() {
             onPress={showImageSourcePicker}
             disabled={isCapturing}
           >
-            <Text style={styles.secondaryActionButtonText}>{t("camera.chooseSource")}</Text>
+            <Text style={styles.secondaryActionButtonText}>{t("camera.selectSource")}</Text>
           </TouchableOpacity>
 
           <TouchableOpacity

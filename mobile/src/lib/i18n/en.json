@@ -226,8 +226,7 @@
     "imageSelectionError": "Error selecting image",
     "takePhoto": "Take Photo",
     "chooseFromGallery": "Choose from Gallery",
-    "selectSource": "Select Source",
-    "chooseSource": "Choose Source"
+    "selectSource": "Select Source"
   },
   "datePicker": {
     "selectDate": "Select a date"
