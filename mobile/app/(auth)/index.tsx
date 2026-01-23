@@ -3,7 +3,6 @@ import {
   View,
   Text,
   TouchableOpacity,
-  ScrollView,
   Pressable,
 } from "react-native";
 import { Link, router } from "expo-router";

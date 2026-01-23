@@ -2,7 +2,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { View, Text, Image, useColorScheme } from "react-native";
 import { useRouter } from "expo-router";
 
-import { Ionicons } from "@expo/vector-icons";
+import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 
 import { authClient } from "@/lib/auth-client";
 import { AnimatedPressable } from "./animated-pressable";
@@ -73,8 +73,8 @@ export default function Header({
             className="p-2 rounded-lg"
             hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
           >
-            <Ionicons
-              name="stats-chart-outline"
+            <MaterialCommunityIcons
+              name="chart-box-outline"
               color={isDark ? "#fafafa" : "#171717"}
               size={20}
             />
@@ -85,8 +85,8 @@ export default function Header({
             className="p-2 rounded-lg"
             hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
           >
-            <Ionicons
-              name="settings-outline"
+            <MaterialCommunityIcons
+              name="cog-outline"
               color={isDark ? "#fafafa" : "#171717"}
               size={20}
             />

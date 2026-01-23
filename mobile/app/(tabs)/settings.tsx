@@ -17,11 +17,11 @@ import Snackbar, { SnackbarRef } from "@/components/ui/snackbar";
 import { authClient, reinitializeAuthClient } from "@/lib/auth-client";
 import { Ionicons } from "@expo/vector-icons";
 import {
-  usePasskeys,
+  // usePasskeys,
   useApiKeys,
-  useCreatePasskey,
+  // useCreatePasskey,
   useCreateApiKey,
-  useDeletePasskey,
+  // useDeletePasskey,
   useDeleteApiKey,
 } from "@/hooks/use-credentials";
 import { useTranslation } from "@/hooks/use-translation";
@@ -40,7 +40,7 @@ export default function SettingsScreen() {
   const snackbarRef = useRef<SnackbarRef>(null);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [activeModal, setActiveModal] = useState<ModalType>(null);
-  const [passkeyName, setPasskeyName] = useState("");
+  // const [passkeyName, setPasskeyName] = useState("");
   const [apiKeyName, setApiKeyName] = useState("");
   const { t } = useTranslation();
   const colorScheme = useColorScheme();
@@ -104,31 +104,31 @@ export default function SettingsScreen() {
   };
 
   // Credentials hooks
-  const { data: passkeys, isLoading: isLoadingPasskeys } = usePasskeys();
+  // const { data: passkeys, isLoading: isLoadingPasskeys } = usePasskeys();
   const { data: apiKeys, isLoading: isLoadingApiKeys } = useApiKeys();
-  const createPasskeyMutation = useCreatePasskey();
+  // const createPasskeyMutation = useCreatePasskey();
   const createApiKeyMutation = useCreateApiKey();
-  const deletePasskeyMutation = useDeletePasskey();
+  // const deletePasskeyMutation = useDeletePasskey();
   const deleteApiKeyMutation = useDeleteApiKey();
 
   const chevronColor = isDark ? "#525252" : "#d4d4d4";
   const iconInactiveColor = isDark ? "#a3a3a3" : "#737373";
 
-  const handleCreatePasskey = async () => {
-    if (!passkeyName.trim()) {
-      snackbarRef.current?.show("Please enter a passkey name", 3000);
-      return;
-    }
+  // const handleCreatePasskey = async () => {
+  //   if (!passkeyName.trim()) {
+  //     snackbarRef.current?.show("Please enter a passkey name", 3000);
+  //     return;
+  //   }
 
-    try {
-      await createPasskeyMutation.mutateAsync(passkeyName);
-      snackbarRef.current?.show("Passkey created successfully", 3000);
-      setPasskeyName("");
-      setActiveModal(null);
-    } catch {
-      snackbarRef.current?.show("Failed to create passkey", 3000);
-    }
-  };
+  //   try {
+  //     await createPasskeyMutation.mutateAsync(passkeyName);
+  //     snackbarRef.current?.show("Passkey created successfully", 3000);
+  //     setPasskeyName("");
+  //     setActiveModal(null);
+  //   } catch {
+  //     snackbarRef.current?.show("Failed to create passkey", 3000);
+  //   }
+  // };
 
   const handleCreateApiKey = async () => {
     if (!apiKeyName.trim()) {
@@ -150,14 +150,14 @@ export default function SettingsScreen() {
     }
   };
 
-  const handleDeletePasskey = async (id: string) => {
-    try {
-      await deletePasskeyMutation.mutateAsync(id);
-      snackbarRef.current?.show("Passkey deleted", 3000);
-    } catch {
-      snackbarRef.current?.show("Failed to delete passkey", 3000);
-    }
-  };
+  // const handleDeletePasskey = async (id: string) => {
+  //   try {
+  //     await deletePasskeyMutation.mutateAsync(id);
+  //     snackbarRef.current?.show("Passkey deleted", 3000);
+  //   } catch {
+  //     snackbarRef.current?.show("Failed to delete passkey", 3000);
+  //   }
+  // };
 
   const handleDeleteApiKey = async (id: string) => {
     try {
@@ -213,7 +213,7 @@ export default function SettingsScreen() {
           </Text>
 
           <View className="bg-white dark:bg-neutral-800 rounded-2xl overflow-hidden">
-            <TouchableOpacity
+            {/* <TouchableOpacity
               activeOpacity={0.7}
               onPress={() => setActiveModal("passkeys")}
               className="flex-row items-center justify-between py-4 px-4 border-b border-neutral-100 dark:border-neutral-700"
@@ -234,7 +234,7 @@ export default function SettingsScreen() {
                 </View>
               </View>
               <Ionicons name="chevron-forward" size={20} color={chevronColor} />
-            </TouchableOpacity>
+            </TouchableOpacity> */}
 
             <TouchableOpacity
               activeOpacity={0.7}
@@ -362,7 +362,7 @@ export default function SettingsScreen() {
       <Snackbar ref={snackbarRef} />
 
       {/* Passkeys Modal */}
-      <AnimatedModal
+      {/* <AnimatedModal
         visible={activeModal === "passkeys"}
         onClose={() => setActiveModal(null)}
       >
@@ -443,7 +443,7 @@ export default function SettingsScreen() {
             </TouchableOpacity>
           </View>
         </View>
-      </AnimatedModal>
+      </AnimatedModal> */}
 
       {/* API Keys Modal */}
       <AnimatedModal
