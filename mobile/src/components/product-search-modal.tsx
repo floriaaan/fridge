@@ -114,7 +114,6 @@ export function ProductSearchModal({
 
           {!isSearching && hasSearched && searchResults.length === 0 && (
             <View className="items-center py-8">
-              <Text className="text-4xl mb-4">🔍</Text>
               <Text className="text-lg text-neutral-900 dark:text-neutral-100 font-semibold mb-2">
                 {t("product.noResults")}
               </Text>
@@ -126,7 +125,6 @@ export function ProductSearchModal({
 
           {!isSearching && !hasSearched && (
             <View className="items-center py-8">
-              <Text className="text-4xl mb-4">🍎</Text>
               <Text className="text-lg text-neutral-900 dark:text-neutral-100 font-semibold mb-2">
                 {t("product.searchInstructions")}
               </Text>

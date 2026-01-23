@@ -7,12 +7,17 @@ import {
   ActivityIndicator,
   Animated,
   Alert,
+  ActionSheetIOS,
+  Platform,
+  Dimensions,
 } from "react-native";
 import { CameraView, useCameraPermissions } from "expo-camera";
 import { useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import * as ImagePicker from "expo-image-picker";
 import { useTranslation } from "@/hooks/use-translation";
+
+const { height: SCREEN_HEIGHT } = Dimensions.get("window");
 
 export default function ReceiptScanScreen() {
   const router = useRouter();
@@ -63,6 +68,7 @@ export default function ReceiptScanScreen() {
       });
 
       if (photo?.base64) {
+        // Navigate immediately - don't wait for API call
         router.push({
           pathname: "/receipt/confirm",
           params: {
@@ -74,7 +80,6 @@ export default function ReceiptScanScreen() {
     } catch (error) {
       console.error("Error taking photo:", error);
       Alert.alert(t("common.error"), t("camera.captureError"));
-    } finally {
       setIsCapturing(false);
     }
   };
@@ -107,6 +112,35 @@ export default function ReceiptScanScreen() {
     } catch (error) {
       console.error("Error picking image:", error);
       Alert.alert(t("common.error"), t("camera.imageSelectionError"));
+    }
+  };
+
+  const showImageSourcePicker = () => {
+    if (Platform.OS === "ios") {
+      ActionSheetIOS.showActionSheetWithOptions(
+        {
+          options: [t("common.cancel"), t("camera.takePhoto"), t("camera.chooseFromGallery")],
+          cancelButtonIndex: 0,
+        },
+        (buttonIndex) => {
+          if (buttonIndex === 1) {
+            handleTakePhoto();
+          } else if (buttonIndex === 2) {
+            handlePickImage();
+          }
+        }
+      );
+    } else {
+      // Android: Show custom alert with options
+      Alert.alert(
+        t("camera.selectSource"),
+        "",
+        [
+          { text: t("common.cancel"), style: "cancel" },
+          { text: t("camera.takePhoto"), onPress: handleTakePhoto },
+          { text: t("camera.chooseFromGallery"), onPress: handlePickImage },
+        ]
+      );
     }
   };
 
@@ -179,42 +213,40 @@ export default function ReceiptScanScreen() {
 
       <View style={[styles.footer, { paddingBottom: insets.bottom + 24 }]}>
         <View style={styles.tipBox}>
-          <Text style={styles.tipText}>💡 {t("receipt.tip")}</Text>
+          <Text style={styles.tipText}>{t("receipt.tip")}</Text>
           <Text style={styles.tipSubText}>
             • {t("receipt.tipAvoidReflections")}{"\n"}• {t("receipt.tipEnsureReadable")}
           </Text>
         </View>
 
-        <View style={styles.buttonRow}>
-          <TouchableOpacity
-            style={styles.galleryButton}
-            onPress={handlePickImage}
-            disabled={isCapturing}
-          >
-            <Text style={styles.galleryButtonText}>📁</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={[styles.captureButton, isCapturing && styles.captureButtonDisabled]}
-            onPress={handleTakePhoto}
-            disabled={isCapturing}
-          >
-            {isCapturing ? (
-              <ActivityIndicator color="#fff" size="large" />
-            ) : (
-              <View style={styles.captureButtonInner} />
-            )}
-          </TouchableOpacity>
-
-          <View style={styles.placeholderButton} />
-        </View>
-
         <TouchableOpacity
-          style={styles.closeButton}
-          onPress={() => router.back()}
+          style={[styles.captureButton, isCapturing && styles.captureButtonDisabled]}
+          onPress={handleTakePhoto}
+          disabled={isCapturing}
         >
-          <Text style={styles.closeButtonText}>{t("common.close")}</Text>
+          {isCapturing ? (
+            <ActivityIndicator color="#fff" size="large" />
+          ) : (
+            <View style={styles.captureButtonInner} />
+          )}
         </TouchableOpacity>
+
+        <View style={styles.bottomButtonRow}>
+          <TouchableOpacity
+            style={styles.secondaryActionButton}
+            onPress={showImageSourcePicker}
+            disabled={isCapturing}
+          >
+            <Text style={styles.secondaryActionButtonText}>{t("camera.chooseSource")}</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.closeButton}
+            onPress={() => router.back()}
+          >
+            <Text style={styles.closeButtonText}>{t("common.close")}</Text>
+          </TouchableOpacity>
+        </View>
       </View>
     </View>
   );
@@ -256,8 +288,10 @@ const styles = StyleSheet.create({
     width: 300,
     height: 400,
     position: "absolute",
-    top: "30%",
-    alignSelf: "center",
+    top: "50%",
+    left: "50%",
+    marginTop: -200, // Half of height to center vertically
+    marginLeft: -150, // Half of width to center horizontally
   },
   corner: {
     position: "absolute",
@@ -316,29 +350,6 @@ const styles = StyleSheet.create({
     color: "#e5e7eb",
     fontSize: 13,
   },
-  buttonRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: 20,
-  },
-  galleryButton: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
-    backgroundColor: "rgba(0,0,0,0.7)",
-    justifyContent: "center",
-    alignItems: "center",
-    borderWidth: 2,
-    borderColor: "#4b5563",
-  },
-  galleryButtonText: {
-    fontSize: 24,
-  },
-  placeholderButton: {
-    width: 50,
-    height: 50,
-  },
   captureButton: {
     width: 80,
     height: 80,
@@ -358,8 +369,26 @@ const styles = StyleSheet.create({
     borderRadius: 30,
     backgroundColor: "#22c55e",
   },
+  bottomButtonRow: {
+    flexDirection: "row",
+    gap: 12,
+    alignItems: "center",
+  },
+  secondaryActionButton: {
+    paddingHorizontal: 20,
+    paddingVertical: 12,
+    borderRadius: 12,
+    backgroundColor: "rgba(0,0,0,0.7)",
+    borderWidth: 1,
+    borderColor: "#4b5563",
+  },
+  secondaryActionButtonText: {
+    color: "white",
+    fontSize: 14,
+    fontWeight: "600",
+  },
   closeButton: {
-    paddingHorizontal: 24,
+    paddingHorizontal: 20,
     paddingVertical: 12,
     borderRadius: 12,
     borderWidth: 1,

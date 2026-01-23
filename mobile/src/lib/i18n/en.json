@@ -223,7 +223,11 @@
     "centerBarcode": "Center the barcode in the frame.",
     "captureError": "Error taking photo",
     "galleryPermissionRequired": "Gallery access permission required",
-    "imageSelectionError": "Error selecting image"
+    "imageSelectionError": "Error selecting image",
+    "takePhoto": "Take Photo",
+    "chooseFromGallery": "Choose from Gallery",
+    "selectSource": "Select Source",
+    "chooseSource": "Choose Source"
   },
   "datePicker": {
     "selectDate": "Select a date"

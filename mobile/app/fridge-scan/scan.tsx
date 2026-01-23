@@ -6,11 +6,14 @@ import {
   StyleSheet,
   ActivityIndicator,
   Animated,
+  Dimensions,
 } from "react-native";
 import { CameraView, useCameraPermissions } from "expo-camera";
 import { useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useTranslation } from "@/hooks/use-translation";
+
+const { height: SCREEN_HEIGHT } = Dimensions.get("window");
 
 export default function FridgeScanScreen() {
   const router = useRouter();
@@ -61,6 +64,7 @@ export default function FridgeScanScreen() {
       });
 
       if (photo?.base64) {
+        // Navigate immediately - don't wait for API call
         router.push({
           pathname: "/fridge-scan/confirm",
           params: {
@@ -72,7 +76,6 @@ export default function FridgeScanScreen() {
     } catch (error) {
       console.error("Error taking photo:", error);
       alert(t("common.error"));
-    } finally {
       setIsCapturing(false);
     }
   };
@@ -146,7 +149,7 @@ export default function FridgeScanScreen() {
 
       <View style={[styles.footer, { paddingBottom: insets.bottom + 24 }]}>
         <View style={styles.tipBox}>
-          <Text style={styles.tipText}>💡 {t("fridgeScan.tip")}</Text>
+          <Text style={styles.tipText}>{t("fridgeScan.tip")}</Text>
           <Text style={styles.tipSubText}>
             {t("fridgeScan.tipDescription")}
           </Text>
@@ -211,8 +214,10 @@ const styles = StyleSheet.create({
     width: 300,
     height: 350,
     position: "absolute",
-    top: "28%",
-    alignSelf: "center",
+    top: "50%",
+    left: "50%",
+    marginTop: -175, // Half of height to center vertically
+    marginLeft: -150, // Half of width to center horizontally
   },
   corner: {
     position: "absolute",
