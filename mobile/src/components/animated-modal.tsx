@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from "react";
-import { View, Modal, TouchableWithoutFeedback, Keyboard } from "react-native";
+import React from "react";
+import { View, Modal, TouchableWithoutFeedback } from "react-native";
 import Animated, { FadeIn, FadeOut, SlideInDown, SlideOutUp } from "react-native-reanimated";
 
 interface AnimatedModalProps {
@@ -13,22 +13,6 @@ export const AnimatedModal: React.FC<AnimatedModalProps> = ({
   onClose,
   children,
 }) => {
-  const [keyboardHeight, setKeyboardHeight] = useState(0);
-
-  useEffect(() => {
-    const keyboardDidShow = Keyboard.addListener("keyboardDidShow", (e) => {
-      setKeyboardHeight(e.endCoordinates.height);
-    });
-    const keyboardDidHide = Keyboard.addListener("keyboardDidHide", () => {
-      setKeyboardHeight(0);
-    });
-
-    return () => {
-      keyboardDidShow.remove();
-      keyboardDidHide.remove();
-    };
-  }, []);
-
   return (
     <Modal visible={visible} transparent animationType="none">
       <Animated.View
@@ -45,7 +29,6 @@ export const AnimatedModal: React.FC<AnimatedModalProps> = ({
           className="bg-white dark:bg-neutral-800 rounded-t-3xl p-4"
         >
           {children}
-          <View style={{ height: keyboardHeight }} />
         </Animated.View>
       </Animated.View>
     </Modal>

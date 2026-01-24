@@ -60,7 +60,7 @@ function RootLayoutNav() {
         name="receipt/confirm"
         options={{
           title: t("receipt.confirmProducts"),
-          headerShown: true,
+          headerShown: false,
         }}
       />
 
@@ -73,7 +73,7 @@ function RootLayoutNav() {
         name="fridge-scan/confirm"
         options={{
           title: t("fridgeScan.selectProducts"),
-          headerShown: true,
+          headerShown: false,
         }}
       />
 

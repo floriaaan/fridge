@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from "react";
-import { Alert } from "react-native";
+import { Alert, View, Text, TouchableOpacity, useColorScheme } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
+import { SafeAreaView } from "react-native-safe-area-context";
+import Animated, { FadeInDown } from "react-native-reanimated";
+import { Ionicons } from "@expo/vector-icons";
 import {
   scanFridgeContents,
   importFridgeProducts,
@@ -110,23 +113,46 @@ export default function FridgeScanConfirmScreen() {
     }
   };
 
+  const colorScheme = useColorScheme();
+  const isDark = colorScheme === "dark";
+
+  const headerComponent = (
+    <Animated.View
+      entering={FadeInDown.duration(400)}
+      className="px-4 py-3 flex-row items-center"
+    >
+      <TouchableOpacity
+        onPress={() => router.back()}
+        className="p-2 rounded-lg active:bg-neutral-100 dark:active:bg-neutral-800"
+      >
+        <Ionicons name="chevron-back" size={24} color={isDark ? "#fafafa" : "#171717"} />
+      </TouchableOpacity>
+      <Text className="text-xl font-bold text-neutral-900 dark:text-neutral-100 flex-1 ml-2">
+        {t("fridgeScan.selectProducts")}
+      </Text>
+    </Animated.View>
+  );
+
   return (
-    <ConfirmationScreen
-      isScanning={isScanning}
-      isImporting={isImporting}
-      error={error}
-      products={products}
-      headerInfo={{
-        title: t("fridgeScan.title"),
-        subtitle: `${products.length} ${t("fridgeScan.selectProducts")}`,
-      }}
-      onToggleProduct={toggleProductInclusion}
-      onUpdateLocation={updateProductLocation}
-      onUpdateProduct={updateProduct}
-      onImport={handleImport}
-      onCancel={() => router.back()}
-      importButtonText={t("receipt.import")}
-      accentColor="#06B6D4"
-    />
+    <SafeAreaView className="flex-1 bg-neutral-50 dark:bg-black">
+      {headerComponent}
+      <ConfirmationScreen
+        isScanning={isScanning}
+        isImporting={isImporting}
+        error={error}
+        products={products}
+        headerInfo={{
+          title: t("fridgeScan.title"),
+          subtitle: `${products.length} ${t("fridgeScan.selectProducts")}`,
+        }}
+        onToggleProduct={toggleProductInclusion}
+        onUpdateLocation={updateProductLocation}
+        onUpdateProduct={updateProduct}
+        onImport={handleImport}
+        onCancel={() => router.back()}
+        importButtonText={t("receipt.import")}
+        accentColor="#06B6D4"
+      />
+    </SafeAreaView>
   );
 }

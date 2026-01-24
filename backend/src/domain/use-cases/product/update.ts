@@ -10,6 +10,8 @@ export const updateProductSchema = t.Array(t.Object({
   id: t.String(),
   name: t.Optional(t.String()),
   quantity: t.Optional(t.Integer()),
+  openedAt: t.Optional(t.Union([t.String(), t.Null()])),
+  consumedAt: t.Optional(t.Union([t.String(), t.Null()])),
 }));
 
 export const updateProducts = async ({
@@ -22,7 +24,7 @@ export const updateProducts = async ({
     return { error: "Unauthorized" };
   }
 
-  const body = rawBody as { id: string; name?: string; quantity?: number }[];
+  const body = rawBody as { id: string; name?: string; quantity?: number; openedAt?: string | null; consumedAt?: string | null }[];
 
   try {
     const productIds = body.map((p) => p.id);
@@ -44,11 +46,15 @@ export const updateProducts = async ({
 
     const quantityMap = new Map(body.filter((p) => p.quantity !== undefined).map((p) => [p.id, p.quantity!]));
     const nameMap = new Map(body.filter((p) => p.name !== undefined).map((p) => [p.id, p.name!]));
+    const openedAtMap = new Map(body.filter((p) => p.openedAt !== undefined).map((p) => [p.id, p.openedAt]));
+    const consumedAtMap = new Map(body.filter((p) => p.consumedAt !== undefined).map((p) => [p.id, p.consumedAt]));
 
     const productsToUpdateQuantity = body.filter((p) => p.quantity !== undefined).map((p) => p.id);
     const productsToUpdateName = body.filter((p) => p.name !== undefined).map((p) => p.id);
+    const productsToUpdateOpenedAt = body.filter((p) => p.openedAt !== undefined).map((p) => p.id);
+    const productsToUpdateConsumedAt = body.filter((p) => p.consumedAt !== undefined).map((p) => p.id);
 
-    const setData: { name?: any; quantity?: any; updatedAt: Date } = {
+    const setData: { name?: any; quantity?: any; openedAt?: any; consumedAt?: any; updatedAt: Date } = {
       updatedAt: new Date(),
     };
 
@@ -78,6 +84,36 @@ export const updateProducts = async ({
               sql` `,
             )}
             ELSE ${product.name}
+          END
+        `;
+    }
+
+    if (productsToUpdateOpenedAt.length > 0) {
+      setData.openedAt = sql`
+          CASE
+            ${sql.join(
+              productsToUpdateOpenedAt.map((id) => {
+                const newOpenedAt = openedAtMap.get(id);
+                return sql`WHEN ${product.id} = ${id} THEN ${newOpenedAt ? new Date(newOpenedAt) : null}::timestamp`;
+              }),
+              sql` `,
+            )}
+            ELSE ${product.openedAt}
+          END
+        `;
+    }
+
+    if (productsToUpdateConsumedAt.length > 0) {
+      setData.consumedAt = sql`
+          CASE
+            ${sql.join(
+              productsToUpdateConsumedAt.map((id) => {
+                const newConsumedAt = consumedAtMap.get(id);
+                return sql`WHEN ${product.id} = ${id} THEN ${newConsumedAt ? new Date(newConsumedAt) : null}::timestamp`;
+              }),
+              sql` `,
+            )}
+            ELSE ${product.consumedAt}
           END
         `;
     }
