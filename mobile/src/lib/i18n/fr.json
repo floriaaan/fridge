@@ -227,6 +227,7 @@
     "galleryPermissionRequired": "Permission d'accès à la galerie requise",
     "imageSelectionError": "Erreur lors de la sélection de l'image",
     "documentSelectionError": "Erreur lors de la sélection du fichier",
+    "pdfNotSupported": "Le support PDF arrive bientôt. Veuillez utiliser des fichiers image pour le moment.",
     "takePhoto": "Prendre une photo",
     "chooseFromGallery": "Choisir dans la galerie",
     "chooseFile": "Choisir un fichier",

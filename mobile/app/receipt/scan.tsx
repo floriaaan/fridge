@@ -15,6 +15,7 @@ import { useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import * as ImagePicker from "expo-image-picker";
 import * as DocumentPicker from "expo-document-picker";
+import * as FileSystem from "expo-file-system";
 import { useTranslation } from "@/hooks/use-translation";
 
 export default function ReceiptScanScreen() {
@@ -129,16 +130,12 @@ export default function ReceiptScanScreen() {
       const doc = result.assets[0];
       if (!doc) return;
 
-      // For images, read as base64
+      // For images, read as base64 using expo-file-system
       if (doc.mimeType?.startsWith('image/')) {
-        // Convert file URI to base64
-        const response = await fetch(doc.uri);
-        const blob = await response.blob();
-        const reader = new FileReader();
-        
-        reader.onloadend = () => {
-          const base64 = reader.result as string;
-          const base64Data = base64.split(',')[1]; // Remove data URL prefix
+        try {
+          const base64Data = await FileSystem.readAsStringAsync(doc.uri, {
+            encoding: FileSystem.EncodingType.Base64,
+          });
           
           // Use replace for instant navigation
           router.replace({
@@ -148,15 +145,16 @@ export default function ReceiptScanScreen() {
               imageUri: doc.uri,
             },
           });
-        };
-        
-        reader.readAsDataURL(blob);
+        } catch (error) {
+          console.error("Error reading image file:", error);
+          Alert.alert(t("common.error"), t("camera.documentSelectionError"));
+        }
       } else if (doc.mimeType === 'application/pdf') {
         // For PDFs, we need to convert first page to image
         // For now, show an alert that PDF support requires additional setup
         Alert.alert(
           t("common.error"),
-          "PDF support coming soon. Please use image files for now."
+          t("camera.pdfNotSupported")
         );
       }
     } catch (error) {
