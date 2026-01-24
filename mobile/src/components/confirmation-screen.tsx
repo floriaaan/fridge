@@ -10,6 +10,7 @@ import {
 } from "react-native";
 import { useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { MaterialIcons } from "@expo/vector-icons";
 import Snackbar, { SnackbarRef } from "@/components/ui/snackbar";
 import { ProductSearchModal } from "@/components/product-search-modal";
 import { useTranslation } from "@/hooks/use-translation";
@@ -97,7 +98,12 @@ export function ConfirmationScreen({
         imageUrl: product.image_url,
         confidence: "high" as const,
       });
+      // Reset all editing state after selection
       setEditingProductId(null);
+      setEditingProductName("");
+      setSearchModalVisible(false);
+    }
+  };
     }
   };
 
@@ -224,17 +230,29 @@ export function ConfirmationScreen({
               </View>
               <View className="flex-row items-center gap-2">
                 {product.confidence === "low" && (
-                  <View className="bg-yellow-100 dark:bg-yellow-900 px-2 py-1 rounded">
+                  <View className="bg-yellow-100 dark:bg-yellow-900 px-2 py-1 rounded flex-row items-center gap-1">
+                    <MaterialIcons 
+                      name="warning" 
+                      size={14} 
+                      color={isDark ? "#FEF08A" : "#854D0E"} 
+                    />
                     <Text className="text-xs text-yellow-800 dark:text-yellow-200">
-                      ⚠️
+                      {t("product.lowConfidence")}
                     </Text>
                   </View>
                 )}
                 <TouchableOpacity
                   onPress={() => handleSearchProduct(product.id)}
-                  className="p-1"
+                  className="p-1 flex-row items-center gap-1"
                 >
-                  <Text className="text-neutral-600 dark:text-neutral-400">🔍</Text>
+                  <MaterialIcons 
+                    name="search" 
+                    size={18} 
+                    color={isDark ? "#9CA3AF" : "#6B7280"} 
+                  />
+                  <Text className="text-xs text-neutral-600 dark:text-neutral-400">
+                    {t("product.search")}
+                  </Text>
                 </TouchableOpacity>
               </View>
             </View>

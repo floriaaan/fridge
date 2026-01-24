@@ -64,8 +64,8 @@ export default function FridgeScanScreen() {
       });
 
       if (photo?.base64) {
-        // Navigate immediately - don't wait for API call
-        router.push({
+        // Use replace for instant navigation
+        router.replace({
           pathname: "/fridge-scan/confirm",
           params: {
             imageBase64: photo.base64,

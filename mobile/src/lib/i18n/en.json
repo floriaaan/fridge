@@ -71,7 +71,9 @@
     "noResultsDescription": "Try modifying your search",
     "searchInstructions": "Search for a product",
     "searchInstructionsDescription": "Enter a product name to search in OpenFoodFacts",
-    "resultsFound": "results found"
+    "resultsFound": "results found",
+    "lowConfidence": "Uncertain",
+    "search": "Search"
   },
   "receipt": {
     "scanTicket": "Scan a ticket",
@@ -224,8 +226,10 @@
     "captureError": "Error taking photo",
     "galleryPermissionRequired": "Gallery access permission required",
     "imageSelectionError": "Error selecting image",
+    "documentSelectionError": "Error selecting file",
     "takePhoto": "Take Photo",
     "chooseFromGallery": "Choose from Gallery",
+    "chooseFile": "Choose File",
     "selectSource": "Select Source"
   },
   "datePicker": {

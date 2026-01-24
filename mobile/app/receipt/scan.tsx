@@ -15,6 +15,7 @@ import { CameraView, useCameraPermissions } from "expo-camera";
 import { useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import * as ImagePicker from "expo-image-picker";
+import * as DocumentPicker from "expo-document-picker";
 import { useTranslation } from "@/hooks/use-translation";
 
 const { height: SCREEN_HEIGHT } = Dimensions.get("window");
@@ -68,8 +69,8 @@ export default function ReceiptScanScreen() {
       });
 
       if (photo?.base64) {
-        // Navigate immediately - don't wait for API call
-        router.push({
+        // Use replace for instant navigation
+        router.replace({
           pathname: "/receipt/confirm",
           params: {
             imageBase64: photo.base64,
@@ -104,7 +105,8 @@ export default function ReceiptScanScreen() {
       });
 
       if (!result.canceled && result.assets[0]?.base64) {
-        router.push({
+        // Use replace for instant navigation
+        router.replace({
           pathname: "/receipt/confirm",
           params: {
             imageBase64: result.assets[0].base64,
@@ -118,11 +120,64 @@ export default function ReceiptScanScreen() {
     }
   };
 
+  const handlePickDocument = async () => {
+    try {
+      const result = await DocumentPicker.getDocumentAsync({
+        type: ['image/*', 'application/pdf'],
+        copyToCacheDirectory: true,
+      });
+
+      if (result.canceled) return;
+
+      const doc = result.assets[0];
+      if (!doc) return;
+
+      // For images, read as base64
+      if (doc.mimeType?.startsWith('image/')) {
+        // Convert file URI to base64
+        const response = await fetch(doc.uri);
+        const blob = await response.blob();
+        const reader = new FileReader();
+        
+        reader.onloadend = () => {
+          const base64 = reader.result as string;
+          const base64Data = base64.split(',')[1]; // Remove data URL prefix
+          
+          // Use replace for instant navigation
+          router.replace({
+            pathname: "/receipt/confirm",
+            params: {
+              imageBase64: base64Data,
+              imageUri: doc.uri,
+            },
+          });
+        };
+        
+        reader.readAsDataURL(blob);
+      } else if (doc.mimeType === 'application/pdf') {
+        // For PDFs, we need to convert first page to image
+        // For now, show an alert that PDF support requires additional setup
+        Alert.alert(
+          t("common.error"),
+          "PDF support coming soon. Please use image files for now."
+        );
+      }
+    } catch (error) {
+      console.error("Error picking document:", error);
+      Alert.alert(t("common.error"), t("camera.documentSelectionError"));
+    }
+  };
+
   const showImageSourcePicker = () => {
     if (Platform.OS === "ios") {
       ActionSheetIOS.showActionSheetWithOptions(
         {
-          options: [t("common.cancel"), t("camera.takePhoto"), t("camera.chooseFromGallery")],
+          options: [
+            t("common.cancel"),
+            t("camera.takePhoto"),
+            t("camera.chooseFromGallery"),
+            t("camera.chooseFile")
+          ],
           cancelButtonIndex: 0,
         },
         (buttonIndex) => {
@@ -130,6 +185,8 @@ export default function ReceiptScanScreen() {
             handleTakePhoto();
           } else if (buttonIndex === 2) {
             handlePickImage();
+          } else if (buttonIndex === 3) {
+            handlePickDocument();
           }
         }
       );
@@ -142,6 +199,7 @@ export default function ReceiptScanScreen() {
           { text: t("common.cancel"), style: "cancel" },
           { text: t("camera.takePhoto"), onPress: handleTakePhoto },
           { text: t("camera.chooseFromGallery"), onPress: handlePickImage },
+          { text: t("camera.chooseFile"), onPress: handlePickDocument },
         ]
       );
     }

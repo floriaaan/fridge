@@ -59,8 +59,8 @@ function RootLayoutNav() {
       <Stack.Screen
         name="receipt/confirm"
         options={{
-          presentation: "modal",
           title: t("receipt.confirmProducts"),
+          headerShown: true,
         }}
       />
 
@@ -72,8 +72,8 @@ function RootLayoutNav() {
       <Stack.Screen
         name="fridge-scan/confirm"
         options={{
-          presentation: "modal",
           title: t("fridgeScan.selectProducts"),
+          headerShown: true,
         }}
       />
 

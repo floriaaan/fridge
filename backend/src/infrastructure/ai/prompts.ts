@@ -45,16 +45,26 @@ export const buildReceiptPrompt = (language: string): string => {
 
 Instructions:
 1. Identify store name, date (YYYY-MM-DD format), and total amount
-2. For each item:
-   - Extract ONLY food/beverage products (ignore non-food items like bags, cleaning products, batteries, etc.)
-   - Improve abbreviated product names using context clues:
-     * "MCH 500G OIGN JNE" → "Oignons jaunes 500g"
-     * "140G POITR FUM TR" → "Poitrine fumée en tranches 140g"
-     * "PT LT 1L 1/2 ECR" → "Lait demi-écrémé 1L"
-   - Extract quantity as number, unit (g, kg, ml, L, pièce), and price in €
-3. Return all data in ${language} language
+2. For each item, extract ONLY food/beverage products meant for human consumption:
+   - INCLUDE: Fresh produce (vegetables, fruits), meat, fish, dairy, bakery, beverages, pantry staples
+   - EXCLUDE: Pet food, animal feed, cleaning products, bags, batteries, hygiene items, household items
+   
+3. Improve abbreviated product names while keeping their TRUE nature:
+   - Keep raw/unprocessed items as RAW (don't transform them into processed products)
+   - Examples:
+     * "MCH 500G OIGN JNE" → "Oignons jaunes 500g" (raw vegetable)
+     * "140G POITR FUM TR" → "Poitrine fumée en tranches 140g" (processed meat)
+     * "TOMATE COTE RGE HF" → "Tomates côtelées rouges" (raw vegetable)
+     * "COURGETTE" → "Courgettes" (raw vegetable)
+     * "BOEUF BOURGUIGN***" → "Boeuf bourguignon" (prepared dish)
+     * "3KG CHAT STER INTE" → EXCLUDE (pet food, not human food)
+     
+4. Extract quantity as number, unit (g, kg, ml, L, pièce), and price in €
+5. Return all data in ${language} language
+6. DO NOT transform raw ingredients into processed products
+7. DO NOT include pet food or non-human food items
 
-Focus on accuracy and clarity for food items only.`;
+Focus on accuracy, preserve the true nature of each product (raw vs processed).`;
 };
 
 export const buildFridgeScanPrompt = (language: string): string => {

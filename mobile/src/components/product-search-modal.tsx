@@ -55,8 +55,21 @@ export function ProductSearchModal({
 
   const handleSelectProduct = (product: OpenFoodFactsProduct) => {
     onSelect(product);
+    // Reset state after selection
+    setSearchQuery("");
+    setSearchResults([]);
+    setHasSearched(false);
     onClose();
   };
+
+  // Reset search when modal opens with new product
+  React.useEffect(() => {
+    if (visible) {
+      setSearchQuery(currentProductName);
+      setSearchResults([]);
+      setHasSearched(false);
+    }
+  }, [visible, currentProductName]);
 
   return (
     <Modal
