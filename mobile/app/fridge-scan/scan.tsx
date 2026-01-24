@@ -6,14 +6,11 @@ import {
   StyleSheet,
   ActivityIndicator,
   Animated,
-  Dimensions,
 } from "react-native";
 import { CameraView, useCameraPermissions } from "expo-camera";
 import { useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useTranslation } from "@/hooks/use-translation";
-
-const { height: SCREEN_HEIGHT } = Dimensions.get("window");
 
 export default function FridgeScanScreen() {
   const router = useRouter();

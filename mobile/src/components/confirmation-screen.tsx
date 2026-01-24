@@ -104,8 +104,6 @@ export function ConfirmationScreen({
       setSearchModalVisible(false);
     }
   };
-    }
-  };
 
   if (isScanning) {
     return (

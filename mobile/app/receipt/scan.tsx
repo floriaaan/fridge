@@ -9,7 +9,6 @@ import {
   Alert,
   ActionSheetIOS,
   Platform,
-  Dimensions,
 } from "react-native";
 import { CameraView, useCameraPermissions } from "expo-camera";
 import { useRouter } from "expo-router";
@@ -17,8 +16,6 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import * as ImagePicker from "expo-image-picker";
 import * as DocumentPicker from "expo-document-picker";
 import { useTranslation } from "@/hooks/use-translation";
-
-const { height: SCREEN_HEIGHT } = Dimensions.get("window");
 
 export default function ReceiptScanScreen() {
   const router = useRouter();
