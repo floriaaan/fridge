@@ -18,7 +18,8 @@ export const AnimatedModal: React.FC<AnimatedModalProps> = ({
       <Animated.View
         entering={FadeIn}
         exiting={FadeOut}
-        className="flex-1 bg-black/50 justify-end"
+        className="flex-1 bg-black/50 justify-end px-2 pb-2"
+        style={{ borderRadius: 24 }}
       >
         <TouchableWithoutFeedback onPress={onClose}>
           <View className="flex-1" />
@@ -26,7 +27,8 @@ export const AnimatedModal: React.FC<AnimatedModalProps> = ({
         <Animated.View
           entering={SlideInDown.springify()}
           exiting={SlideOutUp.springify()}
-          className="bg-white dark:bg-neutral-800 rounded-t-3xl p-4"
+          className="bg-white dark:bg-neutral-800 p-4 mb-2"
+          style={{ borderRadius: 24 }}
         >
           {children}
         </Animated.View>
