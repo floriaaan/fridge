@@ -9,10 +9,12 @@ import { Context } from "elysia";
 import { User } from "better-auth/types";
 import { FridgeResponse } from "@/application/entities/response";
 import { awardPoints } from "./profile";
-import type { ChallengeGoal, ChallengeReward, ChallengeProgress } from "@/domain/entity/gamification";
+import type { ChallengeGoal, ChallengeReward, ChallengeProgress } from "@/domain/entity/achievements";
+import { MONTHLY_CHALLENGES } from "@/config/achievements/challenge-definitions";
 
 /**
  * Initialize monthly challenges
+ * This should be called via a cron job at the start of each month
  */
 export const initializeChallenges = async () => {
   try {
@@ -36,38 +38,17 @@ export const initializeChallenges = async () => {
       return; // Challenges already exist
     }
 
-    const challenges = [
-      {
-        type: "monthly" as const,
-        title: "Zero Waste Champion",
-        description: "Achieve zero waste for 15 days this month",
-        goal: { type: "zero_waste_days", target: 15 },
-        reward: { points: 200, badge: null },
+    // Create challenges from definitions
+    for (const challengeDef of MONTHLY_CHALLENGES) {
+      await db.insert(challenge).values({
+        type: challengeDef.type,
+        title: challengeDef.title,
+        description: challengeDef.description,
+        goal: challengeDef.goal,
+        reward: challengeDef.reward,
         startDate: monthStart,
         endDate: monthEnd,
-      },
-      {
-        type: "monthly" as const,
-        title: "Recipe Explorer",
-        description: "Generate and try 5 recipes this month",
-        goal: { type: "recipes_generated", target: 5 },
-        reward: { points: 150, badge: null },
-        startDate: monthStart,
-        endDate: monthEnd,
-      },
-      {
-        type: "monthly" as const,
-        title: "Savings Master",
-        description: "Save €30 by not wasting food this month",
-        goal: { type: "money_saved", target: 30 },
-        reward: { points: 250, badge: null },
-        startDate: monthStart,
-        endDate: monthEnd,
-      },
-    ];
-
-    for (const challengeData of challenges) {
-      await db.insert(challenge).values(challengeData);
+      });
     }
   } catch (error) {
     console.error("Error initializing challenges:", error);

@@ -53,8 +53,8 @@ export function useCreateProduct() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['products'] });
-      // Invalidate gamification queries to check for new badges
-      queryClient.invalidateQueries({ queryKey: ['gamification'] });
+      // Invalidate achievements queries to check for new badges
+      queryClient.invalidateQueries({ queryKey: ['achievements'] });
     },
   });
 }

@@ -10,7 +10,7 @@ import {
   awardPoints,
   checkAndAwardBadges,
   updateChallengeProgress,
-} from "@/domain/use-cases/gamification";
+} from "@/domain/use-cases/achievements";
 
 export const createProducts = async ({
   user,

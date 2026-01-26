@@ -69,7 +69,7 @@ export interface CompletedChallenge {
   };
 }
 
-export interface GamificationProfile {
+export interface AchievementsProfile {
   id: string;
   userId: string;
   level: number;
@@ -90,20 +90,20 @@ export interface LeaderboardEntry {
   ecoScore: string;
 }
 
-export const fetchGamificationProfile = async (): Promise<GamificationProfile> => {
+export const fetchAchievementsProfile = async (): Promise<AchievementsProfile> => {
   const session = await authClient.getSession();
   if (!session) {
     throw new Error("Not authenticated");
   }
 
-  const response = await fetch(`${API_BASE_URL}/gamification/profile`, {
+  const response = await fetch(`${API_BASE_URL}/achievements/profile`, {
     headers: {
       Cookie: `better-auth.session_token=${session.session.token}`,
     },
   });
 
   if (!response.ok) {
-    throw new Error("Failed to fetch gamification profile");
+    throw new Error("Failed to fetch achievements profile");
   }
 
   const data = await response.json();
@@ -116,7 +116,7 @@ export const fetchUserBadges = async (): Promise<UserBadge[]> => {
     throw new Error("Not authenticated");
   }
 
-  const response = await fetch(`${API_BASE_URL}/gamification/badges`, {
+  const response = await fetch(`${API_BASE_URL}/achievements/badges`, {
     headers: {
       Cookie: `better-auth.session_token=${session.session.token}`,
     },
@@ -131,7 +131,7 @@ export const fetchUserBadges = async (): Promise<UserBadge[]> => {
 };
 
 export const fetchAllBadges = async (): Promise<Badge[]> => {
-  const response = await fetch(`${API_BASE_URL}/gamification/badges/all`);
+  const response = await fetch(`${API_BASE_URL}/achievements/badges/all`);
 
   if (!response.ok) {
     throw new Error("Failed to fetch all badges");
@@ -147,7 +147,7 @@ export const fetchActiveChallenges = async (): Promise<ChallengeWithProgress[]> 
     throw new Error("Not authenticated");
   }
 
-  const response = await fetch(`${API_BASE_URL}/gamification/challenges/active`, {
+  const response = await fetch(`${API_BASE_URL}/achievements/challenges/active`, {
     headers: {
       Cookie: `better-auth.session_token=${session.session.token}`,
     },
@@ -167,7 +167,7 @@ export const fetchCompletedChallenges = async (): Promise<CompletedChallenge[]> 
     throw new Error("Not authenticated");
   }
 
-  const response = await fetch(`${API_BASE_URL}/gamification/challenges/completed`, {
+  const response = await fetch(`${API_BASE_URL}/achievements/challenges/completed`, {
     headers: {
       Cookie: `better-auth.session_token=${session.session.token}`,
     },
@@ -182,7 +182,7 @@ export const fetchCompletedChallenges = async (): Promise<CompletedChallenge[]> 
 };
 
 export const fetchLeaderboard = async (limit: number = 10): Promise<LeaderboardEntry[]> => {
-  const response = await fetch(`${API_BASE_URL}/gamification/leaderboard?limit=${limit}`);
+  const response = await fetch(`${API_BASE_URL}/achievements/leaderboard?limit=${limit}`);
 
   if (!response.ok) {
     throw new Error("Failed to fetch leaderboard");

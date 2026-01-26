@@ -12,78 +12,14 @@ import { Context } from "elysia";
 import { User } from "better-auth/types";
 import { FridgeResponse } from "@/application/entities/response";
 import { awardPoints, calculateEcoScore } from "./profile";
+import { DEFAULT_BADGES } from "@/config/achievements/badge-definitions";
 
 /**
  * Initialize default badges in the database
  */
 export const initializeBadges = async () => {
   try {
-    const badges: Array<{
-      type: BadgeType;
-      name: string;
-      description: string;
-      icon: string;
-      criteria: Record<string, any>;
-    }> = [
-      {
-        type: "first_product" as const,
-        name: "First Steps",
-        description: "Add your first product",
-        icon: "🎯",
-        criteria: { minProducts: 1 },
-      },
-      {
-        type: "first_week" as const,
-        name: "Week Warrior",
-        description: "Use the app for 7 consecutive days",
-        icon: "🔥",
-        criteria: { minStreak: 7 },
-      },
-      {
-        type: "zero_waste_week" as const,
-        name: "Zero Waste Hero",
-        description: "Zero waste for a whole week",
-        icon: "♻️",
-        criteria: { zeroWasteDays: 7 },
-      },
-      {
-        type: "eco_warrior" as const,
-        name: "Eco Warrior",
-        description: "Achieve an eco score of 80 or higher",
-        icon: "🌿",
-        criteria: { minEcoScore: 80 },
-      },
-      {
-        type: "recipe_master" as const,
-        name: "Recipe Master",
-        description: "Generate 10 recipes",
-        icon: "👨‍🍳",
-        criteria: { minRecipes: 10 },
-      },
-      {
-        type: "scanner_pro" as const,
-        name: "Scanner Pro",
-        description: "Scan 20 receipts or products",
-        icon: "📸",
-        criteria: { minScans: 20 },
-      },
-      {
-        type: "money_saver" as const,
-        name: "Money Saver",
-        description: "Save €50 by not wasting food",
-        icon: "💰",
-        criteria: { minMoneySaved: 50 },
-      },
-      {
-        type: "consistent_user" as const,
-        name: "Consistency King",
-        description: "Use the app for 30 days straight",
-        icon: "👑",
-        criteria: { minStreak: 30 },
-      },
-    ];
-
-    for (const badgeData of badges) {
+    for (const badgeData of DEFAULT_BADGES) {
       // Check if badge already exists
       const [existing] = await db
         .select()

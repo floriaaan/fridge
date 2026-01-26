@@ -7,10 +7,10 @@ import {
   getAllBadges,
   getActiveChallenges,
   getCompletedChallenges,
-} from "@/domain/use-cases/gamification";
+} from "@/domain/use-cases/achievements";
 
-export const gamificationController = new Elysia({
-  prefix: "/gamification",
+export const achievementsController = new Elysia({
+  prefix: "/achievements",
 })
   .use(authMiddleware)
   .get("/profile", getUserProfile, { auth: true })

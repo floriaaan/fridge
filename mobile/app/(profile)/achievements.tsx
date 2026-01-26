@@ -10,7 +10,7 @@ import {
   useUserBadges,
   useAllBadges,
   useActiveChallenges,
-} from "@/hooks/use-gamification";
+} from "@/hooks/use-achievements";
 import { useTranslation } from "@/hooks/use-translation";
 
 interface BadgeCardProps {

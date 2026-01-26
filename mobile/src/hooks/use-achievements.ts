@@ -1,19 +1,19 @@
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useRef } from "react";
 import {
-  fetchGamificationProfile,
+  fetchAchievementsProfile,
   fetchUserBadges,
   fetchAllBadges,
   fetchActiveChallenges,
   fetchCompletedChallenges,
   fetchLeaderboard,
-} from "@/lib/api/fetch-gamification";
+} from "@/lib/api/fetch-achievements";
 import { showBadgeNotification } from "@/lib/notifications";
 
-export function useGamificationProfile() {
+export function useAchievementsProfile() {
   return useQuery({
     queryKey: ["gamification", "profile"],
-    queryFn: fetchGamificationProfile,
+    queryFn: fetchAchievementsProfile,
   });
 }
 
@@ -21,7 +21,7 @@ export function useUserBadges() {
   const previousBadgeCount = useRef<number | null>(null);
   
   const query = useQuery({
-    queryKey: ["gamification", "badges"],
+    queryKey: ["achievements", "badges"],
     queryFn: fetchUserBadges,
   });
 
@@ -45,28 +45,28 @@ export function useUserBadges() {
 
 export function useAllBadges() {
   return useQuery({
-    queryKey: ["gamification", "badges", "all"],
+    queryKey: ["achievements", "badges", "all"],
     queryFn: fetchAllBadges,
   });
 }
 
 export function useActiveChallenges() {
   return useQuery({
-    queryKey: ["gamification", "challenges", "active"],
+    queryKey: ["achievements", "challenges", "active"],
     queryFn: fetchActiveChallenges,
   });
 }
 
 export function useCompletedChallenges() {
   return useQuery({
-    queryKey: ["gamification", "challenges", "completed"],
+    queryKey: ["achievements", "challenges", "completed"],
     queryFn: fetchCompletedChallenges,
   });
 }
 
 export function useLeaderboard(limit: number = 10) {
   return useQuery({
-    queryKey: ["gamification", "leaderboard", limit],
+    queryKey: ["achievements", "leaderboard", limit],
     queryFn: () => fetchLeaderboard(limit),
   });
 }
