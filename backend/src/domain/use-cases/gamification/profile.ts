@@ -13,9 +13,10 @@ import { FridgeResponse } from "@/application/entities/response";
 /**
  * Get or create user gamification profile
  */
-export const getUserProfile = async ({ user }: Context & { user?: User }) => {
+export const getUserProfile = async ({ user, status }: Context & { user?: User }) => {
   if (!user?.id) {
-    return FridgeResponse.Unauthorized();
+    status(401);
+    return { error: "Unauthorized" };
   }
 
   try {
@@ -41,14 +42,11 @@ export const getUserProfile = async ({ user }: Context & { user?: User }) => {
         .returning();
     }
 
-    return FridgeResponse.Ok({
-      profile,
-    });
+    return { success: true, data: { profile } };
   } catch (error) {
     console.error("Error getting user profile:", error);
-    return FridgeResponse.InternalError(
-      "Failed to get user gamification profile"
-    );
+    status(500);
+    return { error: "Failed to get user gamification profile" };
   }
 };
 
@@ -181,6 +179,7 @@ export const calculateEcoScore = async (userId: string) => {
  */
 export const getLeaderboard = async ({
   query,
+  status,
 }: Context & { query: { limit?: string } }) => {
   try {
     const limit = parseInt(query.limit || "10");
@@ -196,11 +195,10 @@ export const getLeaderboard = async ({
       .orderBy(sql`${userGamificationProfile.points} DESC`)
       .limit(limit);
 
-    return FridgeResponse.Ok({
-      leaderboard,
-    });
+    return { success: true, data: { leaderboard } };
   } catch (error) {
     console.error("Error getting leaderboard:", error);
-    return FridgeResponse.InternalError("Failed to get leaderboard");
+    status(500);
+    return { error: "Failed to get leaderboard" };
   }
 };

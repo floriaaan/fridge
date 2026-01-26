@@ -78,9 +78,11 @@ export const initializeChallenges = async () => {
  */
 export const getActiveChallenges = async ({
   user,
+  status,
 }: Context & { user?: User }) => {
   if (!user?.id) {
-    return FridgeResponse.Unauthorized();
+    status(401);
+    return { error: "Unauthorized" };
   }
 
   try {
@@ -130,10 +132,11 @@ export const getActiveChallenges = async ({
       })
     );
 
-    return FridgeResponse.Ok({ challenges: challengesWithProgress });
+    return { success: true, data: { challenges: challengesWithProgress } };
   } catch (error) {
     console.error("Error getting active challenges:", error);
-    return FridgeResponse.InternalError("Failed to get challenges");
+    status(500);
+    return { error: "Failed to get challenges" };
   }
 };
 
@@ -185,6 +188,8 @@ export const updateChallengeProgress = async (
           .returning();
       }
 
+      if (!userCh) continue; // Skip if still undefined
+
       // Update progress
       const currentProgress = (userCh.progress as any).current || 0;
       const newProgress = currentProgress + progressValue;
@@ -232,9 +237,11 @@ export const updateChallengeProgress = async (
  */
 export const getCompletedChallenges = async ({
   user,
+  status,
 }: Context & { user?: User }) => {
   if (!user?.id) {
-    return FridgeResponse.Unauthorized();
+    status(401);
+    return { error: "Unauthorized" };
   }
 
   try {
@@ -261,9 +268,10 @@ export const getCompletedChallenges = async ({
       )
       .orderBy(sql`${userChallenge.completedAt} DESC`);
 
-    return FridgeResponse.Ok({ challenges: completedChallenges });
+    return { success: true, data: { challenges: completedChallenges } };
   } catch (error) {
     console.error("Error getting completed challenges:", error);
-    return FridgeResponse.InternalError("Failed to get completed challenges");
+    status(500);
+    return { error: "Failed to get completed challenges" };
   }
 };

@@ -4,6 +4,8 @@ import {
   userBadge,
   userGamificationProfile,
   product,
+  badgeTypeEnum,
+  type BadgeType,
 } from "@/infrastructure/database/schema";
 import { eq, and, sql, count, gte, isNotNull } from "drizzle-orm";
 import { Context } from "elysia";
@@ -16,58 +18,64 @@ import { awardPoints, calculateEcoScore } from "./profile";
  */
 export const initializeBadges = async () => {
   try {
-    const badges = [
+    const badges: Array<{
+      type: BadgeType;
+      name: string;
+      description: string;
+      icon: string;
+      criteria: Record<string, any>;
+    }> = [
       {
-        type: "first_product",
+        type: "first_product" as const,
         name: "First Steps",
         description: "Add your first product",
         icon: "🎯",
         criteria: { minProducts: 1 },
       },
       {
-        type: "first_week",
+        type: "first_week" as const,
         name: "Week Warrior",
         description: "Use the app for 7 consecutive days",
         icon: "🔥",
         criteria: { minStreak: 7 },
       },
       {
-        type: "zero_waste_week",
+        type: "zero_waste_week" as const,
         name: "Zero Waste Hero",
         description: "Zero waste for a whole week",
         icon: "♻️",
         criteria: { zeroWasteDays: 7 },
       },
       {
-        type: "eco_warrior",
+        type: "eco_warrior" as const,
         name: "Eco Warrior",
         description: "Achieve an eco score of 80 or higher",
         icon: "🌿",
         criteria: { minEcoScore: 80 },
       },
       {
-        type: "recipe_master",
+        type: "recipe_master" as const,
         name: "Recipe Master",
         description: "Generate 10 recipes",
         icon: "👨‍🍳",
         criteria: { minRecipes: 10 },
       },
       {
-        type: "scanner_pro",
+        type: "scanner_pro" as const,
         name: "Scanner Pro",
         description: "Scan 20 receipts or products",
         icon: "📸",
         criteria: { minScans: 20 },
       },
       {
-        type: "money_saver",
+        type: "money_saver" as const,
         name: "Money Saver",
         description: "Save €50 by not wasting food",
         icon: "💰",
         criteria: { minMoneySaved: 50 },
       },
       {
-        type: "consistent_user",
+        type: "consistent_user" as const,
         name: "Consistency King",
         description: "Use the app for 30 days straight",
         icon: "👑",
@@ -80,7 +88,7 @@ export const initializeBadges = async () => {
       const [existing] = await db
         .select()
         .from(badge)
-        .where(eq(badge.type, badgeData.type));
+        .where(eq(badge.type, badgeData.type as BadgeType));
 
       if (!existing) {
         await db.insert(badge).values(badgeData);
@@ -190,9 +198,10 @@ export const checkAndAwardBadges = async (userId: string) => {
 /**
  * Get user's earned badges
  */
-export const getUserBadges = async ({ user }: Context & { user?: User }) => {
+export const getUserBadges = async ({ user, status }: Context & { user?: User }) => {
   if (!user?.id) {
-    return FridgeResponse.Unauthorized();
+    status(401);
+    return { error: "Unauthorized" };
   }
 
   try {
@@ -213,22 +222,24 @@ export const getUserBadges = async ({ user }: Context & { user?: User }) => {
       .where(eq(userBadge.userId, user.id))
       .orderBy(sql`${userBadge.earnedAt} DESC`);
 
-    return FridgeResponse.Ok({ badges });
+    return { success: true, data: { badges } };
   } catch (error) {
     console.error("Error getting user badges:", error);
-    return FridgeResponse.InternalError("Failed to get user badges");
+    status(500);
+    return { error: "Failed to get user badges" };
   }
 };
 
 /**
  * Get all available badges
  */
-export const getAllBadges = async () => {
+export const getAllBadges = async ({ status }: Context) => {
   try {
     const allBadges = await db.select().from(badge);
-    return FridgeResponse.Ok({ badges: allBadges });
+    return { success: true, data: { badges: allBadges } };
   } catch (error) {
     console.error("Error getting all badges:", error);
-    return FridgeResponse.InternalError("Failed to get badges");
+    status(500);
+    return { error: "Failed to get badges" };
   }
 };
