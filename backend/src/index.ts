@@ -12,8 +12,13 @@ import { statisticsController } from "@/application/controller/statistics";
 import { fridgeScanController } from "@/application/controller/fridge-scan";
 import { openfoodfactsController } from "@/application/controller/openfoodfacts";
 import { authController } from "@/application/controller/auth";
+import { gamificationController } from "@/application/controller/gamification";
+import { initializeBadges } from "@/domain/use-cases/gamification/badges";
+import { initializeChallenges } from "@/domain/use-cases/gamification/challenges";
 
-
+// Initialize gamification data on startup
+initializeBadges();
+initializeChallenges();
 
 const api = new Elysia({ prefix: "/api" })
   .use(productController)
@@ -22,7 +27,8 @@ const api = new Elysia({ prefix: "/api" })
   .use(receiptController)
   .use(statisticsController)
   .use(fridgeScanController)
-  .use(openfoodfactsController);
+  .use(openfoodfactsController)
+  .use(gamificationController);
 
 const app = new Elysia({ adapter: node() })
   .use(

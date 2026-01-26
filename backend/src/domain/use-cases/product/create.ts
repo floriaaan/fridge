@@ -5,6 +5,12 @@ import { Context, t } from "elysia";
 import { User } from "better-auth/types";
 import { FridgeResponse } from "@/application/entities/response";
 import { getOpenFoodFactsData } from "@/infrastructure/openfoodfacts/connector";
+import {
+  updateUserActivity,
+  awardPoints,
+  checkAndAwardBadges,
+  updateChallengeProgress,
+} from "@/domain/use-cases/gamification";
 
 export const createProducts = async ({
   user,
@@ -42,6 +48,11 @@ export const createProducts = async ({
       .insert(product)
       .values(productsToInsert)
       .returning();
+
+    // Gamification triggers
+    await updateUserActivity(user.id);
+    await awardPoints(user.id, 5 * products.length); // 5 points per product
+    await checkAndAwardBadges(user.id);
 
     status(201);
     return {
