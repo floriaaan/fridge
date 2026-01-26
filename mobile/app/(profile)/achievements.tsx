@@ -6,7 +6,7 @@ import Animated, { FadeInUp, FadeInDown } from "react-native-reanimated";
 import Header from "@/components/ui/header";
 import { AnimatedPressable } from "@/components/ui/animated-pressable";
 import {
-  useGamificationProfile,
+  useAchievementsProfile,
   useUserBadges,
   useAllBadges,
   useActiveChallenges,
@@ -124,7 +124,7 @@ export default function GamificationScreen() {
   const colorScheme = useColorScheme();
   const isDark = colorScheme === "dark";
 
-  const { data: profile, isLoading: profileLoading, refetch: refetchProfile, isRefetching: isRefetchingProfile } = useGamificationProfile();
+  const { data: profile, isLoading: profileLoading, refetch: refetchProfile, isRefetching: isRefetchingProfile } = useAchievementsProfile();
   const { data: userBadges, isLoading: badgesLoading, refetch: refetchBadges, isRefetching: isRefetchingBadges } = useUserBadges();
   const { data: allBadges, isLoading: allBadgesLoading } = useAllBadges();
   const { data: challenges, isLoading: challengesLoading, refetch: refetchChallenges, isRefetching: isRefetchingChallenges } = useActiveChallenges();
@@ -156,7 +156,7 @@ export default function GamificationScreen() {
 
   return (
     <SafeAreaView edges={["top", "left", "right"]} className="flex-1 bg-neutral-100 dark:bg-black">
-      <Header title={t("tabs.gamification") || "Gamification"} showBackButton />
+      <Header title={t("tabs.achievements") || "Achievements"} showBackButton />
 
       <ScrollView
         className="flex-1"

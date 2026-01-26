@@ -23,11 +23,11 @@
     "settings": "Settings",
     "debug": "DEBUG",
     "statistics": "Statistics",
-    "gamification": "Achievements",
+    "achievements": "Achievements",
     "profile": "Profile"
   },
   "profile": {
-    "gamificationDescription": "Badges, challenges, and leaderboard",
+    "achievementsDescription": "Badges, challenges, and leaderboard",
     "statisticsDescription": "View your waste reduction progress",
     "settingsDescription": "Manage your account and preferences"
   },

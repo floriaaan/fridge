@@ -98,8 +98,8 @@ export default function ProfileScreen() {
         <View className="px-4">
           <MenuItem
             icon="trophy"
-            title={t("tabs.gamification") || "Achievements"}
-            description={t("profile.gamificationDescription") || "Badges, challenges, and leaderboard"}
+            title={t("tabs.achievements") || "Achievements"}
+            description={t("profile.achievementsDescription") || "Badges, challenges, and leaderboard"}
             onPress={() => router.push("/(profile)/achievements")}
             index={0}
             color="#f59e0b"

@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Text, View, ScrollView, RefreshControl, useColorScheme } from "react-native";
+import { Text, View, ScrollView, RefreshControl, useColorScheme, Pressable } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import Animated, { FadeInUp, FadeInDown } from "react-native-reanimated";
@@ -151,7 +151,7 @@ export default function StatisticsScreen() {
   if (isError) {
     return (
       <SafeAreaView edges={["top", "left", "right"]} className="flex-1 bg-neutral-100 dark:bg-black">
-        <Header title={t("tabs.statistics")} />
+        <Header title={t("tabs.statistics")} showBackButton />
         <View className="flex-1 justify-center items-center p-4">
           <Ionicons name="alert-circle-outline" size={48} color="#DC2626" />
           <Text className="text-neutral-700 dark:text-neutral-300 text-center mt-4">{t("common.error")}</Text>
@@ -173,7 +173,7 @@ export default function StatisticsScreen() {
 
   return (
     <SafeAreaView edges={["top", "left", "right"]} className="flex-1 bg-neutral-100 dark:bg-black">
-      <Header title={t("tabs.statistics")} />
+      <Header title={t("tabs.statistics")} showBackButton />
       
       <ScrollView
         className="flex-1"

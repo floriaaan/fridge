@@ -23,11 +23,11 @@
     "settings": "Paramètres",
     "debug": "DEBUG",
     "statistics": "Statistiques",
-    "gamification": "Réalisations",
+    "achievements": "Réalisations",
     "profile": "Profil"
   },
   "profile": {
-    "gamificationDescription": "Badges, défis et classement",
+    "achievementsDescription": "Badges, défis et classement",
     "statisticsDescription": "Consultez votre progression",
     "settingsDescription": "Gérez votre compte et vos préférences"
   },
