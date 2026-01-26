@@ -18,7 +18,7 @@ export function useCreateShoppingItem() {
 
       const tempItem: ShoppingItem = {
         id: `temp-${Date.now()}`,
-        userId: "me",
+        userId: "current-user",
         name: input.name,
         quantity: input.quantity,
         unit: input.unit,

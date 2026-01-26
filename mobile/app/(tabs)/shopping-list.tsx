@@ -15,6 +15,7 @@ import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { Ionicons, MaterialIcons } from "@expo/vector-icons";
 import { useShoppingItems } from "@/hooks/use-shopping-items";
 import { useUpdateShoppingItems } from "@/hooks/use-update-shopping-items";
+import { useDeleteShoppingItem } from "@/hooks/use-delete-shopping-item";
 import { ShoppingItemCard } from "@/components/shopping-item-card";
 import { ShoppingItemAddCard } from "@/components/shopping-item-add-card";
 import { Chip } from "@/components/ui/chip";
@@ -31,6 +32,7 @@ export default function ShoppingListScreen() {
     refetch,
   } = useShoppingItems();
   const { mutate: updateShoppingItems } = useUpdateShoppingItems();
+  const { mutate: deleteShoppingItems } = useDeleteShoppingItem();
   const { t } = useTranslation();
   const colorScheme = useColorScheme();
   const isDark = colorScheme === "dark";
@@ -52,6 +54,13 @@ export default function ShoppingListScreen() {
       updateShoppingItems([{ id: itemId, checked: !target.checked }]);
     },
     [items, updateShoppingItems],
+  );
+
+  const handleDeleteItem = React.useCallback(
+    (itemId: string) => {
+      deleteShoppingItems([itemId]);
+    },
+    [deleteShoppingItems],
   );
 
   const filteredItems = React.useMemo(() => {
@@ -260,6 +269,7 @@ export default function ShoppingListScreen() {
                       item={item}
                       index={index}
                       onToggleCheck={handleToggleCheck}
+                      onDelete={handleDeleteItem}
                     />
                   ))}
                 </View>
@@ -286,9 +296,7 @@ export default function ShoppingListScreen() {
         style={{ position: "absolute", bottom: 0, left: 0, right: 0 }}
       >
         <View className="px-5 pb-5">
-          <ShoppingItemAddCard defaultUnit="pcs" defaultQuantity={1} onCreated={() => {
-            refetch();
-          }} />
+          <ShoppingItemAddCard defaultUnit="pcs" defaultQuantity={1} />
         </View>
       </KeyboardAvoidingView>
     </GestureHandlerRootView>

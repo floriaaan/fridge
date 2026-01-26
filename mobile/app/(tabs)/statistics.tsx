@@ -156,12 +156,12 @@ export default function StatisticsScreen() {
           <Ionicons name="alert-circle-outline" size={48} color="#DC2626" />
           <Text className="text-neutral-700 dark:text-neutral-300 text-center mt-4">{t("common.error")}</Text>
           <Text className="text-neutral-500 dark:text-neutral-400 text-center mt-2">{error?.message}</Text>
-          <Pressable
+          <AnimatedPressable
             onPress={() => refetch()}
             className="mt-4 bg-emerald-500 px-6 py-3 rounded-xl"
           >
             <Text className="text-white font-medium">{t("common.retry")}</Text>
-          </Pressable>
+          </AnimatedPressable>
         </View>
       </SafeAreaView>
     );

@@ -42,19 +42,24 @@ export function ShoppingItemAddCard({
   const handleDecrement = () => setQuantity((q) => Math.max(1, q - 1));
 
   const handleSubmit = useCallback(async () => {
-    if (!canSubmit || isPending) return;
+    if (!canSubmit) return;
     Keyboard.dismiss();
     const payload = { name: name.trim(), quantity, unit: unit.trim(), source: 'manual' as const };
+
+    // Clear form immediately for optimistic feel
+    setName('');
+    setQuantity(defaultQuantity);
+    setUnit(defaultUnit);
+
     try {
       const created = await createItem(payload);
-      setName('');
-      setQuantity(defaultQuantity);
-      setUnit(defaultUnit);
       onCreated?.(created);
     } catch {
       // noop: error will be surfaced by query error boundaries/snackbars if any
+      // In case of error, we might want to restore the form, but optimistic UI
+      // already handles the list part.
     }
-  }, [canSubmit, isPending, name, quantity, unit, createItem, defaultQuantity, defaultUnit, onCreated]);
+  }, [canSubmit, name, quantity, unit, createItem, defaultQuantity, defaultUnit, onCreated]);
 
   return (
     <Animated.View
