@@ -15,6 +15,7 @@ import { useAuthRedirect } from "@/hooks/use-auth-redirect";
 import { useOnboarding } from "@/hooks/use-onboarding";
 import { useEffect } from "react";
 import { registerForPushNotifications } from "@/lib/notifications";
+import { ChallengeSnackbarProvider } from "@/contexts/challenge-snackbar-context";
 
 export const unstable_settings = {
   initialRouteName: "(tabs)",
@@ -105,8 +106,10 @@ export default function RootLayout() {
   return (
     <QueryClientProvider client={queryClient}>
       <ThemeProvider value={isDark ? DarkTheme : DefaultTheme}>
-        <RootLayoutNav />
-        <StatusBar style="auto" />
+        <ChallengeSnackbarProvider>
+          <RootLayoutNav />
+          <StatusBar style="auto" />
+        </ChallengeSnackbarProvider>
       </ThemeProvider>
     </QueryClientProvider>
   );

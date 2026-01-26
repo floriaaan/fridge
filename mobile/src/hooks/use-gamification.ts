@@ -1,4 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
+import { useEffect, useRef } from "react";
 import {
   fetchGamificationProfile,
   fetchUserBadges,
@@ -7,6 +8,7 @@ import {
   fetchCompletedChallenges,
   fetchLeaderboard,
 } from "@/lib/api/fetch-gamification";
+import { showBadgeNotification } from "@/lib/notifications";
 
 export function useGamificationProfile() {
   return useQuery({
@@ -16,10 +18,28 @@ export function useGamificationProfile() {
 }
 
 export function useUserBadges() {
-  return useQuery({
+  const previousBadgeCount = useRef<number>(0);
+  
+  const query = useQuery({
     queryKey: ["gamification", "badges"],
     queryFn: fetchUserBadges,
   });
+
+  // Watch for new badges and show notification
+  useEffect(() => {
+    if (query.data && query.data.length > previousBadgeCount.current) {
+      // New badge(s) earned
+      const newBadges = query.data.slice(previousBadgeCount.current);
+      newBadges.forEach((userBadge) => {
+        showBadgeNotification(userBadge.badge.name, userBadge.badge.icon);
+      });
+    }
+    if (query.data) {
+      previousBadgeCount.current = query.data.length;
+    }
+  }, [query.data]);
+
+  return query;
 }
 
 export function useAllBadges() {
