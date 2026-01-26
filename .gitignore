@@ -1,6 +1,7 @@
 backend/node_modules
 backend/.env*
 !backend/.env.example
+backend/dist
 
 mobile/node_modules
 mobile/.env*

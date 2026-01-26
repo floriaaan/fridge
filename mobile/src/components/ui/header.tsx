@@ -69,7 +69,7 @@ export default function Header({
 
         <View className="flex-row items-center gap-3">
           <AnimatedPressable
-            onPress={() => router.push("/(tabs)/statistics")}
+            onPress={() => router.push("/(profile)/statistics")}
             className="p-2 rounded-lg"
             hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
           >
@@ -81,7 +81,7 @@ export default function Header({
           </AnimatedPressable>
 
           <AnimatedPressable
-            onPress={() => router.push("/(tabs)/settings")}
+            onPress={() => router.push("/(profile)/settings")}
             className="p-2 rounded-lg"
             hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
           >

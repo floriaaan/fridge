@@ -1,5 +1,6 @@
 import React, { forwardRef, useImperativeHandle, useState } from "react";
-import { Text } from "react-native";
+import { Text, Platform } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -11,10 +12,22 @@ export interface SnackbarRef {
   show: (message: string, duration?: number) => void;
 }
 
-const Snackbar = forwardRef<SnackbarRef>(function Snackbar(props, ref) {
+type SnackbarProps = {
+  offsetType?: "safe" | "tabbar";
+  extraBottom?: number;
+};
+
+const TAB_BAR_HEIGHT_IOS = 50;
+const TAB_BAR_HEIGHT_ANDROID = 56;
+
+const Snackbar = forwardRef<SnackbarRef, SnackbarProps>(function Snackbar(
+  { offsetType = "safe", extraBottom = 8 },
+  ref
+) {
   const [visible, setVisible] = useState(false);
   const [message, setMessage] = useState("");
   const translateY = useSharedValue(100);
+  const insets = useSafeAreaInsets();
 
   useImperativeHandle(ref, () => ({
     show: (msg: string, duration: number = 3000) => {
@@ -47,8 +60,18 @@ const Snackbar = forwardRef<SnackbarRef>(function Snackbar(props, ref) {
 
   return (
     <Animated.View
-      className="absolute bottom-5 left-5 right-5 bg-neutral-800 dark:bg-neutral-200 p-4 rounded-lg z-50"
-      style={animatedStyle}
+      className="absolute left-5 right-5 bg-neutral-800 dark:bg-neutral-200 p-4 rounded-3xl z-50"
+      style={[
+        animatedStyle,
+        {
+          bottom:
+            (insets.bottom || 0) +
+            (offsetType === "tabbar"
+              ? (Platform.OS === "ios" ? TAB_BAR_HEIGHT_IOS : TAB_BAR_HEIGHT_ANDROID)
+              : 0) +
+            extraBottom,
+        },
+      ]}
       pointerEvents="none"
     >
       <Text className="text-white dark:text-neutral-900">{message}</Text>

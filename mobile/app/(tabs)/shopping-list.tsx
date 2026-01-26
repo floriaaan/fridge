@@ -10,7 +10,10 @@ import {
   KeyboardAvoidingView,
   Platform,
 } from "react-native";
-import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
+import {
+  SafeAreaView,
+  useSafeAreaInsets,
+} from "react-native-safe-area-context";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { Ionicons, MaterialIcons } from "@expo/vector-icons";
 import { useShoppingItems } from "@/hooks/use-shopping-items";
@@ -21,6 +24,7 @@ import { Chip } from "@/components/ui/chip";
 import Header from "@/components/ui/header";
 import { EmptyState } from "@/components/empty-state";
 import { useTranslation } from "@/hooks/use-translation";
+import { BottomFloatingContainer } from "@/components/ui/bottom-floating-container";
 
 export default function ShoppingListScreen() {
   const {
@@ -130,7 +134,9 @@ export default function ShoppingListScreen() {
               <Ionicons
                 name="list"
                 size={16}
-                color={statusFilter === "all" ? activeIconColor : inactiveIconColor}
+                color={
+                  statusFilter === "all" ? activeIconColor : inactiveIconColor
+                }
               />
             }
           />
@@ -142,7 +148,11 @@ export default function ShoppingListScreen() {
               <Ionicons
                 name="cart-outline"
                 size={16}
-                color={statusFilter === "pending" ? activeIconColor : inactiveIconColor}
+                color={
+                  statusFilter === "pending"
+                    ? activeIconColor
+                    : inactiveIconColor
+                }
               />
             }
           />
@@ -154,7 +164,9 @@ export default function ShoppingListScreen() {
               <Ionicons
                 name="checkmark-done"
                 size={16}
-                color={statusFilter === "done" ? activeIconColor : inactiveIconColor}
+                color={
+                  statusFilter === "done" ? activeIconColor : inactiveIconColor
+                }
               />
             }
           />
@@ -171,7 +183,9 @@ export default function ShoppingListScreen() {
               <Ionicons
                 name="grid-outline"
                 size={16}
-                color={sourceFilter === "all" ? activeIconColor : inactiveIconColor}
+                color={
+                  sourceFilter === "all" ? activeIconColor : inactiveIconColor
+                }
               />
             }
           />
@@ -183,7 +197,11 @@ export default function ShoppingListScreen() {
               <Ionicons
                 name="create-outline"
                 size={16}
-                color={sourceFilter === "manual" ? activeIconColor : inactiveIconColor}
+                color={
+                  sourceFilter === "manual"
+                    ? activeIconColor
+                    : inactiveIconColor
+                }
               />
             }
           />
@@ -196,7 +214,9 @@ export default function ShoppingListScreen() {
                 name="history-toggle-off"
                 size={16}
                 color={
-                  sourceFilter === "auto_expired" ? activeIconColor : inactiveIconColor
+                  sourceFilter === "auto_expired"
+                    ? activeIconColor
+                    : inactiveIconColor
                 }
               />
             }
@@ -209,7 +229,11 @@ export default function ShoppingListScreen() {
               <Ionicons
                 name="restaurant-outline"
                 size={16}
-                color={sourceFilter === "recipe" ? activeIconColor : inactiveIconColor}
+                color={
+                  sourceFilter === "recipe"
+                    ? activeIconColor
+                    : inactiveIconColor
+                }
               />
             }
           />
@@ -229,7 +253,11 @@ export default function ShoppingListScreen() {
         >
           <View className="px-4 mb-4">
             <View className="flex-row items-center bg-neutral-200 dark:bg-neutral-800 rounded-xl px-4 py-3">
-              <MaterialIcons name="search" size={20} color={inactiveIconColor} />
+              <MaterialIcons
+                name="search"
+                size={20}
+                color={inactiveIconColor}
+              />
               <TextInput
                 className="flex-1 ml-3 text-neutral-900 dark:text-neutral-100"
                 onChangeText={setSearchQuery}
@@ -280,17 +308,15 @@ export default function ShoppingListScreen() {
         </ScrollView>
       </SafeAreaView>
 
-      <KeyboardAvoidingView
-        behavior={Platform.OS === "ios" ? "padding" : "height"}
-        keyboardVerticalOffset={Platform.OS === "ios" ? insets.bottom : 0}
-        style={{ position: "absolute", bottom: 0, left: 0, right: 0 }}
-      >
-        <View className="px-5 pb-5">
-          <ShoppingItemAddCard defaultUnit="pcs" defaultQuantity={1} onCreated={() => {
+      <BottomFloatingContainer>
+        <ShoppingItemAddCard
+          defaultUnit="pcs"
+          defaultQuantity={1}
+          onCreated={() => {
             refetch();
-          }} />
-        </View>
-      </KeyboardAvoidingView>
+          }}
+        />
+      </BottomFloatingContainer>
     </GestureHandlerRootView>
   );
 }

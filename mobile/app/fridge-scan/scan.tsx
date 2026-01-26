@@ -5,6 +5,7 @@ import {
   TouchableOpacity,
   StyleSheet,
   ActivityIndicator,
+  Animated,
 } from "react-native";
 import { CameraView, useCameraPermissions } from "expo-camera";
 import { useRouter } from "expo-router";
@@ -19,6 +20,8 @@ export default function FridgeScanScreen() {
   const [requesting, setRequesting] = useState(false);
   const cameraRef = useRef<CameraView>(null);
   const [isCapturing, setIsCapturing] = useState(false);
+  const [showFeedback, setShowFeedback] = useState(false);
+  const feedbackOpacity = useRef(new Animated.Value(0)).current;
 
   const handleRequestPermission = async () => {
     setRequesting(true);
@@ -26,18 +29,40 @@ export default function FridgeScanScreen() {
     setRequesting(false);
   };
 
+  const showCaptureFeedback = () => {
+    setShowFeedback(true);
+    Animated.sequence([
+      Animated.timing(feedbackOpacity, {
+        toValue: 1,
+        duration: 100,
+        useNativeDriver: true,
+      }),
+      Animated.timing(feedbackOpacity, {
+        toValue: 0,
+        duration: 300,
+        delay: 200,
+        useNativeDriver: true,
+      }),
+    ]).start(() => {
+      setShowFeedback(false);
+    });
+  };
+
   const handleTakePhoto = async () => {
     if (!cameraRef.current || isCapturing) return;
 
     setIsCapturing(true);
     try {
+      showCaptureFeedback();
+      
       const photo = await cameraRef.current.takePictureAsync({
         base64: true,
         quality: 0.8,
       });
 
       if (photo?.base64) {
-        router.push({
+        // Use replace for instant navigation
+        router.replace({
           pathname: "/fridge-scan/confirm",
           params: {
             imageBase64: photo.base64,
@@ -49,6 +74,8 @@ export default function FridgeScanScreen() {
       console.error("Error taking photo:", error);
       alert(t("common.error"));
     } finally {
+      // Reset capturing state only if still on this screen
+      // If navigation happened, this component will unmount anyway
       setIsCapturing(false);
     }
   };
@@ -94,6 +121,18 @@ export default function FridgeScanScreen() {
     <View style={styles.container}>
       <CameraView ref={cameraRef} style={StyleSheet.absoluteFill} facing="back" />
 
+      {showFeedback && (
+        <Animated.View
+          style={[
+            StyleSheet.absoluteFill,
+            {
+              backgroundColor: "white",
+              opacity: feedbackOpacity,
+            },
+          ]}
+        />
+      )}
+
       <View style={[styles.overlay, { paddingTop: insets.top + 24 }]}>
         <Text style={styles.title}>{t("fridgeScan.title")}</Text>
         <Text style={styles.infoText}>
@@ -110,7 +149,7 @@ export default function FridgeScanScreen() {
 
       <View style={[styles.footer, { paddingBottom: insets.bottom + 24 }]}>
         <View style={styles.tipBox}>
-          <Text style={styles.tipText}>💡 {t("fridgeScan.tip")}</Text>
+          <Text style={styles.tipText}>{t("fridgeScan.tip")}</Text>
           <Text style={styles.tipSubText}>
             {t("fridgeScan.tipDescription")}
           </Text>
@@ -175,8 +214,10 @@ const styles = StyleSheet.create({
     width: 300,
     height: 350,
     position: "absolute",
-    top: "28%",
-    alignSelf: "center",
+    top: "50%",
+    left: "50%",
+    marginTop: -175, // Half of height to center vertically
+    marginLeft: -150, // Half of width to center horizontally
   },
   corner: {
     position: "absolute",

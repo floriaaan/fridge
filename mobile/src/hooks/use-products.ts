@@ -15,6 +15,14 @@ interface CreateProductInput {
   openfoodfactId?: string;
 }
 
+interface UpdateProductInput {
+  id: string;
+  name?: string;
+  quantity?: number;
+  openedAt?: string | null;
+  consumedAt?: string | null;
+}
+
 export function useProducts() {
   return useQuery({
     queryKey: ['products'],
@@ -45,6 +53,82 @@ export function useCreateProduct() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['products'] });
+    },
+  });
+}
+
+export function useUpdateProduct() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (products: UpdateProductInput[]) => {
+      const cookies = authClient.getCookie();
+      const response = await fetch(`${API_BASE_URL}/product`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          Cookie: cookies,
+        },
+        body: JSON.stringify(products),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to update product');
+      }
+
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['products'] });
+      queryClient.invalidateQueries({ queryKey: ['statistics'] });
+    },
+  });
+}
+
+export function useDeleteProduct() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (productIds: string[]) => {
+      const cookies = authClient.getCookie();
+      const response = await fetch(`${API_BASE_URL}/product`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+          Cookie: cookies,
+        },
+        body: JSON.stringify(productIds.map(id => ({ id }))),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to delete product');
+      }
+
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['products'] });
+      queryClient.invalidateQueries({ queryKey: ['statistics'] });
+    },
+  });
+}
+
+export function useMarkProductOpened() {
+  const { mutateAsync: updateProduct } = useUpdateProduct();
+
+  return useMutation({
+    mutationFn: async (productId: string) => {
+      return updateProduct([{ id: productId, openedAt: new Date().toISOString() }]);
+    },
+  });
+}
+
+export function useMarkProductConsumed() {
+  const { mutateAsync: updateProduct } = useUpdateProduct();
+
+  return useMutation({
+    mutationFn: async (productId: string) => {
+      return updateProduct([{ id: productId, consumedAt: new Date().toISOString(), quantity: 0 }]);
     },
   });
 }

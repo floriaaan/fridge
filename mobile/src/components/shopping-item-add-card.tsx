@@ -1,7 +1,14 @@
-import React, { useCallback, useMemo, useState } from 'react';
-import { Text, View, TextInput, Keyboard, useColorScheme } from 'react-native';
+import React, { useCallback, useMemo, useState, useEffect } from 'react';
+import { Text, View, TextInput, Keyboard, useColorScheme, Platform } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import Animated, { FadeInDown, LinearTransition } from 'react-native-reanimated';
+import Animated, { 
+  FadeInDown, 
+  LinearTransition,
+  useSharedValue,
+  useAnimatedStyle,
+  withSpring,
+  interpolateColor,
+} from 'react-native-reanimated';
 import { useCreateShoppingItem } from '@/hooks/use-create-shopping-item';
 import { SelectModal } from '@/components/select-modal';
 import type { ShoppingItem } from '@/lib/api/fetch-shopping-items';
@@ -35,6 +42,71 @@ export function ShoppingItemAddCard({
   const ADD_BG = isDark ? '#262626' : '#F3F4F6';
   const ADD_TEXT = isDark ? '#a3a3a3' : '#6B7280';
   const ADD_ACCENT = isDark ? '#737373' : '#9CA3AF';
+  const BORDER_COLOR_INACTIVE = isDark ? '#404040' : '#e5e7eb';
+
+  const borderRadiusAnimated = useSharedValue(24);
+  const borderWidthAnimated = useSharedValue(1);
+  const shadowOpacityAnimated = useSharedValue(0.05);
+
+  useEffect(() => {
+    const showEvent = Platform.OS === "ios" ? "keyboardWillShow" : "keyboardDidShow";
+    const hideEvent = Platform.OS === "ios" ? "keyboardWillHide" : "keyboardDidHide";
+
+    const showSub = Keyboard.addListener(showEvent as any, () => {
+      borderRadiusAnimated.value = withSpring(0, {
+        damping: 12,
+        mass: 1,
+        stiffness: 120,
+        overshootClamping: false,
+      });
+      borderWidthAnimated.value = withSpring(0, {
+        damping: 12,
+        mass: 1,
+        stiffness: 120,
+        overshootClamping: false,
+      });
+      shadowOpacityAnimated.value = withSpring(0, {
+        damping: 12,
+        mass: 1,
+        stiffness: 120,
+        overshootClamping: false,
+      });
+    });
+
+    const hideSub = Keyboard.addListener(hideEvent as any, () => {
+      borderRadiusAnimated.value = withSpring(24, {
+        damping: 12,
+        mass: 1,
+        stiffness: 120,
+        overshootClamping: false,
+      });
+      borderWidthAnimated.value = withSpring(1, {
+        damping: 12,
+        mass: 1,
+        stiffness: 120,
+        overshootClamping: false,
+      });
+      shadowOpacityAnimated.value = withSpring(0.05, {
+        damping: 12,
+        mass: 1,
+        stiffness: 120,
+        overshootClamping: false,
+      });
+    });
+
+    return () => {
+      showSub.remove();
+      hideSub.remove();
+    };
+  }, []);
+
+  const animatedBorderStyle = useAnimatedStyle(() => {
+    return {
+      borderRadius: borderRadiusAnimated.value,
+      borderWidth: borderWidthAnimated.value,
+      shadowOpacity: shadowOpacityAnimated.value,
+    };
+  });
 
   const canSubmit = useMemo(() => name.trim().length > 0 && quantity > 0 && unit.trim().length > 0, [name, quantity, unit]);
 
@@ -60,8 +132,18 @@ export function ShoppingItemAddCard({
     <Animated.View
       entering={FadeInDown.delay(index ? index * 50 : 0).springify().damping(90).stiffness(600)}
       layout={LinearTransition.springify().damping(80).stiffness(600)}
-      className="rounded-2xl border border-neutral-200 dark:border-neutral-700 p-4"
-      style={{ backgroundColor: ADD_BG }}
+      style={[
+        {
+          padding: 16,
+          backgroundColor: ADD_BG,
+          borderColor: BORDER_COLOR_INACTIVE,
+          shadowColor: '#000',
+          shadowOffset: { width: 0, height: 1 },
+          shadowRadius: 3,
+          elevation: 2,
+        },
+        animatedBorderStyle,
+      ]}
     >
       <View className="flex-row items-center gap-3 mb-3">
         <Ionicons name="add-circle-outline" size={24} color={ADD_ACCENT} />
@@ -80,7 +162,7 @@ export function ShoppingItemAddCard({
         </View>
       </View>
       <View className="flex-row items-center gap-2 justify-end">
-        <View className="flex-row items-center bg-white dark:bg-neutral-700 px-2 py-2 rounded-lg border border-neutral-200 dark:border-neutral-600">
+        <View className="flex-row items-center bg-white dark:bg-neutral-700 px-3 py-2 rounded-2xl border border-neutral-200 dark:border-neutral-600">
           <AnimatedTouchableOpacity onPress={handleDecrement} disabled={isPending} activeOpacity={0.6}>
             <Ionicons name="remove" size={16} color={ADD_TEXT} />
           </AnimatedTouchableOpacity>
@@ -100,7 +182,7 @@ export function ShoppingItemAddCard({
           </AnimatedTouchableOpacity>
         </View>
         <AnimatedTouchableOpacity
-          className="border border-neutral-300 dark:border-neutral-600 rounded-lg px-3 py-2 bg-white dark:bg-neutral-700 flex-row justify-between items-center"
+          className="border border-neutral-300 dark:border-neutral-600 rounded-2xl px-3 py-2 bg-white dark:bg-neutral-700 flex-row justify-between items-center"
           onPress={() => setShowUnitModal(true)}
           disabled={isPending}
         >
@@ -122,7 +204,7 @@ export function ShoppingItemAddCard({
         <AnimatedTouchableOpacity
           onPress={handleSubmit}
           disabled={!canSubmit || isPending}
-          className="px-3 py-2 rounded-lg"
+          className="px-3 py-2 rounded-2xl"
           activeOpacity={0.7}
           style={{ backgroundColor: ADD_TEXT, opacity: !canSubmit || isPending ? 0.4 : 1 }}
         >

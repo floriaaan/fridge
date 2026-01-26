@@ -1,81 +1,52 @@
-import { Tabs } from "expo-router";
 import React from "react";
-import { Ionicons } from "@expo/vector-icons";
-import { useColorScheme } from "react-native";
+import { DynamicColorIOS } from "react-native";
+import { NativeTabs, Icon, Label } from "expo-router/unstable-native-tabs";
 import { useTranslation } from "@/hooks/use-translation";
-import { Colors } from "@/lib/constants/theme";
 
 export default function TabLayout() {
-  const colorScheme = useColorScheme();
-  const isDark = colorScheme === "dark";
-  const colors = isDark ? Colors.dark : Colors.light;
   const { t } = useTranslation();
 
   return (
-    <Tabs
-      screenOptions={{
-        headerShown: false,
-        tabBarActiveTintColor: colors.tint,
-        tabBarInactiveTintColor: colors.tabIconDefault,
-        tabBarStyle: {
-          backgroundColor: colors.background,
-          borderTopColor: colors.border,
-        },
+    <NativeTabs
+      minimizeBehavior="automatic"
+      disableTransparentOnScrollEdge
+      labelStyle={{
+        color: DynamicColorIOS({ dark: "white", light: "black" }),
       }}
+      tintColor={DynamicColorIOS({ dark: "white", light: "black" })}
     >
-      <Tabs.Screen
-        name="shopping-list"
-        options={{
-          title: t("tabs.shoppingList"),
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="cart" size={size} color={color} />
-          ),
-        }}
-      />
+      {/* Shopping List */}
+      <NativeTabs.Trigger name="shopping-list">
+        <Icon sf={{ default: "cart", selected: "cart.fill" }} />
+        <Label>{t("tabs.shoppingList")}</Label>
+      </NativeTabs.Trigger>
 
-      <Tabs.Screen
-        name="index"
-        options={{
-          title: t("tabs.products"),
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="fast-food" size={size} color={color} />
-          ),
-        }}
-      />
+      {/* Products (index) */}
+      <NativeTabs.Trigger name="index">
+        <Icon
+          sf={{
+            default: "list.bullet",
+            selected: "list.bullet.rectangle.fill",
+          }}
+        />
+        <Label>{t("tabs.products")}</Label>
+      </NativeTabs.Trigger>
 
-      <Tabs.Screen
-        name="recipes"
-        options={{
-          title: t("tabs.recipes"),
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="restaurant" size={size} color={color} />
-          ),
-        }}
-      />
+      {/* Recipes */}
+      <NativeTabs.Trigger name="recipes">
+        <Icon
+          sf={{ default: "fork.knife", selected: "fork.knife.circle.fill" }}
+        />
+        <Label>{t("tabs.recipes")}</Label>
+      </NativeTabs.Trigger>
 
-      <Tabs.Screen
-        name="debug"
-        options={{
-          title: t("tabs.debug"),
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="bug" size={size} color={color} />
-          ),
-        }}
-      />
+      {/* Debug */}
+      <NativeTabs.Trigger name="debug">
+        <Icon sf={{ default: "ant", selected: "ant.fill" }} />
+        <Label>{t("tabs.debug")}</Label>
+      </NativeTabs.Trigger>
 
-      <Tabs.Screen
-        name="statistics"
-        options={{
-          href: null,
-        }}
-      />
-
-      <Tabs.Screen
-        name="settings"
-        options={{
-          href: null,
-        }}
-      />
-    </Tabs>
+      {/* Omit statistics & settings triggers to keep them off the tab bar */}
+    </NativeTabs>
   );
 }

@@ -359,7 +359,7 @@ export default function SettingsScreen() {
           </TouchableOpacity>
         </View>
       </ScrollView>
-      <Snackbar ref={snackbarRef} />
+      <Snackbar ref={snackbarRef} offsetType="tabbar" extraBottom={8} />
 
       {/* Passkeys Modal */}
       {/* <AnimatedModal

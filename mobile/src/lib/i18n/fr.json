@@ -63,7 +63,17 @@
     "opened": "Ouvert",
     "consumed": "Consommé",
     "delete": "Supprimer",
-    "scannedBarcode": "Code-barres scanné"
+    "scannedBarcode": "Code-barres scanné",
+    "searchTitle": "Rechercher un produit",
+    "searchPlaceholder": "Rechercher dans OpenFoodFacts...",
+    "searching": "Recherche en cours...",
+    "noResults": "Aucun résultat",
+    "noResultsDescription": "Essayez de modifier votre recherche",
+    "searchInstructions": "Rechercher un produit",
+    "searchInstructionsDescription": "Entrez un nom de produit pour rechercher dans OpenFoodFacts",
+    "resultsFound": "résultats trouvés",
+    "lowConfidence": "Incertain",
+    "search": "Rechercher"
   },
   "receipt": {
     "scanTicket": "Scanner un ticket",
@@ -72,7 +82,11 @@
     "analyzeDescription": "Nous identifions les produits et leurs catégories.",
     "selectProducts": "Sélectionner les produits à importer",
     "import": "Importer",
-    "cancel": "Annuler"
+    "cancel": "Annuler",
+    "placeReceipt": "Placez le ticket à plat, bien éclairé",
+    "tip": "Conseil",
+    "tipAvoidReflections": "Évitez les reflets et les plis",
+    "tipEnsureReadable": "Assurez-vous que le texte est lisible"
   },
   "fridgeScan": {
     "title": "Scanner le contenu du frigo",
@@ -208,7 +222,16 @@
     "checkingPermission": "Vérification des permissions...",
     "accessNeeded": "Accès caméra requis",
     "allowCamera": "Autoriser la caméra",
-    "centerBarcode": "Centrez le code-barres dans le cadre."
+    "centerBarcode": "Centrez le code-barres dans le cadre.",
+    "captureError": "Erreur lors de la capture de la photo",
+    "galleryPermissionRequired": "Permission d'accès à la galerie requise",
+    "imageSelectionError": "Erreur lors de la sélection de l'image",
+    "documentSelectionError": "Erreur lors de la sélection du fichier",
+    "pdfNotSupported": "Le support PDF arrive bientôt. Veuillez utiliser des fichiers image pour le moment.",
+    "takePhoto": "Prendre une photo",
+    "chooseFromGallery": "Choisir dans la galerie",
+    "chooseFile": "Choisir un fichier",
+    "selectSource": "Choisir la source"
   },
   "datePicker": {
     "selectDate": "Sélectionner une date"
