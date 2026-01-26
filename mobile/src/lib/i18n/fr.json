@@ -22,7 +22,8 @@
     "recipes": "Recettes",
     "settings": "Paramètres",
     "debug": "DEBUG",
-    "statistics": "Statistiques"
+    "statistics": "Statistiques",
+    "gamification": "Réalisations"
   },
    "fridge": {
      "title": "Frigo",

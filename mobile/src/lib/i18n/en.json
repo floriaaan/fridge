@@ -22,7 +22,8 @@
     "recipes": "Recipes",
     "settings": "Settings",
     "debug": "DEBUG",
-    "statistics": "Statistics"
+    "statistics": "Statistics",
+    "gamification": "Achievements"
   },
    "fridge": {
      "title": "Fridge",
