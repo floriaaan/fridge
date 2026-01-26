@@ -23,7 +23,13 @@
     "settings": "Paramètres",
     "debug": "DEBUG",
     "statistics": "Statistiques",
-    "gamification": "Réalisations"
+    "gamification": "Réalisations",
+    "profile": "Profil"
+  },
+  "profile": {
+    "gamificationDescription": "Badges, défis et classement",
+    "statisticsDescription": "Consultez votre progression",
+    "settingsDescription": "Gérez votre compte et vos préférences"
   },
    "fridge": {
      "title": "Frigo",

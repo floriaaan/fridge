@@ -23,7 +23,13 @@
     "settings": "Settings",
     "debug": "DEBUG",
     "statistics": "Statistics",
-    "gamification": "Achievements"
+    "gamification": "Achievements",
+    "profile": "Profile"
+  },
+  "profile": {
+    "gamificationDescription": "Badges, challenges, and leaderboard",
+    "statisticsDescription": "View your waste reduction progress",
+    "settingsDescription": "Manage your account and preferences"
   },
    "fridge": {
      "title": "Fridge",

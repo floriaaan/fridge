@@ -156,7 +156,7 @@ export default function GamificationScreen() {
 
   return (
     <SafeAreaView edges={["top", "left", "right"]} className="flex-1 bg-neutral-100 dark:bg-black">
-      <Header title={t("tabs.gamification") || "Gamification"} />
+      <Header title={t("tabs.gamification") || "Gamification"} showBackButton />
 
       <ScrollView
         className="flex-1"

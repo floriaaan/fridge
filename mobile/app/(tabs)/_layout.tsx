@@ -40,18 +40,13 @@ export default function TabLayout() {
         <Label>{t("tabs.recipes")}</Label>
       </NativeTabs.Trigger>
 
-      <NativeTabs.Trigger name="gamification">
-        <Icon sf={{ default: "trophy", selected: "trophy.fill" }} />
-        <Label>{t("tabs.gamification")}</Label>
-      </NativeTabs.Trigger>
-
       {/* Debug */}
       <NativeTabs.Trigger name="debug">
         <Icon sf={{ default: "ant", selected: "ant.fill" }} />
         <Label>{t("tabs.debug")}</Label>
       </NativeTabs.Trigger>
 
-      {/* Omit statistics & settings triggers to keep them off the tab bar */}
+      {/* Omit statistics, settings & gamification triggers to keep them off the tab bar */}
     </NativeTabs>
   );
 }

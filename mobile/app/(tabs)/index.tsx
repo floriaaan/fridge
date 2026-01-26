@@ -33,7 +33,7 @@ export default function ProductsScreen() {
       edges={["top", "left", "right"]}
       className="flex-1 bg-neutral-100 dark:bg-black"
     >
-      <Header title={t("fridge.title")} />
+      <Header title={t("fridge.title")} hasAvatar />
       <View className="flex-1 flex-row">
         <View className="flex-1">
           <FridgeList

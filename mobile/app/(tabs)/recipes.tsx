@@ -23,7 +23,7 @@ export default function RecipesScreen() {
       edges={["top", "left", "right"]}
       className="flex-1 bg-neutral-50 dark:bg-black"
     >
-      <Header title={t("recipe.title")} />
+      <Header title={t("recipe.title")} hasAvatar />
 
       <RecipeList recipes={recipes} refresh={refetch} isLoading={isLoading} />
 
