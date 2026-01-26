@@ -9,6 +9,7 @@ import { Context } from "elysia";
 import { User } from "better-auth/types";
 import { FridgeResponse } from "@/application/entities/response";
 import { awardPoints } from "./profile";
+import type { ChallengeGoal, ChallengeReward, ChallengeProgress } from "@/domain/entity/gamification";
 
 /**
  * Initialize monthly challenges
@@ -191,9 +192,9 @@ export const updateChallengeProgress = async (
       if (!userCh) continue; // Skip if still undefined
 
       // Update progress
-      const currentProgress = (userCh.progress as any).current || 0;
+      const currentProgress = (userCh.progress as ChallengeProgress).current || 0;
       const newProgress = currentProgress + progressValue;
-      const target = (ch.goal as any).target;
+      const target = (ch.goal as ChallengeGoal).target;
 
       let newStatus = userCh.status;
       let completedAt = userCh.completedAt;
@@ -204,7 +205,7 @@ export const updateChallengeProgress = async (
         completedAt = new Date();
 
         // Award reward points
-        const rewardPoints = (ch.reward as any).points || 0;
+        const rewardPoints = (ch.reward as ChallengeReward).points || 0;
         await awardPoints(userId, rewardPoints);
 
         // Update challenges completed count

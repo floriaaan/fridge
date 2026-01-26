@@ -17,13 +17,27 @@ export interface UserBadge {
   badge: Badge;
 }
 
+export interface ChallengeGoal {
+  type: string;
+  target: number;
+}
+
+export interface ChallengeReward {
+  points: number;
+  badge?: string | null;
+}
+
+export interface ChallengeProgress {
+  current: number;
+}
+
 export interface Challenge {
   id: string;
   type: "monthly" | "weekly";
   title: string;
   description: string;
-  goal: Record<string, any>;
-  reward: Record<string, any>;
+  goal: ChallengeGoal;
+  reward: ChallengeReward;
   startDate: string;
   endDate: string;
   createdAt: string;
@@ -31,7 +45,7 @@ export interface Challenge {
 
 export interface UserChallenge {
   id: string;
-  progress: Record<string, any>;
+  progress: ChallengeProgress;
   status: "active" | "completed" | "expired";
   completedAt: string | null;
   createdAt: string;
@@ -40,6 +54,19 @@ export interface UserChallenge {
 
 export interface ChallengeWithProgress extends Challenge {
   userProgress: UserChallenge;
+}
+
+export interface CompletedChallenge {
+  id: string;
+  progress: ChallengeProgress;
+  completedAt: string | null;
+  challenge: {
+    id: string;
+    type: "monthly" | "weekly";
+    title: string;
+    description: string;
+    reward: ChallengeReward;
+  };
 }
 
 export interface GamificationProfile {
@@ -134,7 +161,7 @@ export const fetchActiveChallenges = async (): Promise<ChallengeWithProgress[]> 
   return data.challenges;
 };
 
-export const fetchCompletedChallenges = async (): Promise<any[]> => {
+export const fetchCompletedChallenges = async (): Promise<CompletedChallenge[]> => {
   const session = await authClient.getSession();
   if (!session) {
     throw new Error("Not authenticated");

@@ -18,13 +18,27 @@ export interface UserBadge {
   badge?: Badge;
 }
 
+export interface ChallengeGoal {
+  type: string;
+  target: number;
+}
+
+export interface ChallengeReward {
+  points: number;
+  badge?: string | null;
+}
+
+export interface ChallengeProgress {
+  current: number;
+}
+
 export interface Challenge {
   id: string;
   type: "monthly" | "weekly";
   title: string;
   description: string;
-  goal: Record<string, any>;
-  reward: Record<string, any>;
+  goal: ChallengeGoal;
+  reward: ChallengeReward;
   startDate: Date;
   endDate: Date;
   createdAt: Date;
@@ -34,7 +48,7 @@ export interface UserChallenge {
   id: string;
   userId: string;
   challengeId: string;
-  progress: Record<string, any>;
+  progress: ChallengeProgress;
   status: "active" | "completed" | "expired";
   completedAt: Date | null;
   createdAt: Date;

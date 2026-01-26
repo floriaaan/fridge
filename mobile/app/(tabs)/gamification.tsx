@@ -345,9 +345,9 @@ export default function GamificationScreen() {
                   key={challenge.id}
                   title={challenge.title}
                   description={challenge.description}
-                  progress={(challenge.userProgress?.progress as any)?.current || 0}
-                  target={(challenge.goal as any)?.target || 0}
-                  reward={(challenge.reward as any)?.points || 0}
+                  progress={challenge.userProgress?.progress?.current || 0}
+                  target={challenge.goal?.target || 0}
+                  reward={challenge.reward?.points || 0}
                   index={index}
                 />
               ))
