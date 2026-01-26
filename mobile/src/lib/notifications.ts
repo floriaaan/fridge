@@ -62,6 +62,11 @@ export async function showChallengeProgressNotification(
   progress: number,
   target: number
 ) {
+  if (target === 0) {
+    console.warn("Challenge target is 0, skipping notification");
+    return;
+  }
+  
   const percentage = Math.round((progress / target) * 100);
   
   await Notifications.scheduleNotificationAsync({

@@ -1,5 +1,5 @@
 import React from "react";
-import { Text, View, ScrollView, useColorScheme } from "react-native";
+import { Text, View, ScrollView, useColorScheme, Image } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
@@ -73,13 +73,11 @@ export default function ProfileScreen() {
         >
           <View className="flex-row items-center">
             {session?.user?.image ? (
-              <View className="w-16 h-16 rounded-full overflow-hidden mr-4 border-2 border-white">
-                <img
-                  src={session.user.image}
-                  alt="Profile"
-                  className="w-full h-full"
-                />
-              </View>
+              <Image
+                source={{ uri: session.user.image }}
+                style={{ width: 64, height: 64, borderRadius: 32 }}
+                className="mr-4 border-2 border-white"
+              />
             ) : (
               <View className="w-16 h-16 rounded-full bg-white/20 items-center justify-center mr-4">
                 <Ionicons name="person" size={32} color="white" />

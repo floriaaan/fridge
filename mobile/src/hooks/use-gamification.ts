@@ -18,7 +18,7 @@ export function useGamificationProfile() {
 }
 
 export function useUserBadges() {
-  const previousBadgeCount = useRef<number>(0);
+  const previousBadgeCount = useRef<number | null>(null);
   
   const query = useQuery({
     queryKey: ["gamification", "badges"],
@@ -27,14 +27,15 @@ export function useUserBadges() {
 
   // Watch for new badges and show notification
   useEffect(() => {
-    if (query.data && query.data.length > previousBadgeCount.current) {
-      // New badge(s) earned
-      const newBadges = query.data.slice(previousBadgeCount.current);
-      newBadges.forEach((userBadge) => {
-        showBadgeNotification(userBadge.badge.name, userBadge.badge.icon);
-      });
-    }
     if (query.data) {
+      // Only check for new badges if we have a previous count (not on initial load)
+      if (previousBadgeCount.current !== null && query.data.length > previousBadgeCount.current) {
+        // New badge(s) earned
+        const newBadges = query.data.slice(previousBadgeCount.current);
+        newBadges.forEach((userBadge) => {
+          showBadgeNotification(userBadge.badge.name, userBadge.badge.icon);
+        });
+      }
       previousBadgeCount.current = query.data.length;
     }
   }, [query.data]);
