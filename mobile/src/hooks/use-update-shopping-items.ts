@@ -41,5 +41,8 @@ export function useUpdateShoppingItems() {
         queryClient.setQueryData(["shopping-items"], context.previousItems);
       }
     },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ["shopping-items"] });
+    },
   });
 }

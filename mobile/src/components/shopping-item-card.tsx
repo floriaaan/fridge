@@ -92,6 +92,7 @@ export function ShoppingItemCard({
   const sourceIcon = getSourceIcon(item.source);
   // Ensure checked is a proper boolean (backend may return 0/1)
   const isChecked = Boolean(item.checked);
+  const isOptimistic = item.id.startsWith("temp-");
 
   const animatedOpacityStyle = useAnimatedStyle(() => ({
     opacity: withTiming(isChecked ? 0.5 : 1, { duration: 200 }),
@@ -195,16 +196,21 @@ export function ShoppingItemCard({
                 />
               ) : (
                 <>
-                  <Text
-                    className="font-bold"
-                    style={{
-                      color: textColor,
-                      textDecorationLine: isChecked ? "line-through" : "none",
-                    }}
-                    numberOfLines={1}
-                  >
-                    {item.name}
-                  </Text>
+                  <View className="flex-row items-center gap-2">
+                    <Text
+                      className="font-bold"
+                      style={{
+                        color: textColor,
+                        textDecorationLine: isChecked ? "line-through" : "none",
+                      }}
+                      numberOfLines={1}
+                    >
+                      {item.name}
+                    </Text>
+                    {isOptimistic && (
+                      <Ionicons name="cloud-upload-outline" size={14} color={textColor} style={{ opacity: 0.5 }} />
+                    )}
+                  </View>
                   <Text
                     className="text-xs mt-1"
                     style={{
