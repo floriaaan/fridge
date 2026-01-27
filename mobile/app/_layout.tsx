@@ -13,6 +13,9 @@ import "../assets/global.css";
 import { useTranslation } from "@/hooks/use-translation";
 import { useAuthRedirect } from "@/hooks/use-auth-redirect";
 import { useOnboarding } from "@/hooks/use-onboarding";
+import { useEffect } from "react";
+import { registerForPushNotifications } from "@/lib/notifications";
+import { ChallengeSnackbarProvider } from "@/contexts/challenge-snackbar-context";
 
 export const unstable_settings = {
   initialRouteName: "(tabs)",
@@ -31,11 +34,17 @@ function RootLayoutNav() {
   useAuthRedirect();
   useOnboarding();
 
+  // Register for push notifications on mount
+  useEffect(() => {
+    registerForPushNotifications().catch(console.error);
+  }, []);
+
   return (
     <Stack>
       <Stack.Screen name="onboarding/index" options={{ headerShown: false }} />
       <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
       <Stack.Screen name="(auth)" options={{ headerShown: false }} />
+      <Stack.Screen name="(profile)" options={{ headerShown: false }} />
 
       {/* Product Routes */}
       <Stack.Screen
@@ -97,8 +106,10 @@ export default function RootLayout() {
   return (
     <QueryClientProvider client={queryClient}>
       <ThemeProvider value={isDark ? DarkTheme : DefaultTheme}>
-        <RootLayoutNav />
-        <StatusBar style="auto" />
+        <ChallengeSnackbarProvider>
+          <RootLayoutNav />
+          <StatusBar style="auto" />
+        </ChallengeSnackbarProvider>
       </ThemeProvider>
     </QueryClientProvider>
   );

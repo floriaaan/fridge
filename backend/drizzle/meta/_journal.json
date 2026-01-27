@@ -50,6 +50,13 @@
       "when": 1768867227037,
       "tag": "0006_black_stark_industries",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1769423681114,
+      "tag": "0007_keen_lucky_pierre",
+      "breakpoints": true
     }
   ]
 }

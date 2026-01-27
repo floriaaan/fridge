@@ -44,21 +44,26 @@ export default function Header({
               />
             </AnimatedPressable>
           )}
-          {session && (
-            session.user?.image ? (
-              <Image
-                source={{ uri: session.user.image }}
-                className="w-10 h-10 rounded-full"
-              />
-            ) : (
-              <View className="w-10 h-10 rounded-full bg-neutral-300 dark:bg-neutral-700 items-center justify-center">
-                <Ionicons
-                  name="person"
-                  color={isDark ? "#fafafa" : "#171717"}
-                  size={20}
+          {session && hasAvatar && (
+            <AnimatedPressable
+              onPress={() => router.push("/(profile)")}
+              hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+            >
+              {session.user?.image ? (
+                <Image
+                  source={{ uri: session.user.image }}
+                  className="w-10 h-10 rounded-full"
                 />
-              </View>
-            )
+              ) : (
+                <View className="w-10 h-10 rounded-full bg-neutral-300 dark:bg-neutral-700 items-center justify-center">
+                  <Ionicons
+                    name="person"
+                    color={isDark ? "#fafafa" : "#171717"}
+                    size={20}
+                  />
+                </View>
+              )}
+            </AnimatedPressable>
           )}
           {title && (
             <Text className="text-neutral-900 dark:text-neutral-100 text-4xl font-bold">

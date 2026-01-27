@@ -166,12 +166,18 @@ export const product = pgTable(
   ],
 );
 
-export const userRelations = relations(user, ({ many }) => ({
+export const userRelations = relations(user, ({ many, one }) => ({
   sessions: many(session),
   accounts: many(account),
   apikeys: many(apikey),
   recipes: many(recipe),
   receipts: many(receipt),
+  userBadges: many(userBadge),
+  userChallenges: many(userChallenge),
+  gamificationProfile: one(userGamificationProfile, {
+    fields: [user.id],
+    references: [userGamificationProfile.userId],
+  }),
 }));
 
 export const sessionRelations = relations(session, ({ one }) => ({
@@ -379,6 +385,172 @@ export const statisticsSnapshotRelations = relations(statisticsSnapshot, ({ one 
   }),
 }));
 
+// Gamification Tables
+
+export const badgeTypeEnum = [
+  "first_product",
+  "first_week",
+  "zero_waste_week",
+  "eco_warrior",
+  "recipe_master",
+  "scanner_pro",
+  "money_saver",
+  "consistent_user",
+] as const;
+export type BadgeType = typeof badgeTypeEnum[number];
+
+export const badge = pgTable("badge", {
+  id: text("id")
+    .primaryKey()
+    .default(sql`gen_random_uuid()`),
+  type: text("type", { enum: badgeTypeEnum }).notNull().unique(),
+  name: text("name").notNull(),
+  description: text("description").notNull(),
+  icon: text("icon").notNull(),
+  criteria: jsonb("criteria").notNull(), // JSON with criteria like { minProducts: 10 }
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const userBadge = pgTable(
+  "user_badge",
+  {
+    id: text("id")
+      .primaryKey()
+      .default(sql`gen_random_uuid()`),
+    userId: text("user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    badgeId: text("badge_id")
+      .notNull()
+      .references(() => badge.id, { onDelete: "cascade" }),
+    earnedAt: timestamp("earned_at").defaultNow().notNull(),
+  },
+  (table) => [
+    index("user_badge_userId_idx").on(table.userId),
+    index("user_badge_badgeId_idx").on(table.badgeId),
+  ],
+);
+
+export const challengeTypeEnum = ["monthly", "weekly"] as const;
+export type ChallengeType = typeof challengeTypeEnum[number];
+
+export const challengeStatusEnum = ["active", "completed", "expired"] as const;
+export type ChallengeStatus = typeof challengeStatusEnum[number];
+
+export const challenge = pgTable(
+  "challenge",
+  {
+    id: text("id")
+      .primaryKey()
+      .default(sql`gen_random_uuid()`),
+    type: text("type", { enum: challengeTypeEnum }).notNull(),
+    title: text("title").notNull(),
+    description: text("description").notNull(),
+    goal: jsonb("goal").notNull(), // JSON with goal like { type: "zero_waste_days", target: 7 }
+    reward: jsonb("reward").notNull(), // JSON with reward like { points: 100, badge: "eco_warrior" }
+    startDate: timestamp("start_date").notNull(),
+    endDate: timestamp("end_date").notNull(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+  },
+  (table) => [
+    index("challenge_type_idx").on(table.type),
+    index("challenge_startDate_idx").on(table.startDate),
+  ],
+);
+
+export const userChallenge = pgTable(
+  "user_challenge",
+  {
+    id: text("id")
+      .primaryKey()
+      .default(sql`gen_random_uuid()`),
+    userId: text("user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    challengeId: text("challenge_id")
+      .notNull()
+      .references(() => challenge.id, { onDelete: "cascade" }),
+    progress: jsonb("progress").notNull(), // JSON tracking progress like { daysCompleted: 3 }
+    status: text("status", { enum: challengeStatusEnum }).default("active").notNull(),
+    completedAt: timestamp("completed_at"),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at")
+      .defaultNow()
+      .$onUpdate(() => new Date())
+      .notNull(),
+  },
+  (table) => [
+    index("user_challenge_userId_idx").on(table.userId),
+    index("user_challenge_challengeId_idx").on(table.challengeId),
+  ],
+);
+
+export const userGamificationProfile = pgTable(
+  "user_gamification_profile",
+  {
+    id: text("id")
+      .primaryKey()
+      .default(sql`gen_random_uuid()`),
+    userId: text("user_id")
+      .notNull()
+      .unique()
+      .references(() => user.id, { onDelete: "cascade" }),
+    level: integer("level").default(1).notNull(),
+    points: integer("points").default(0).notNull(),
+    streak: integer("streak").default(0).notNull(), // consecutive days of activity
+    lastActivityDate: timestamp("last_activity_date"),
+    totalBadges: integer("total_badges").default(0).notNull(),
+    totalChallengesCompleted: integer("total_challenges_completed").default(0).notNull(),
+    ecoScore: numeric("eco_score", { precision: 10, scale: 2 }).default("0").notNull(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at")
+      .defaultNow()
+      .$onUpdate(() => new Date())
+      .notNull(),
+  },
+  (table) => [
+    index("user_gamification_profile_userId_idx").on(table.userId),
+    index("user_gamification_profile_points_idx").on(table.points),
+  ],
+);
+
+export const badgeRelations = relations(badge, ({ many }) => ({
+  userBadges: many(userBadge),
+}));
+
+export const userBadgeRelations = relations(userBadge, ({ one }) => ({
+  user: one(user, {
+    fields: [userBadge.userId],
+    references: [user.id],
+  }),
+  badge: one(badge, {
+    fields: [userBadge.badgeId],
+    references: [badge.id],
+  }),
+}));
+
+export const challengeRelations = relations(challenge, ({ many }) => ({
+  userChallenges: many(userChallenge),
+}));
+
+export const userChallengeRelations = relations(userChallenge, ({ one }) => ({
+  user: one(user, {
+    fields: [userChallenge.userId],
+    references: [user.id],
+  }),
+  challenge: one(challenge, {
+    fields: [userChallenge.challengeId],
+    references: [challenge.id],
+  }),
+}));
+
+export const userGamificationProfileRelations = relations(userGamificationProfile, ({ one }) => ({
+  user: one(user, {
+    fields: [userGamificationProfile.userId],
+    references: [user.id],
+  }),
+}));
+
 export const schema = {
   user,
   session,
@@ -391,5 +563,10 @@ export const schema = {
   recipe,
   recipeIngredient,
   passkey,
-  statisticsSnapshot
+  statisticsSnapshot,
+  badge,
+  userBadge,
+  challenge,
+  userChallenge,
+  userGamificationProfile,
 };

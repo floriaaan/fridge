@@ -90,7 +90,7 @@ export default function ShoppingListScreen() {
           edges={["top", "left", "right"]}
           className="flex-1 bg-neutral-50 dark:bg-black"
         >
-          <Header title={t("shoppingList.title")} />
+          <Header title={t("shoppingList.title")} hasAvatar />
           <View className="flex-1 items-center justify-center px-6">
             <Ionicons
               name="alert-circle-outline"
@@ -116,7 +116,7 @@ export default function ShoppingListScreen() {
         edges={["top", "left", "right"]}
         className="flex-1 bg-neutral-50 dark:bg-black"
       >
-        <Header title={t("shoppingList.title")} />
+        <Header title={t("shoppingList.title")} hasAvatar />
 
         {/* Combined filters */}
         <ScrollView

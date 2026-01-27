@@ -22,7 +22,14 @@
     "recipes": "Recettes",
     "settings": "Paramètres",
     "debug": "DEBUG",
-    "statistics": "Statistiques"
+    "statistics": "Statistiques",
+    "achievements": "Réalisations",
+    "profile": "Profil"
+  },
+  "profile": {
+    "achievementsDescription": "Badges, défis et classement",
+    "statisticsDescription": "Consultez votre progression",
+    "settingsDescription": "Gérez votre compte et vos préférences"
   },
    "fridge": {
      "title": "Frigo",

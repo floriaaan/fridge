@@ -22,7 +22,14 @@
     "recipes": "Recipes",
     "settings": "Settings",
     "debug": "DEBUG",
-    "statistics": "Statistics"
+    "statistics": "Statistics",
+    "achievements": "Achievements",
+    "profile": "Profile"
+  },
+  "profile": {
+    "achievementsDescription": "Badges, challenges, and leaderboard",
+    "statisticsDescription": "View your waste reduction progress",
+    "settingsDescription": "Manage your account and preferences"
   },
    "fridge": {
      "title": "Fridge",

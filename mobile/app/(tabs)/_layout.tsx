@@ -46,7 +46,7 @@ export default function TabLayout() {
         <Label>{t("tabs.debug")}</Label>
       </NativeTabs.Trigger>
 
-      {/* Omit statistics & settings triggers to keep them off the tab bar */}
+      {/* Omit statistics, settings & gamification triggers to keep them off the tab bar */}
     </NativeTabs>
   );
 }
