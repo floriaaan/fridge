@@ -12,7 +12,7 @@ import { showBadgeNotification } from "@/lib/notifications";
 
 export function useAchievementsProfile() {
   return useQuery({
-    queryKey: ["gamification", "profile"],
+    queryKey: ["achievements", "profile"],
     queryFn: fetchAchievementsProfile,
   });
 }

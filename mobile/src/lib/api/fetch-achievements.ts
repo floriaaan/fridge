@@ -107,6 +107,9 @@ export const fetchAchievementsProfile = async (): Promise<AchievementsProfile> =
   }
 
   const data = await response.json();
+  if (!data || !data.profile) {
+    throw new Error("Invalid response: profile data missing");
+  }
   return data.profile;
 };
 
@@ -127,6 +130,9 @@ export const fetchUserBadges = async (): Promise<UserBadge[]> => {
   }
 
   const data = await response.json();
+  if (!data || !Array.isArray(data.badges)) {
+    throw new Error("Invalid response: badges data missing or invalid");
+  }
   return data.badges;
 };
 
@@ -138,6 +144,9 @@ export const fetchAllBadges = async (): Promise<Badge[]> => {
   }
 
   const data = await response.json();
+  if (!data || !Array.isArray(data.badges)) {
+    throw new Error("Invalid response: badges data missing or invalid");
+  }
   return data.badges;
 };
 
@@ -158,6 +167,9 @@ export const fetchActiveChallenges = async (): Promise<ChallengeWithProgress[]> 
   }
 
   const data = await response.json();
+  if (!data || !Array.isArray(data.challenges)) {
+    throw new Error("Invalid response: challenges data missing or invalid");
+  }
   return data.challenges;
 };
 
@@ -178,6 +190,9 @@ export const fetchCompletedChallenges = async (): Promise<CompletedChallenge[]> 
   }
 
   const data = await response.json();
+  if (!data || !Array.isArray(data.challenges)) {
+    throw new Error("Invalid response: challenges data missing or invalid");
+  }
   return data.challenges;
 };
 
@@ -189,5 +204,8 @@ export const fetchLeaderboard = async (limit: number = 10): Promise<LeaderboardE
   }
 
   const data = await response.json();
+  if (!data || !Array.isArray(data.leaderboard)) {
+    throw new Error("Invalid response: leaderboard data missing or invalid");
+  }
   return data.leaderboard;
 };

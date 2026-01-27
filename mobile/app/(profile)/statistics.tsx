@@ -107,8 +107,347 @@ function PeriodTabs({ selected, onSelect, locale }: { selected: Period; onSelect
   );
 }
 
+// Overview Tab Content Component
+function OverviewTabContent({
+  stats,
+  isLoading,
+  t,
+  formatPercentage,
+  formatCurrency,
+  formatCO2,
+}: {
+  stats: any;
+  isLoading: boolean;
+  t: (key: string) => string;
+  formatPercentage: (value: number) => string;
+  formatCurrency: (value: number) => string;
+  formatCO2: (value: number) => string;
+}) {
+  return (
+    <View className="px-4 mb-6">
+      <Animated.Text
+        entering={FadeInUp.duration(400)}
+        className="text-lg font-bold text-neutral-900 dark:text-neutral-100 mb-4"
+      >
+        {t("statistics.overview")}
+      </Animated.Text>
+      
+      <View className="flex-row gap-3 mb-3">
+        <StatCard
+          icon="analytics-outline"
+          iconColor="#DC2626"
+          bgClass="bg-red-50"
+          darkBgClass="dark:bg-red-900/30"
+          textClass="text-red-700"
+          darkTextClass="dark:text-red-300"
+          value={isLoading ? "..." : formatPercentage(stats?.wasteRate ?? 0)}
+          label={t("statistics.wasteRate")}
+          index={0}
+        />
+        <StatCard
+          icon="wallet-outline"
+          iconColor="#059669"
+          bgClass="bg-emerald-50"
+          darkBgClass="dark:bg-emerald-900/30"
+          textClass="text-emerald-700"
+          darkTextClass="dark:text-emerald-300"
+          value={isLoading ? "..." : formatCurrency(stats?.moneySaved ?? 0)}
+          label={t("statistics.saved")}
+          index={1}
+        />
+      </View>
+      
+      <View className="flex-row gap-3">
+        <StatCard
+          icon="leaf-outline"
+          iconColor="#0891B2"
+          bgClass="bg-cyan-50"
+          darkBgClass="dark:bg-cyan-900/30"
+          textClass="text-cyan-700"
+          darkTextClass="dark:text-cyan-300"
+          value={isLoading ? "..." : formatCO2(stats?.co2Avoided ?? 0)}
+          label={t("statistics.co2Avoided")}
+          index={2}
+        />
+        <StatCard
+          icon="cube-outline"
+          iconColor="#7C3AED"
+          bgClass="bg-purple-50"
+          darkBgClass="dark:bg-purple-900/30"
+          textClass="text-purple-700"
+          darkTextClass="dark:text-purple-300"
+          value={isLoading ? "..." : String(stats?.totalProducts ?? 0)}
+          label={t("statistics.productsManaged")}
+          index={3}
+        />
+      </View>
+
+      {/* Motivation Message */}
+      {stats?.motivationMessage && (
+        <Animated.View
+          entering={FadeInUp.duration(400).delay(500)}
+          className="mt-4 bg-emerald-100 dark:bg-emerald-900/40 rounded-2xl p-4"
+        >
+          <Text className="text-emerald-800 dark:text-emerald-200 text-center font-medium">
+            {stats.motivationMessage}
+          </Text>
+        </Animated.View>
+      )}
+
+      {/* Product Status */}
+      <Animated.Text
+        entering={FadeInUp.duration(400).delay(300)}
+        className="text-lg font-bold text-neutral-900 dark:text-neutral-100 mb-4 mt-6"
+      >
+        {t("statistics.productDistribution")}
+      </Animated.Text>
+      
+      <Animated.View
+        entering={FadeInUp.duration(400).delay(400)}
+        className="bg-neutral-50 dark:bg-neutral-800 rounded-2xl p-4"
+      >
+        <View className="flex-row justify-between mb-3">
+          <View className="items-center flex-1">
+            <Text className="text-2xl font-bold text-emerald-600 dark:text-emerald-400">
+              {stats?.consumedProducts ?? 0}
+            </Text>
+            <Text className="text-xs text-neutral-500 dark:text-neutral-400 mt-1">{t("statistics.consumed")}</Text>
+          </View>
+          <View className="items-center flex-1">
+            <Text className="text-2xl font-bold text-red-600 dark:text-red-400">
+              {stats?.discardedProducts ?? 0}
+            </Text>
+            <Text className="text-xs text-neutral-500 dark:text-neutral-400 mt-1">{t("statistics.discarded")}</Text>
+          </View>
+          <View className="items-center flex-1">
+            <Text className="text-2xl font-bold text-blue-600 dark:text-blue-400">
+              {stats?.activeProducts ?? 0}
+            </Text>
+            <Text className="text-xs text-neutral-500 dark:text-neutral-400 mt-1">{t("statistics.active")}</Text>
+          </View>
+        </View>
+        
+        {stats && stats.consumedProducts + stats.discardedProducts > 0 && (
+          <View className="h-4 bg-neutral-200 dark:bg-neutral-700 rounded-full overflow-hidden flex-row">
+            <View
+              className="h-full bg-emerald-500"
+              style={{
+                width: `${
+                  (stats.consumedProducts /
+                    (stats.consumedProducts + stats.discardedProducts)) *
+                  100
+                }%`,
+              }}
+            />
+            <View
+              className="h-full bg-red-500"
+              style={{
+                width: `${
+                  (stats.discardedProducts /
+                    (stats.consumedProducts + stats.discardedProducts)) *
+                  100
+                }%`,
+              }}
+            />
+          </View>
+        )}
+      </Animated.View>
+    </View>
+  );
+}
+
+// Evolution Tab Content Component
+function EvolutionTabContent({
+  evolution,
+  categories,
+  maxCategoryPercentage,
+  t,
+  isDark,
+  formatPercentage,
+}: {
+  evolution: any;
+  categories: any[];
+  maxCategoryPercentage: number;
+  t: (key: string) => string;
+  isDark: boolean;
+  formatPercentage: (value: number) => string;
+}) {
+  return (
+    <View className="px-4 mb-6">
+      {/* Evolution Trend */}
+      {evolution && (
+        <View className="mb-6">
+          <Animated.Text
+            entering={FadeInDown.duration(400).delay(350)}
+            className="text-lg font-bold text-neutral-900 dark:text-neutral-100 mb-4"
+          >
+            {t("statistics.evolution")}
+          </Animated.Text>
+          
+          <Animated.View
+            entering={FadeInDown.duration(400).delay(450)}
+            className="bg-neutral-50 dark:bg-neutral-800 rounded-2xl p-4"
+          >
+            <View className="flex-row items-center justify-between mb-4">
+              <View>
+                <Text className="text-neutral-500 dark:text-neutral-400 text-sm">{t("statistics.sixMonthAverage")}</Text>
+                <Text className="text-2xl font-bold text-neutral-900 dark:text-neutral-100">
+                  {formatPercentage(evolution.averageWasteRate)}
+                </Text>
+              </View>
+              <View
+                className={`flex-row items-center px-3 py-2 rounded-full ${
+                  evolution.trend === "down"
+                    ? "bg-emerald-100 dark:bg-emerald-900/50"
+                    : evolution.trend === "up"
+                    ? "bg-red-100 dark:bg-red-900/50"
+                    : "bg-neutral-100 dark:bg-neutral-700"
+                }`}
+              >
+                <Ionicons
+                  name={
+                    evolution.trend === "down"
+                      ? "trending-down"
+                      : evolution.trend === "up"
+                      ? "trending-up"
+                      : "remove"
+                  }
+                  size={16}
+                  color={
+                    evolution.trend === "down"
+                      ? "#059669"
+                      : evolution.trend === "up"
+                      ? "#DC2626"
+                      : isDark ? "#a3a3a3" : "#6B7280"
+                  }
+                />
+                <Text
+                  className={`ml-1 font-medium ${
+                    evolution.trend === "down"
+                      ? "text-emerald-600 dark:text-emerald-400"
+                      : evolution.trend === "up"
+                      ? "text-red-600 dark:text-red-400"
+                      : "text-neutral-600 dark:text-neutral-400"
+                  }`}
+                >
+                  {evolution.trend === "down"
+                    ? t("statistics.decreasing")
+                    : evolution.trend === "up"
+                    ? t("statistics.increasing")
+                    : t("statistics.stable")}
+                </Text>
+              </View>
+            </View>
+            
+            {/* Simple bar chart for evolution */}
+            <View className="flex-row items-end justify-between h-20">
+              {evolution.points.map((point: any) => {
+                const maxRate = Math.max(...evolution.points.map((p: any) => p.wasteRate), 1);
+                const height = (point.wasteRate / maxRate) * 100;
+                return (
+                  <View key={point.date} className="items-center flex-1 mx-0.5">
+                    <View
+                      className="w-full bg-emerald-400 rounded-t"
+                      style={{ height: `${Math.max(height, 5)}%` }}
+                    />
+                    <Text className="text-[9px] text-neutral-400 mt-1">
+                      {point.date.slice(5)}
+                    </Text>
+                  </View>
+                );
+              })}
+            </View>
+          </Animated.View>
+        </View>
+      )}
+
+      {/* Top Categories */}
+      {categories && categories.length > 0 && (
+        <View>
+          <Animated.Text
+            entering={FadeInDown.duration(400).delay(350)}
+            className="text-lg font-bold text-neutral-900 dark:text-neutral-100 mb-4"
+          >
+            {t("statistics.topCategories")}
+          </Animated.Text>
+          
+          <Animated.View
+            entering={FadeInDown.duration(400).delay(400)}
+            className="bg-neutral-50 dark:bg-neutral-800 rounded-2xl p-4"
+          >
+            {categories.map((cat, index) => (
+              <CategoryBar
+                key={cat.category}
+                category={cat.category}
+                percentage={cat.percentage}
+                count={cat.count}
+                index={index}
+                maxPercentage={maxCategoryPercentage}
+              />
+            ))}
+          </Animated.View>
+        </View>
+      )}
+    </View>
+  );
+}
+
+// Financial Tab Content Component
+function FinancialTabContent({
+  stats,
+  t,
+  formatCurrency,
+}: {
+  stats: any;
+  t: (key: string) => string;
+  formatCurrency: (value: number) => string;
+}) {
+  if (!stats) return null;
+
+  return (
+    <View className="px-4 mb-6">
+      <Animated.Text
+        entering={FadeInDown.duration(400).delay(500)}
+        className="text-lg font-bold text-neutral-900 dark:text-neutral-100 mb-4"
+      >
+        {t("statistics.financialImpact")}
+      </Animated.Text>
+      
+      <Animated.View
+        entering={FadeInDown.duration(400).delay(550)}
+        className="bg-neutral-50 dark:bg-neutral-800 rounded-2xl p-4"
+      >
+        <View className="flex-row justify-between items-center mb-3 pb-3 border-b border-neutral-100 dark:border-neutral-700">
+          <View className="flex-row items-center">
+            <View className="w-8 h-8 bg-emerald-100 dark:bg-emerald-900/50 rounded-full items-center justify-center mr-3">
+              <Ionicons name="checkmark-circle" size={18} color="#059669" />
+            </View>
+            <Text className="text-neutral-700 dark:text-neutral-300">{t("statistics.savingsRealized")}</Text>
+          </View>
+          <Text className="text-emerald-600 dark:text-emerald-400 font-bold">
+            {formatCurrency(stats.moneySaved)}
+          </Text>
+        </View>
+        
+        <View className="flex-row justify-between items-center">
+          <View className="flex-row items-center">
+            <View className="w-8 h-8 bg-red-100 dark:bg-red-900/50 rounded-full items-center justify-center mr-3">
+              <Ionicons name="close-circle" size={18} color="#DC2626" />
+            </View>
+            <Text className="text-neutral-700 dark:text-neutral-300">{t("statistics.losses")}</Text>
+          </View>
+          <Text className="text-red-600 dark:text-red-400 font-bold">
+            {formatCurrency(stats.moneyWasted)}
+          </Text>
+        </View>
+      </Animated.View>
+    </View>
+  );
+}
+
 export default function StatisticsScreen() {
   const [selectedPeriod, setSelectedPeriod] = useState<Period>("all");
+  const [selectedTab, setSelectedTab] = useState<"overview" | "evolution" | "financial">("overview");
   const { t, i18n } = useTranslation();
   const colorScheme = useColorScheme();
   const isDark = colorScheme === "dark";
@@ -171,6 +510,47 @@ export default function StatisticsScreen() {
     ? Math.max(...categories.map((c) => c.percentage))
     : 0;
 
+  // Render tab content based on selected tab
+  const renderTabContent = () => {
+    if (selectedTab === "overview") {
+      return (
+        <OverviewTabContent
+          stats={stats}
+          isLoading={isLoading}
+          t={t}
+          formatPercentage={formatPercentage}
+          formatCurrency={formatCurrency}
+          formatCO2={formatCO2}
+        />
+      );
+    }
+
+    if (selectedTab === "evolution") {
+      return (
+        <EvolutionTabContent
+          evolution={evolution}
+          categories={categories || []}
+          maxCategoryPercentage={maxCategoryPercentage}
+          t={t}
+          isDark={isDark}
+          formatPercentage={formatPercentage}
+        />
+      );
+    }
+
+    if (selectedTab === "financial") {
+      return (
+        <FinancialTabContent
+          stats={stats}
+          t={t}
+          formatCurrency={formatCurrency}
+        />
+      );
+    }
+
+    return null;
+  };
+
   return (
     <SafeAreaView edges={["top", "left", "right"]} className="flex-1 bg-neutral-100 dark:bg-black">
       <Header title={t("tabs.statistics")} showBackButton />
@@ -184,294 +564,59 @@ export default function StatisticsScreen() {
         {/* Period Selector */}
         <PeriodTabs selected={selectedPeriod} onSelect={setSelectedPeriod} locale={i18n.locale} />
 
-        {/* Overview Cards */}
-        <View className="px-4 mb-6">
-          <Animated.Text
-            entering={FadeInUp.duration(400)}
-            className="text-lg font-bold text-neutral-900 dark:text-neutral-100 mb-4"
+        {/* Tab Selector */}
+        <Animated.View
+          entering={FadeInUp.duration(400).delay(150)}
+          className="flex-row bg-neutral-200 dark:bg-neutral-800 rounded-xl p-1 mx-4 mb-4"
+        >
+          <AnimatedPressable
+            onPress={() => setSelectedTab("overview")}
+            className={`flex-1 py-2 px-3 rounded-lg ${
+              selectedTab === "overview" ? (isDark ? "bg-neutral-700" : "bg-white") + " shadow-sm" : ""
+            }`}
           >
-            {t("statistics.overview")}
-          </Animated.Text>
-          
-          <View className="flex-row gap-3 mb-3">
-            <StatCard
-              icon="analytics-outline"
-              iconColor="#DC2626"
-              bgClass="bg-red-50"
-              darkBgClass="dark:bg-red-900/30"
-              textClass="text-red-700"
-              darkTextClass="dark:text-red-300"
-              value={isLoading ? "..." : formatPercentage(stats?.wasteRate ?? 0)}
-              label={t("statistics.wasteRate")}
-              index={0}
-            />
-            <StatCard
-              icon="wallet-outline"
-              iconColor="#059669"
-              bgClass="bg-emerald-50"
-              darkBgClass="dark:bg-emerald-900/30"
-              textClass="text-emerald-700"
-              darkTextClass="dark:text-emerald-300"
-              value={isLoading ? "..." : formatCurrency(stats?.moneySaved ?? 0)}
-              label={t("statistics.saved")}
-              index={1}
-            />
-          </View>
-          
-          <View className="flex-row gap-3">
-            <StatCard
-              icon="leaf-outline"
-              iconColor="#0891B2"
-              bgClass="bg-cyan-50"
-              darkBgClass="dark:bg-cyan-900/30"
-              textClass="text-cyan-700"
-              darkTextClass="dark:text-cyan-300"
-              value={isLoading ? "..." : formatCO2(stats?.co2Avoided ?? 0)}
-              label={t("statistics.co2Avoided")}
-              index={2}
-            />
-            <StatCard
-              icon="cube-outline"
-              iconColor="#7C3AED"
-              bgClass="bg-purple-50"
-              darkBgClass="dark:bg-purple-900/30"
-              textClass="text-purple-700"
-              darkTextClass="dark:text-purple-300"
-              value={isLoading ? "..." : String(stats?.totalProducts ?? 0)}
-              label={t("statistics.productsManaged")}
-              index={3}
-            />
-          </View>
-        </View>
-
-        {/* Motivation Message */}
-        {stats?.motivationMessage && (
-          <Animated.View
-            entering={FadeInUp.duration(400).delay(500)}
-            className="mx-4 mb-6 bg-emerald-100 dark:bg-emerald-900/40 rounded-2xl p-4"
-          >
-            <Text className="text-emerald-800 dark:text-emerald-200 text-center font-medium">
-              {stats.motivationMessage}
+            <Text
+              className={`text-center text-sm font-medium ${
+                selectedTab === "overview" ? "text-emerald-600 dark:text-emerald-400" : "text-neutral-500 dark:text-neutral-400"
+              }`}
+            >
+              {t("statistics.overview")}
             </Text>
-          </Animated.View>
-        )}
-
-        {/* Product Status */}
-        <View className="px-4 mb-6">
-          <Animated.Text
-            entering={FadeInUp.duration(400).delay(300)}
-            className="text-lg font-bold text-neutral-900 dark:text-neutral-100 mb-4"
-          >
-            {t("statistics.productDistribution")}
-          </Animated.Text>
+          </AnimatedPressable>
           
-          <Animated.View
-            entering={FadeInUp.duration(400).delay(400)}
-            className="bg-neutral-50 dark:bg-neutral-800 rounded-2xl p-4"
+          <AnimatedPressable
+            onPress={() => setSelectedTab("evolution")}
+            className={`flex-1 py-2 px-3 rounded-lg ${
+              selectedTab === "evolution" ? (isDark ? "bg-neutral-700" : "bg-white") + " shadow-sm" : ""
+            }`}
           >
-            <View className="flex-row justify-between mb-3">
-              <View className="items-center flex-1">
-                <Text className="text-2xl font-bold text-emerald-600 dark:text-emerald-400">
-                  {stats?.consumedProducts ?? 0}
-                </Text>
-                <Text className="text-xs text-neutral-500 dark:text-neutral-400 mt-1">{t("statistics.consumed")}</Text>
-              </View>
-              <View className="items-center flex-1">
-                <Text className="text-2xl font-bold text-red-600 dark:text-red-400">
-                  {stats?.discardedProducts ?? 0}
-                </Text>
-                <Text className="text-xs text-neutral-500 dark:text-neutral-400 mt-1">{t("statistics.discarded")}</Text>
-              </View>
-              <View className="items-center flex-1">
-                <Text className="text-2xl font-bold text-blue-600 dark:text-blue-400">
-                  {stats?.activeProducts ?? 0}
-                </Text>
-                <Text className="text-xs text-neutral-500 dark:text-neutral-400 mt-1">{t("statistics.active")}</Text>
-              </View>
-            </View>
-            
-            {stats && stats.consumedProducts + stats.discardedProducts > 0 && (
-              <View className="h-4 bg-neutral-200 dark:bg-neutral-700 rounded-full overflow-hidden flex-row">
-                <View
-                  className="h-full bg-emerald-500"
-                  style={{
-                    width: `${
-                      (stats.consumedProducts /
-                        (stats.consumedProducts + stats.discardedProducts)) *
-                      100
-                    }%`,
-                  }}
-                />
-                <View
-                  className="h-full bg-red-500"
-                  style={{
-                    width: `${
-                      (stats.discardedProducts /
-                        (stats.consumedProducts + stats.discardedProducts)) *
-                      100
-                    }%`,
-                  }}
-                />
-              </View>
-            )}
-          </Animated.View>
-        </View>
-
-        {/* Evolution Trend */}
-        {evolution && (
-          <View className="px-4 mb-6">
-            <Animated.Text
-              entering={FadeInDown.duration(400).delay(350)}
-              className="text-lg font-bold text-neutral-900 dark:text-neutral-100 mb-4"
+            <Text
+              className={`text-center text-sm font-medium ${
+                selectedTab === "evolution" ? "text-emerald-600 dark:text-emerald-400" : "text-neutral-500 dark:text-neutral-400"
+              }`}
             >
               {t("statistics.evolution")}
-            </Animated.Text>
-            
-            <Animated.View
-              entering={FadeInDown.duration(400).delay(450)}
-              className="bg-neutral-50 dark:bg-neutral-800 rounded-2xl p-4"
-            >
-              <View className="flex-row items-center justify-between mb-4">
-                <View>
-                  <Text className="text-neutral-500 dark:text-neutral-400 text-sm">{t("statistics.sixMonthAverage")}</Text>
-                  <Text className="text-2xl font-bold text-neutral-900 dark:text-neutral-100">
-                    {formatPercentage(evolution.averageWasteRate)}
-                  </Text>
-                </View>
-                <View
-                  className={`flex-row items-center px-3 py-2 rounded-full ${
-                    evolution.trend === "down"
-                      ? "bg-emerald-100 dark:bg-emerald-900/50"
-                      : evolution.trend === "up"
-                      ? "bg-red-100 dark:bg-red-900/50"
-                      : "bg-neutral-100 dark:bg-neutral-700"
-                  }`}
-                >
-                  <Ionicons
-                    name={
-                      evolution.trend === "down"
-                        ? "trending-down"
-                        : evolution.trend === "up"
-                        ? "trending-up"
-                        : "remove"
-                    }
-                    size={16}
-                    color={
-                      evolution.trend === "down"
-                        ? "#059669"
-                        : evolution.trend === "up"
-                        ? "#DC2626"
-                        : isDark ? "#a3a3a3" : "#6B7280"
-                    }
-                  />
-                  <Text
-                    className={`ml-1 font-medium ${
-                      evolution.trend === "down"
-                        ? "text-emerald-600 dark:text-emerald-400"
-                        : evolution.trend === "up"
-                        ? "text-red-600 dark:text-red-400"
-                        : "text-neutral-600 dark:text-neutral-400"
-                    }`}
-                  >
-                    {evolution.trend === "down"
-                      ? t("statistics.decreasing")
-                      : evolution.trend === "up"
-                      ? t("statistics.increasing")
-                      : t("statistics.stable")}
-                  </Text>
-                </View>
-              </View>
-              
-              {/* Simple bar chart for evolution */}
-              <View className="flex-row items-end justify-between h-20">
-                {evolution.points.map((point) => {
-                  const maxRate = Math.max(...evolution.points.map((p) => p.wasteRate), 1);
-                  const height = (point.wasteRate / maxRate) * 100;
-                  return (
-                    <View key={point.date} className="items-center flex-1 mx-0.5">
-                      <View
-                        className="w-full bg-emerald-400 rounded-t"
-                        style={{ height: `${Math.max(height, 5)}%` }}
-                      />
-                      <Text className="text-[9px] text-neutral-400 mt-1">
-                        {point.date.slice(5)}
-                      </Text>
-                    </View>
-                  );
-                })}
-              </View>
-            </Animated.View>
-          </View>
-        )}
-
-        {/* Top Categories */}
-        {categories && categories.length > 0 && (
-          <View className="px-4 mb-6">
-            <Animated.Text
-              entering={FadeInDown.duration(400).delay(350)}
-              className="text-lg font-bold text-neutral-900 dark:text-neutral-100 mb-4"
-            >
-              {t("statistics.topCategories")}
-            </Animated.Text>
-            
-            <Animated.View
-              entering={FadeInDown.duration(400).delay(400)}
-              className="bg-neutral-50 dark:bg-neutral-800 rounded-2xl p-4"
-            >
-              {categories.map((cat, index) => (
-                <CategoryBar
-                  key={cat.category}
-                  category={cat.category}
-                  percentage={cat.percentage}
-                  count={cat.count}
-                  index={index}
-                  maxPercentage={maxCategoryPercentage}
-                />
-              ))}
-            </Animated.View>
-          </View>
-        )}
-
-        {/* Money Details */}
-        {stats && (
-          <View className="px-4 mb-6">
-            <Animated.Text
-              entering={FadeInDown.duration(400).delay(500)}
-              className="text-lg font-bold text-neutral-900 dark:text-neutral-100 mb-4"
+            </Text>
+          </AnimatedPressable>
+          
+          <AnimatedPressable
+            onPress={() => setSelectedTab("financial")}
+            className={`flex-1 py-2 px-3 rounded-lg ${
+              selectedTab === "financial" ? (isDark ? "bg-neutral-700" : "bg-white") + " shadow-sm" : ""
+            }`}
+          >
+            <Text
+              className={`text-center text-sm font-medium ${
+                selectedTab === "financial" ? "text-emerald-600 dark:text-emerald-400" : "text-neutral-500 dark:text-neutral-400"
+              }`}
             >
               {t("statistics.financialImpact")}
-            </Animated.Text>
-            
-            <Animated.View
-              entering={FadeInDown.duration(400).delay(550)}
-              className="bg-neutral-50 dark:bg-neutral-800 rounded-2xl p-4"
-            >
-              <View className="flex-row justify-between items-center mb-3 pb-3 border-b border-neutral-100 dark:border-neutral-700">
-                <View className="flex-row items-center">
-                  <View className="w-8 h-8 bg-emerald-100 dark:bg-emerald-900/50 rounded-full items-center justify-center mr-3">
-                    <Ionicons name="checkmark-circle" size={18} color="#059669" />
-                  </View>
-                  <Text className="text-neutral-700 dark:text-neutral-300">{t("statistics.savingsRealized")}</Text>
-                </View>
-                <Text className="text-emerald-600 dark:text-emerald-400 font-bold">
-                  {formatCurrency(stats.moneySaved)}
-                </Text>
-              </View>
-              
-              <View className="flex-row justify-between items-center">
-                <View className="flex-row items-center">
-                  <View className="w-8 h-8 bg-red-100 dark:bg-red-900/50 rounded-full items-center justify-center mr-3">
-                    <Ionicons name="close-circle" size={18} color="#DC2626" />
-                  </View>
-                  <Text className="text-neutral-700 dark:text-neutral-300">{t("statistics.losses")}</Text>
-                </View>
-                <Text className="text-red-600 dark:text-red-400 font-bold">
-                  {formatCurrency(stats.moneyWasted)}
-                </Text>
-              </View>
-            </Animated.View>
-          </View>
-        )}
+            </Text>
+          </AnimatedPressable>
+        </Animated.View>
+
+        {/* Tab Content */}
+        {renderTabContent()}
 
         {/* Bottom Padding */}
         <View className="h-8" />
