@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Text, View, ScrollView, RefreshControl, useColorScheme, TouchableOpacity } from "react-native";
+import { Text, View, ScrollView, RefreshControl, useColorScheme } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import Animated, { FadeInUp, FadeInDown } from "react-native-reanimated";
@@ -118,6 +118,172 @@ function ChallengeCard({ title, description, progress, target, reward, index }: 
 
 type Tab = "profile" | "badges" | "challenges";
 
+// Profile Tab Component
+function ProfileTabContent({ 
+  profile, 
+  nextLevelPoints, 
+  levelProgress 
+}: { 
+  profile: any; 
+  nextLevelPoints: number; 
+  levelProgress: number;
+}) {
+  return (
+    <View className="px-4">
+      {/* Level & Points Card */}
+      <Animated.View
+        entering={FadeInUp.duration(400).delay(200)}
+        className="bg-gradient-to-br from-emerald-500 to-cyan-500 rounded-2xl p-6 mb-4"
+      >
+        <View className="flex-row items-center justify-between mb-4">
+          <View>
+            <Text className="text-white/80 text-sm">Current Level</Text>
+            <Text className="text-white text-4xl font-bold">Level {profile.level}</Text>
+          </View>
+          <View className="bg-white/20 w-16 h-16 rounded-full items-center justify-center">
+            <Ionicons name="trophy" size={32} color="white" />
+          </View>
+        </View>
+        
+        <View className="mb-2">
+          <View className="flex-row justify-between mb-1">
+            <Text className="text-white/80 text-sm">{profile.points} / {nextLevelPoints} points</Text>
+            <Text className="text-white font-medium">{levelProgress.toFixed(0)}%</Text>
+          </View>
+          <View className="h-3 bg-white/20 rounded-full overflow-hidden">
+            <View
+              className="h-full bg-white rounded-full"
+              style={{ width: `${levelProgress}%` }}
+            />
+          </View>
+        </View>
+      </Animated.View>
+
+      {/* Stats Grid */}
+      <View className="flex-row gap-3 mb-4">
+        <Animated.View
+          entering={FadeInUp.duration(400).delay(300)}
+          className="flex-1 bg-amber-50 dark:bg-amber-900/30 rounded-2xl p-4 items-center"
+        >
+          <Text className="text-4xl mb-2">🔥</Text>
+          <Text className="text-2xl font-bold text-amber-900 dark:text-amber-100">
+            {profile.streak}
+          </Text>
+          <Text className="text-xs text-amber-600 dark:text-amber-400 mt-1">Day Streak</Text>
+        </Animated.View>
+
+        <Animated.View
+          entering={FadeInUp.duration(400).delay(350)}
+          className="flex-1 bg-purple-50 dark:bg-purple-900/30 rounded-2xl p-4 items-center"
+        >
+          <Text className="text-4xl mb-2">🏆</Text>
+          <Text className="text-2xl font-bold text-purple-900 dark:text-purple-100">
+            {profile.totalBadges}
+          </Text>
+          <Text className="text-xs text-purple-600 dark:text-purple-400 mt-1">Badges</Text>
+        </Animated.View>
+
+        <Animated.View
+          entering={FadeInUp.duration(400).delay(400)}
+          className="flex-1 bg-cyan-50 dark:bg-cyan-900/30 rounded-2xl p-4 items-center"
+        >
+          <Text className="text-4xl mb-2">♻️</Text>
+          <Text className="text-2xl font-bold text-cyan-900 dark:text-cyan-100">
+            {parseFloat(profile.ecoScore).toFixed(0)}
+          </Text>
+          <Text className="text-xs text-cyan-600 dark:text-cyan-400 mt-1">Eco Score</Text>
+        </Animated.View>
+      </View>
+
+      {/* Completed Challenges */}
+      <Animated.View
+        entering={FadeInUp.duration(400).delay(450)}
+        className="bg-neutral-50 dark:bg-neutral-800 rounded-2xl p-4 mb-4"
+      >
+        <View className="flex-row items-center justify-between">
+          <View>
+            <Text className="text-neutral-900 dark:text-neutral-100 font-bold text-lg">
+              Challenges Completed
+            </Text>
+            <Text className="text-neutral-600 dark:text-neutral-400 text-sm mt-1">
+              Keep completing challenges to earn more points!
+            </Text>
+          </View>
+          <Text className="text-3xl font-bold text-emerald-600 dark:text-emerald-400">
+            {profile.totalChallengesCompleted}
+          </Text>
+        </View>
+      </Animated.View>
+    </View>
+  );
+}
+
+// Badges Tab Component
+function BadgesTabContent({ badgesWithStatus }: { badgesWithStatus: any[] }) {
+  return (
+    <View className="px-4">
+      <Animated.Text
+        entering={FadeInUp.duration(400)}
+        className="text-lg font-bold text-neutral-900 dark:text-neutral-100 mb-4"
+      >
+        Your Badge Collection
+      </Animated.Text>
+      
+      {badgesWithStatus.map((badge, index) => (
+        <BadgeCard
+          key={badge.id}
+          icon={badge.icon}
+          name={badge.name}
+          description={badge.description}
+          earned={badge.earned}
+          earnedAt={badge.earnedAt}
+          index={index}
+        />
+      ))}
+    </View>
+  );
+}
+
+// Challenges Tab Component
+function ChallengesTabContent({ challenges, isDark }: { challenges: any[]; isDark: boolean }) {
+  return (
+    <View className="px-4">
+      <Animated.Text
+        entering={FadeInUp.duration(400)}
+        className="text-lg font-bold text-neutral-900 dark:text-neutral-100 mb-4"
+      >
+        Active Challenges
+      </Animated.Text>
+      
+      {challenges && challenges.length > 0 ? (
+        challenges.map((challenge, index) => (
+          <ChallengeCard
+            key={challenge.id}
+            title={challenge.title}
+            description={challenge.description}
+            progress={challenge.userProgress?.progress?.current || 0}
+            target={challenge.goal?.target || 0}
+            reward={challenge.reward?.points || 0}
+            index={index}
+          />
+        ))
+      ) : (
+        <Animated.View
+          entering={FadeInUp.duration(400).delay(200)}
+          className="bg-neutral-50 dark:bg-neutral-800 rounded-2xl p-6 items-center"
+        >
+          <Ionicons name="trophy-outline" size={48} color={isDark ? "#737373" : "#a3a3a3"} />
+          <Text className="text-neutral-600 dark:text-neutral-400 text-center mt-4">
+            No active challenges at the moment. Check back soon!
+          </Text>
+        </Animated.View>
+      )}
+    </View>
+  );
+}
+
+type Tab = "profile" | "badges" | "challenges";
+
 export default function GamificationScreen() {
   const [selectedTab, setSelectedTab] = useState<Tab>("profile");
   const { t } = useTranslation();
@@ -153,6 +319,29 @@ export default function GamificationScreen() {
       earnedAt: earned?.earnedAt,
     };
   }) || [];
+
+  // Render tab content based on selected tab
+  const renderTabContent = () => {
+    if (selectedTab === "profile" && profile) {
+      return (
+        <ProfileTabContent 
+          profile={profile}
+          nextLevelPoints={nextLevelPoints}
+          levelProgress={levelProgress}
+        />
+      );
+    }
+    
+    if (selectedTab === "badges") {
+      return <BadgesTabContent badgesWithStatus={badgesWithStatus} />;
+    }
+    
+    if (selectedTab === "challenges") {
+      return <ChallengesTabContent challenges={challenges || []} isDark={isDark} />;
+    }
+    
+    return null;
+  };
 
   return (
     <SafeAreaView edges={["top", "left", "right"]} className="flex-1 bg-neutral-100 dark:bg-black">
@@ -215,155 +404,8 @@ export default function GamificationScreen() {
           </AnimatedPressable>
         </Animated.View>
 
-        {/* Profile Tab */}
-        {selectedTab === "profile" && profile && (
-          <View className="px-4">
-            {/* Level & Points Card */}
-            <Animated.View
-              entering={FadeInUp.duration(400).delay(200)}
-              className="bg-gradient-to-br from-emerald-500 to-cyan-500 rounded-2xl p-6 mb-4"
-            >
-              <View className="flex-row items-center justify-between mb-4">
-                <View>
-                  <Text className="text-white/80 text-sm">Current Level</Text>
-                  <Text className="text-white text-4xl font-bold">Level {profile.level}</Text>
-                </View>
-                <View className="bg-white/20 w-16 h-16 rounded-full items-center justify-center">
-                  <Ionicons name="trophy" size={32} color="white" />
-                </View>
-              </View>
-              
-              <View className="mb-2">
-                <View className="flex-row justify-between mb-1">
-                  <Text className="text-white/80 text-sm">{profile.points} / {nextLevelPoints} points</Text>
-                  <Text className="text-white font-medium">{levelProgress.toFixed(0)}%</Text>
-                </View>
-                <View className="h-3 bg-white/20 rounded-full overflow-hidden">
-                  <View
-                    className="h-full bg-white rounded-full"
-                    style={{ width: `${levelProgress}%` }}
-                  />
-                </View>
-              </View>
-            </Animated.View>
-
-            {/* Stats Grid */}
-            <View className="flex-row gap-3 mb-4">
-              <Animated.View
-                entering={FadeInUp.duration(400).delay(300)}
-                className="flex-1 bg-amber-50 dark:bg-amber-900/30 rounded-2xl p-4 items-center"
-              >
-                <Ionicons name="flame" size={28} color="#f59e0b" />
-                <Text className="text-2xl font-bold text-amber-700 dark:text-amber-300 mt-2">
-                  {profile.streak}
-                </Text>
-                <Text className="text-xs text-amber-600 dark:text-amber-400 mt-1">Day Streak</Text>
-              </Animated.View>
-
-              <Animated.View
-                entering={FadeInUp.duration(400).delay(350)}
-                className="flex-1 bg-purple-50 dark:bg-purple-900/30 rounded-2xl p-4 items-center"
-              >
-                <Ionicons name="ribbon" size={28} color="#9333ea" />
-                <Text className="text-2xl font-bold text-purple-700 dark:text-purple-300 mt-2">
-                  {profile.totalBadges}
-                </Text>
-                <Text className="text-xs text-purple-600 dark:text-purple-400 mt-1">Badges</Text>
-              </Animated.View>
-
-              <Animated.View
-                entering={FadeInUp.duration(400).delay(400)}
-                className="flex-1 bg-cyan-50 dark:bg-cyan-900/30 rounded-2xl p-4 items-center"
-              >
-                <Ionicons name="leaf" size={28} color="#06b6d4" />
-                <Text className="text-2xl font-bold text-cyan-700 dark:text-cyan-300 mt-2">
-                  {parseFloat(profile.ecoScore).toFixed(0)}
-                </Text>
-                <Text className="text-xs text-cyan-600 dark:text-cyan-400 mt-1">Eco Score</Text>
-              </Animated.View>
-            </View>
-
-            {/* Completed Challenges */}
-            <Animated.View
-              entering={FadeInUp.duration(400).delay(450)}
-              className="bg-neutral-50 dark:bg-neutral-800 rounded-2xl p-4 mb-4"
-            >
-              <View className="flex-row items-center justify-between">
-                <View>
-                  <Text className="text-neutral-900 dark:text-neutral-100 font-bold text-lg">
-                    Challenges Completed
-                  </Text>
-                  <Text className="text-neutral-600 dark:text-neutral-400 text-sm mt-1">
-                    Keep completing challenges to earn more points!
-                  </Text>
-                </View>
-                <Text className="text-3xl font-bold text-emerald-600 dark:text-emerald-400">
-                  {profile.totalChallengesCompleted}
-                </Text>
-              </View>
-            </Animated.View>
-          </View>
-        )}
-
-        {/* Badges Tab */}
-        {selectedTab === "badges" && (
-          <View className="px-4">
-            <Animated.Text
-              entering={FadeInUp.duration(400)}
-              className="text-lg font-bold text-neutral-900 dark:text-neutral-100 mb-4"
-            >
-              Your Badge Collection
-            </Animated.Text>
-            
-            {badgesWithStatus.map((badge, index) => (
-              <BadgeCard
-                key={badge.id}
-                icon={badge.icon}
-                name={badge.name}
-                description={badge.description}
-                earned={badge.earned}
-                earnedAt={badge.earnedAt}
-                index={index}
-              />
-            ))}
-          </View>
-        )}
-
-        {/* Challenges Tab */}
-        {selectedTab === "challenges" && (
-          <View className="px-4">
-            <Animated.Text
-              entering={FadeInUp.duration(400)}
-              className="text-lg font-bold text-neutral-900 dark:text-neutral-100 mb-4"
-            >
-              Active Challenges
-            </Animated.Text>
-            
-            {challenges && challenges.length > 0 ? (
-              challenges.map((challenge, index) => (
-                <ChallengeCard
-                  key={challenge.id}
-                  title={challenge.title}
-                  description={challenge.description}
-                  progress={challenge.userProgress?.progress?.current || 0}
-                  target={challenge.goal?.target || 0}
-                  reward={challenge.reward?.points || 0}
-                  index={index}
-                />
-              ))
-            ) : (
-              <Animated.View
-                entering={FadeInUp.duration(400).delay(200)}
-                className="bg-neutral-50 dark:bg-neutral-800 rounded-2xl p-6 items-center"
-              >
-                <Ionicons name="trophy-outline" size={48} color={isDark ? "#737373" : "#a3a3a3"} />
-                <Text className="text-neutral-600 dark:text-neutral-400 text-center mt-4">
-                  No active challenges at the moment. Check back soon!
-                </Text>
-              </Animated.View>
-            )}
-          </View>
-        )}
+        {/* Tab Content */}
+        {renderTabContent()}
 
         {/* Bottom Padding */}
         <View className="h-8" />
